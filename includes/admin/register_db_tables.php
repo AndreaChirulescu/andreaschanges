@@ -248,6 +248,11 @@ if (!function_exists('gigologadmin_populate_countries')) {
 }
 
 if ( !function_exists( "gigolog_register_db_tables") ) {
+    $db_version = get_option('gigologadmin_db_version');
+    if ($db_version == 1) {
+        return;
+    }
+
     function gigolog_register_db_tables() {
         $bands_table =
             "CREATE TABLE IF NOT EXISTS `wpg_bands` (
@@ -383,6 +388,8 @@ if ( !function_exists( "gigolog_register_db_tables") ) {
                 ADD CONSTRAINT `wpgconcert_venue`
                     FOREIGN KEY (`venue`)
                     REFERENCES `wpg_venues` (`id`) ON DELETE NO ACTION;");
+
+        update_option("gigologadmin_db_version", 1);
     }
 
     gigolog_register_db_tables();
