@@ -16,4 +16,19 @@
  * License:     AGPLv3
  * License URI: https://www.gnu.org/licenses/agpl-3.0.txthttps://www.gnu.org/licenses/agpl-3.0.txt
  */
+
+if ( !class_exists( 'GigologAdmin_Plugin' ) ) {
+    class GigologAdmin_Plugin
+    {
+        static function activate() {
+            require_once __DIR__ . '/includes/admin/register_db_tables.php';
+        }
+
+        static function deactivate() {
+        }
+    }
+
+    register_activation_hook( __FILE__, array( 'GigologAdmin_Plugin', 'activate' ));
+    register_deactivation_hook( __FILE__, array( 'GigologAdmin_Plugin', 'deactivate' ));
+}
 ?>
