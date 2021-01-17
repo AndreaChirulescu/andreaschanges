@@ -1,6 +1,6 @@
 <?php
-if (!function_exists('gigologadmin_populate_countries')) {
-    function gigologadmin_populate_countries()
+if (!function_exists('giglogadmin_populate_countries')) {
+    function giglogadmin_populate_countries()
     {
         global $wpdb;
         $wpdb->query(
@@ -247,13 +247,13 @@ if (!function_exists('gigologadmin_populate_countries')) {
     }
 }
 
-if ( !function_exists( "gigolog_register_db_tables") ) {
-    $db_version = get_option('gigologadmin_db_version');
+if ( !function_exists( "giglog_register_db_tables") ) {
+    $db_version = get_option('giglogadmin_db_version');
     if ($db_version == 1) {
         return;
     }
 
-    function gigolog_register_db_tables() {
+    function giglog_register_db_tables() {
         $bands_table =
             "CREATE TABLE IF NOT EXISTS `wpg_bands` (
                 `id` int(11) NOT NULL AUTO_INCREMENT,
@@ -358,7 +358,7 @@ if ( !function_exists( "gigolog_register_db_tables") ) {
             }
         }
 
-        gigologadmin_populate_countries();
+        giglogadmin_populate_countries();
 
         $wpdb->query(
             "ALTER TABLE `wpg_countries`
@@ -389,10 +389,10 @@ if ( !function_exists( "gigolog_register_db_tables") ) {
                     FOREIGN KEY (`venue`)
                     REFERENCES `wpg_venues` (`id`) ON DELETE NO ACTION;");
 
-        update_option("gigologadmin_db_version", 1);
+        update_option("giglogadmin_db_version", 1);
     }
 
-    gigolog_register_db_tables();
+    giglog_register_db_tables();
 }
 
 ?>
