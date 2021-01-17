@@ -18,8 +18,15 @@
  */
 
 if ( !class_exists( 'GiglogAdmin_Plugin' ) ) {
+    require_once __DIR__ . '/includes/public/shortcodes/giglog_bands.php';
+
     class GiglogAdmin_Plugin
     {
+        static public function init() {
+            add_shortcode('giglog_cities', 'giglogadmin_getfilters');
+            add_shortcode('giglog_bands', 'giglogadmin_getconcerts');
+        }
+
         static function activate() {
             require_once __DIR__ . '/includes/admin/register_db_tables.php';
         }
@@ -30,5 +37,7 @@ if ( !class_exists( 'GiglogAdmin_Plugin' ) ) {
 
     register_activation_hook( __FILE__, array( 'GiglogAdmin_Plugin', 'activate' ));
     register_deactivation_hook( __FILE__, array( 'GiglogAdmin_Plugin', 'deactivate' ));
+
+    GiglogAdmin_Plugin::init();
 }
 ?>
