@@ -19,12 +19,14 @@
 
 if ( !class_exists( 'GiglogAdmin_Plugin' ) ) {
     require_once __DIR__ . '/includes/public/shortcodes/giglog_bands.php';
+    require_once __DIR__ . '/includes/public/shortcodes/giglog_display_unprocessed.php';
 
     class GiglogAdmin_Plugin
     {
         static public function init() {
             add_shortcode('giglog_cities', 'giglogadmin_getfilters');
             add_shortcode('giglog_bands', 'giglogadmin_getconcerts');
+            add_shortcode('giglog_unprocessed', 'giglogadmin_display_unprocessed');
         }
 
         static function activate() {
