@@ -20,6 +20,7 @@
 if ( !class_exists( 'GiglogAdmin_Plugin' ) ) {
     require_once __DIR__ . '/includes/public/shortcodes/giglog_bands.php';
     require_once __DIR__ . '/includes/public/shortcodes/giglog_display_unprocessed.php';
+    require_once __DIR__ . '/includes/public/shortcodes/giglog_photographers.php';
     require_once __DIR__ . '/includes/public/shortcodes/giglog_process_files.php';
 
     class GiglogAdmin_Plugin
@@ -28,7 +29,10 @@ if ( !class_exists( 'GiglogAdmin_Plugin' ) ) {
             add_shortcode('giglog_cities', 'giglogadmin_getfilters');
             add_shortcode('giglog_bands', 'giglogadmin_getconcerts');
             add_shortcode('giglog_unprocessed', 'giglogadmin_display_unprocessed');
+            add_shortcode('giglog_upload', 'giglogadmin_upload_files');            
             add_shortcode('giglog_upload', 'giglogadmin_upload_files');
+            add_shortcode('giglog_photog', 'giglogadmin_photographers');
+
         }
 
         static function activate() {
