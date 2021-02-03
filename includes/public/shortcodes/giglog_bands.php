@@ -58,9 +58,9 @@ function giglogadmin_getconcerts()
 {
     global $wpdb;
     // Shortcodes RETURN content, so store in a variable to return
-    $content = '<table>';
+    $content = '<table class="concertstb">';
     //    $content .= '</tr><th>CITY</th><th>ID</th><th>BAND</th><th>VENUE</th><th>DATE</th><th>TICKETS</th><th>EVENT</th></tr>';
-    $content .= '</tr><th>CITY</th><th>BAND</th><th>VENUE</th><th>DATE</th><th>TICKETS</th><th>EVENT</th></tr>';
+    $content .= '<tr class="concertshrow"><th>CITY</th><th>BAND</th><th>VENUE</th><th>DATE</th><th>TICKETS</th><th>EVENT</th></tr>';
     // Use the submitted "city" if any. Otherwise, use the default/static value.
     $cty = filter_input(INPUT_POST, 'selectcity');
     $cty = $cty ? $cty : 'ALL';
@@ -84,10 +84,10 @@ and wpgconcert_date >= CURDATE()";
 
     $lastType = '';
     foreach ($results AS $row) {
-        $content .= '<tr>';
+        $content .= '<tr class="concertsrow">';
 
         if ($lastType != '' && $lastType != $row->wpgvenue_city) {
-            $content .= '<td>' . $row->wpgvenue_city . '</td></tr><tr>';
+            $content .= '<td class="concertstd">' . $row->wpgvenue_city . '</td></tr><tr>';
         }
 
         if ($lastType == '') {

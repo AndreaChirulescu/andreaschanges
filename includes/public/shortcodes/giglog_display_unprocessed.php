@@ -15,8 +15,8 @@ function giglogadmin_getunprocessed()
 {
     global $wpdb;
 
-    $content = '<br /><h3> UNPROCESSED ROWS</h3><table>';
-    $content .= '</tr><th>Filerow</th><th>FILENAME</th><th>DATE</TH><th>UploadedContent</th>';
+    $content = '<br /><h3> UNPROCESSED ROWS</h3><table class="concertstable">';
+    $content .= '<tr class="concertsheaderrow"><th>Filerow</th><th>FILENAME</th><th>DATE</TH><th>UploadedContent</th>';
     $query   = 'SELECT rowid,filename,filedate,rowcontent from wpg_files where processed="N"';
     $results = $wpdb->get_results($query);
     foreach ($results AS $row) {

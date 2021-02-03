@@ -1,6 +1,6 @@
 <?php
 /*
- * snippet used to  uploaded files with concerts. File is tab delimited file.
+ * snippet used to  upload files with concerts. File is tab delimited file.
  * Band Venue Date TicketLink Eventlink. The form is at the end of this snippet
  */
 
