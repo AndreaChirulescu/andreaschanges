@@ -211,12 +211,30 @@ function giglogadmin_getconcertsphotog ( ) {
     $hf_username = $hf_user->user_login;
     $roles = ( array ) $hf_user->roles;
     global $wpdb;
+
     // Shortcodes RETURN content, so store in a variable to return
-    $content = 'The available slots are marked with the green checkbox. If you click on it, it will be assigned to you and if you no longer wish to cover that concert, click on the red icon and you will be unassigned. A mail should be sent to the admin when this happens, but in order for the accreditation request to be sent, you have to mail live@eternal-terror.com with the template containing concert information. There might be some exceptions, but those are discussed case by case. So whenever you want a concert, assign yourself and send the template no later than 3 weeks before the concert. <br><br>
-        Admin will try to keep the concert status updated so that you know what the accreditation status is. You will get personal message if this is really close to the concert date.<br />';
+    $content = '<p>The available slots are marked with the green checkbox.
+        If you click on it, it will be assigned to you and if you no longer
+        wish to cover that concert, click on the red icon and you will be
+        unassigned. A mail should be sent to the admin when this happens,
+        but in order for the accreditation request to be sent, you have to
+        mail live@eternal-terror.com with the template containing concert
+        information. There might be some exceptions, but those are discussed
+        case by case. So whenever you want a concert, assign yourself and send
+        the template no later than 3 weeks before the concert.</p>
+
+        <p>Admin will try to keep the concert status updated so that you know
+        what the accreditation status is. You will get personal message if this
+        is really close to the concert date.</p>';
+
     $content .= '<table class="assignit">';
     //    $content .= '</tr><th>CITY</th><th>ID</th><th>BAND</th><th>VENUE</th><th>DATE</th></tr>';
-    $content .= '<tr class="assignithrow"><th>CITY</th><th>BAND</th><th>VENUE</th><th>DATE</th><th> </th><th>PHOTO1</th><th>PHOTO2</th><th>TEXT1</th><th>TEXT2</th><th>STATUS</th></tr>';
+
+    $content .= '<tr class="assignithrow">
+        <th>CITY</th><th>BAND</th><th>VENUE</th><th>DATE</th><th> </th>
+        <th>PHOTO1</th><th>PHOTO2</th><th>TEXT1</th><th>TEXT2</th>
+        <th>STATUS</th></tr>';
+
     // Use the submitted "city" if any. Otherwise, use the default/static value.
     $cty= filter_input( INPUT_POST, 'selectcity' );
     $cty= $cty? $cty: 'ALL';
@@ -226,13 +244,14 @@ function giglogadmin_getconcertsphotog ( ) {
     $venue= $venue? $venue: '0';
 
 
-    $query =  "SELECT wpgc.id, wpgb.wpgband_name as band ,wpgv.wpgvenue_name as venue ,wpgc.wpgconcert_date, wpgc.wpgconcert_tickets, wpgc.wpgconcert_event, wpgv.wpgvenue_city, wpgv.wpgvenue_webpage, wpgps.wpgs_name
+    $query =  "SELECT wpgc.id, wpgb.wpgband_name as band, wpgv.wpgvenue_name as venue, wpgc.wpgconcert_date, wpgc.wpgconcert_tickets, wpgc.wpgconcert_event, wpgv.wpgvenue_city, wpgv.wpgvenue_webpage, wpgps.wpgs_name
         FROM wpg_concerts wpgc, wpg_bands wpgb, wpg_venues wpgv, wpg_pressstatus wpgps, wpg_concertlogs wpgcl
         where wpgc.band=wpgb.id
         and wpgc.venue = wpgv.id
         and wpgconcert_date >= CURDATE()
         and wpgps.id = wpgcl.wpgcl_status
         and wpgcl.wpgcl_concertid=wpgc.id";
+
     $query .= ($cty == "ALL") ? "" : "  and wpgv.wpgvenue_city='" .$cty ."'";
     $query .= ($venue == "0") ? "" : "  and wpgv.id='" .$venue ."'";
     $query .=" order by wpgv.wpgvenue_city, wpgconcert_date" ;
