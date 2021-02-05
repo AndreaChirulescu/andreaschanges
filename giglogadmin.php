@@ -29,7 +29,6 @@ if ( !class_exists( 'GiglogAdmin_Plugin' ) ) {
             add_shortcode('giglog_cities', 'giglogadmin_getfilters');
             add_shortcode('giglog_bands', 'giglogadmin_getconcerts');
             add_shortcode('giglog_unprocessed', 'giglogadmin_display_unprocessed');
-            add_shortcode('giglog_upload', 'giglogadmin_upload_files');            
             add_shortcode('giglog_upload', 'giglogadmin_upload_files');
             add_shortcode('giglog_photog', 'giglogadmin_photographers');
 
