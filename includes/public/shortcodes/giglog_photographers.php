@@ -207,8 +207,6 @@ function giglogadmin_getfiltersphotog() {
 
 
 function giglogadmin_getconcertsphotog ( ) {
-    $C_Option = $_POST['selectcity'];
-    $V_Option = $_POST['selectvenue'];
     $hf_user = wp_get_current_user();
     $hf_username = $hf_user->user_login;
     $roles = ( array ) $hf_user->roles;
