@@ -5,8 +5,6 @@
  * Admin users also control concert statuses here
  */
 
-global $wpdb;
-
 function giglogadmin_assignconcert($p1, $c)
 {
     global $wpdb;
