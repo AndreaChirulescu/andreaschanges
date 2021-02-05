@@ -362,6 +362,8 @@ function giglogadmin_getconcertsphotog ( ) {
 
 function giglogadmin_photographers()
 {
-    echo(giglogadmin_getfiltersphotog());
-    echo (giglogadmin_getconcertsphotog() );
+    $output = giglogadmin_getfiltersphotog();
+    $output .= giglogadmin_getconcertsphotog();
+
+    return $output;
 }
