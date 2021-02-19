@@ -16,18 +16,23 @@
  * License:     AGPLv3
  * License URI: https://www.gnu.org/licenses/agpl-3.0.txthttps://www.gnu.org/licenses/agpl-3.0.txt
  */
- 
- //function to show menus based on whether user is logged in or not. Giglog admin pages should only be visible for logged in users/can eventually be customized by role if needed
 
+/*
+ * Show menus based on whether user is logged in or not.
+ *
+ * Giglog admin pages should only be visible for logged in users/can eventually
+ * be customized by role if needed
+ */
 function my_wp_nav_menu_args( $args = '' ) {
- 
-if( is_user_logged_in() ) { 
-    $args['menu'] = 'Loggedusers';
-} else { 
-    $args['menu'] = 'Notloggedusers';
-} 
+    if ( is_user_logged_in() ) {
+        $args['menu'] = 'Loggedusers';
+    } else {
+        $args['menu'] = 'Notloggedusers';
+    }
+
     return $args;
 }
+
 add_filter( 'wp_nav_menu_args', 'my_wp_nav_menu_args' );
 
 
