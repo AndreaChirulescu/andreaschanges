@@ -4,7 +4,7 @@
  *
  * @package     giglogadmin
  * @author      Andrea Chirulescu, Harald Eilertsen
- * @copright    2021 Andrea Chirulescu, Harald Eilertsen
+ * @copyright   2021 Andrea Chirulescu, Harald Eilertsen
  * @license     AGPL-3.0
  *
  * @wordpress-plugin
