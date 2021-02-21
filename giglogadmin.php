@@ -17,23 +17,6 @@
  * License URI: https://www.gnu.org/licenses/agpl-3.0.txthttps://www.gnu.org/licenses/agpl-3.0.txt
  */
 
-/*
- * Show menus based on whether user is logged in or not.
- *
- * Giglog admin pages should only be visible for logged in users/can eventually
- * be customized by role if needed
- */
-function my_wp_nav_menu_args( $args = '' ) {
-    if ( is_user_logged_in() ) {
-        $args['menu'] = 'Loggedusers';
-    } else {
-        $args['menu'] = 'Notloggedusers';
-    }
-
-    return $args;
-}
-
-add_filter( 'wp_nav_menu_args', 'my_wp_nav_menu_args' );
 
 
 if ( !class_exists( 'GiglogAdmin_Plugin' ) ) {
@@ -51,6 +34,7 @@ if ( !class_exists( 'GiglogAdmin_Plugin' ) ) {
             add_shortcode('giglog_upload', 'giglogadmin_upload_files');
             add_shortcode('giglog_photog', 'giglogadmin_photographers');
 
+            add_filter( 'wp_nav_menu_args', array( 'GiglogAdmin_Plugin', 'nav_menu_args' ));
         }
 
         static function activate() {
@@ -59,6 +43,23 @@ if ( !class_exists( 'GiglogAdmin_Plugin' ) ) {
 
         static function deactivate() {
         }
+
+        /*
+         * Show menus based on whether user is logged in or not.
+         *
+         * Giglog admin pages should only be visible for logged in users/can eventually
+         * be customized by role if needed
+         */
+        static function nav_menu_args( $args = '' ) {
+            if ( is_user_logged_in() ) {
+                $args['menu'] = 'Loggedusers';
+            } else {
+                $args['menu'] = 'Notloggedusers';
+            }
+
+            return $args;
+        }
+
     }
 
     register_activation_hook( __FILE__, array( 'GiglogAdmin_Plugin', 'activate' ));
