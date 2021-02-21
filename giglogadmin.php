@@ -24,6 +24,7 @@ if ( !class_exists( 'GiglogAdmin_Plugin' ) ) {
     require_once __DIR__ . '/includes/public/shortcodes/giglog_display_unprocessed.php';
     require_once __DIR__ . '/includes/public/shortcodes/giglog_photographers.php';
     require_once __DIR__ . '/includes/public/shortcodes/giglog_process_files.php';
+    require_once __DIR__ . '/includes/admin/views/giglog_admin_page.php';
 
     class GiglogAdmin_Plugin
     {
@@ -34,6 +35,7 @@ if ( !class_exists( 'GiglogAdmin_Plugin' ) ) {
             add_shortcode('giglog_upload', 'giglogadmin_upload_files');
             add_shortcode('giglog_photog', 'giglogadmin_photographers');
 
+            add_action( 'admin_menu', array( 'GiglogAdmin_Plugin', 'add_admin_pages' ));
             add_filter( 'wp_nav_menu_args', array( 'GiglogAdmin_Plugin', 'nav_menu_args' ));
         }
 
@@ -42,6 +44,21 @@ if ( !class_exists( 'GiglogAdmin_Plugin' ) ) {
         }
 
         static function deactivate() {
+        }
+
+        /**
+         * Adds the 'Giglog' top level menu to the left side WordPress admin
+         * menu. Other subpages will come later.
+         */
+        static function add_admin_pages() {
+            add_menu_page(
+                "Giglog",                   // Page title
+                "Giglog",                   // Menu title
+                "upload_files",             // Will show for users with this capability
+                "giglog",                   // menu slug
+                array( 'GiglogAdmin_AdminPage', 'render_html' ),     // callable
+                'dashicons-tickets-alt',    // Icon url
+                11);                        // Position, just below 'Media'
         }
 
         /*
