@@ -25,6 +25,7 @@ if ( !class_exists( 'GiglogAdmin_Plugin' ) ) {
     require_once __DIR__ . '/includes/public/shortcodes/giglog_photographers.php';
     require_once __DIR__ . '/includes/public/shortcodes/giglog_process_files.php';
     require_once __DIR__ . '/includes/admin/views/giglog_admin_page.php';
+    require_once __DIR__ . '/includes/admin/views/giglog_import_gigs.php';
 
     class GiglogAdmin_Plugin
     {
@@ -51,14 +52,22 @@ if ( !class_exists( 'GiglogAdmin_Plugin' ) ) {
          * menu. Other subpages will come later.
          */
         static function add_admin_pages() {
-            add_menu_page(
-                "Giglog",                   // Page title
+            $top = add_menu_page(
+                "Giglog admin",             // Page title
                 "Giglog",                   // Menu title
                 "upload_files",             // Will show for users with this capability
                 "giglog",                   // menu slug
                 array( 'GiglogAdmin_AdminPage', 'render_html' ),     // callable
                 'dashicons-tickets-alt',    // Icon url
                 11);                        // Position, just below 'Media'
+
+            add_submenu_page(
+                "giglog",                   // parent slug
+                "Import gigs",              // page title
+                "Import gigs",              // menu title
+                "upload_files",             // required capability
+                "giglog_import",            // menu slug
+                array( 'GiglogAdmin_ImportGigsPage', 'render_html' ));   // callable
         }
 
         /*
