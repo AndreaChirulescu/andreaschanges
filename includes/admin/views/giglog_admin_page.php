@@ -19,7 +19,13 @@
 if ( !class_exists( 'GiglogAdmin_AdminPage' ) ) {
     class GiglogAdmin_AdminPage {
         static function render_html() {
-            echo '<div class="wrap"><h1>Hi there admin!</h1></div>';
+            ?>
+            <div class="wrap">
+                <h1>Giglog Admin</h1>
+                <p><?php echo giglogadmin_getfiltersphotog(); ?></p>
+                <p><?php echo giglogadmin_getconcertsphotog(); ?></p>
+            </div>
+            <?php
         }
     }
 }
