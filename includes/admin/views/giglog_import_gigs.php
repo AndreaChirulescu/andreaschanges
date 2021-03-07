@@ -31,7 +31,6 @@ if ( !class_exists( 'GiglogAdmin_ImportGigsPage' ) ) {
                 </form>
             </div>
             <?php
-            echo giglogadmin_getunprocessed();
         }
 
         static function submit_form() {
@@ -45,19 +44,86 @@ if ( !class_exists( 'GiglogAdmin_ImportGigsPage' ) ) {
         static function process_upload($file) {
             global $wpdb;
 
-            $table = 'wpg_files';
+            $concertlist = '<p>Inserted the following:</p>';
+            $newconcert= [];
             $fo = new SplFileObject($file['tmp_name']);
-            $r = 0;
 
-            foreach ($fo as $newconcert) {
-                $row = array(
-                    'filename' => $fo,
-                    'rowid' => $r++,
-                    'rowcontent' => $newconcert
-                );
+            foreach ($fo as $line) {
+                if ( empty($line) ) {
+                    // Skip empty lines
+                    continue;
+                }
 
-                if ($wpdb->insert($table, $row) === false) {
-                    $wpdb->bail();
+                $resultArray = explode("\t", $line);
+                $band        = $resultArray[0];
+                $venue       = $resultArray[1];
+                $condate     = date('Y-m-d', strtotime($resultArray[2]));
+                $ticketlink  = $resultArray[3];
+                $eventlink   = $resultArray[4];
+                //first item in the row should be band $resultArray[0]; second should be venue $resultArray[1]; third should be concert date $resultArray[2];
+                //fourth item is ticketlink $resultArray[3];  fifth item is eventlink $resultArray[4];
+
+                //processing band
+                $bandsql = 'SELECT id FROM wpg_bands WHERE upper(wpgband_name)="' . $band . '"';
+                $results = $wpdb->get_results($bandsql);
+                if ($results)
+                    $newconcert[0] = $results[0]->id;
+                else {
+                    $wpdb->insert('wpg_bands', array(
+                        'id' => '',
+                        'wpgband_name' => $band
+                    ));
+                    echo ($wpdb->last_error);
+                    $newconcert[0] = $wpdb->insert_id;
+                }
+                //done processing band
+
+                //processing venue
+                if (is_numeric($venue))
+                    $newconcert[1] = $venue;
+                else {
+                    $venuesql = 'SELECT id FROM wpg_venues WHERE upper(wpgvenue_name)="' . $venue . '"';
+                    $results  = $wpdb->get_results($venuesql);
+                    if ($results)
+                        $newconcert[1] = $results[0]->id;
+                    else {
+                        $wpdb->insert('wpg_venues', array(
+                            'id' => '',
+                            'wpgvenue_name' => $venue
+                        ));
+                        echo ($wpdb->last_error);
+                        $newconcert[1] = $wpdb->insert_id;
+                    }
+                }
+                //done processing venue
+
+                //not sure how to check dates, hopefully manual verification of files will take care of it
+
+                //check if concert already exists and return ID if it does.  Not checking by date, to be considered
+                $csql = 'SELECT id from wpg_concerts where band = ' . $newconcert[0] . ' and venue = ' . $newconcert[1] . ' and wpgconcert_date ="' . $condate . '"';
+
+                $cresults = $wpdb->get_results($csql);
+                if ($cresults) {
+                    $concertlist .= 'DUPLICATE ROW detected BAND ' . $band . ' with band ID ' . $newconcert[0];
+                    $concertlist .= ', VENUE ' . $venue . ' with venue ID ' . $newconcert[1];
+                    $concertlist .= ', CONCERTDATE ' . $condate;
+                    $concertlist .= ' <br />';
+                } else {
+                    $wpdb->insert('wpg_concerts', array(
+                        'id' => '',
+                        'band' => $newconcert[0],
+                        'venue' => $newconcert[1],
+                        'wpgconcert_date' => $condate,
+                        'wpgconcert_tickets' => $ticketlink,
+                        'wpgconcert_event' => $eventlink
+                    ));
+                    echo ($wpdb->last_error);
+                    $newconcertid = $wpdb->insert_id;
+
+                    $concertlist .= 'BAND ' . $band . ' with band ID ' . $newconcert[0];
+                    $concertlist .= ', VENUE ' . $venue . ' with venue ID ' . $newconcert[1];
+                    $concertlist .= ', CONCERTDATE ' . $condate . ', Ticket LINK ' . $ticketlink . ', event LINK' . $eventlink;
+                    $concertlist .= ' <br />';
                 }
             }
         }
