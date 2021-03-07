@@ -61,13 +61,15 @@ if ( !class_exists( 'GiglogAdmin_Plugin' ) ) {
                 'dashicons-tickets-alt',    // Icon url
                 11);                        // Position, just below 'Media'
 
-            add_submenu_page(
+            $import_hook = add_submenu_page(
                 "giglog",                   // parent slug
                 "Import gigs",              // page title
                 "Import gigs",              // menu title
                 "upload_files",             // required capability
                 "giglog_import",            // menu slug
                 array( 'GiglogAdmin_ImportGigsPage', 'render_html' ));   // callable
+
+            add_action( 'load-' . $import_hook, array( 'GiglogAdmin_ImportGigsPage', 'submit_form' ) );
         }
 
         /*

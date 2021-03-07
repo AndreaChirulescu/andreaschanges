@@ -19,7 +19,47 @@
 if ( !class_exists( 'GiglogAdmin_ImportGigsPage' ) ) {
     class GiglogAdmin_ImportGigsPage {
         static function render_html() {
-            echo '<div class="wrap"><h1>Let\'s import some gigs!</h1></div>';
+            ?>
+            <div class="wrap">
+                <h1>Import gigs</h1>
+                <p>Import gig data from a tab separated data file.</p>
+                <form action="<?php menu_page_url( 'giglog_import' ) ?>" enctype="multipart/form-data" method="post">
+                    <?php wp_nonce_field( plugin_basename( __FILE__ ), 'giglog_import_nonce' ); ?>
+                    <label for="giglog_import_file">File: </label>
+                    <input type="file" name="giglog_import_file" id="giglog_import_file">
+                    <?php submit_button(); ?>
+                </form>
+            </div>
+            <?php
+            echo giglogadmin_getunprocessed();
+        }
+
+        static function submit_form() {
+            if ('POST' === $_SERVER['REQUEST_METHOD'] && current_user_can('upload_files') && !empty($_FILES['giglog_import_file']['tmp_name'])) {
+                $nonce = $_POST['giglog_import_nonce'];
+                $valid_nonce = isset($nonce) && wp_verify_nonce($nonce);
+                GiglogAdmin_ImportGigsPage::process_upload($_FILES['giglog_import_file']);
+            }
+        }
+
+        static function process_upload($file) {
+            global $wpdb;
+
+            $table = 'wpg_files';
+            $fo = new SplFileObject($file['tmp_name']);
+            $r = 0;
+
+            foreach ($fo as $newconcert) {
+                $row = array(
+                    'filename' => $fo,
+                    'rowid' => $r++,
+                    'rowcontent' => $newconcert
+                );
+
+                if ($wpdb->insert($table, $row) === false) {
+                    $wpdb->bail();
+                }
+            }
         }
     }
 }
