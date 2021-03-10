@@ -19,6 +19,49 @@
 
 
 
+/*Andrea's attempt at creating help files. Didn't get it to work inside giglogadmin class so it's all defined before that section */
+    require_once __DIR__ . '/includes/admin/helpfiles/instrunctions.php';
+    require_once __DIR__ . '/includes/admin/helpfiles/instr_reviewers.php';
+     add_action( 'admin_menu', 'add_help_pages');
+
+        function add_help_pages() {
+
+            add_menu_page(
+
+                "Help for ET users",             // Page title
+
+                "Help for ET users",                   // Menu title
+
+                "upload_files",             // Will show for users with this capability
+
+                "helpfiles",                   // menu slug
+
+                array( 'Instructions_Page', 'render_instr_html' ),     // callable
+
+                'dashicons-tickets-alt',    // Icon url
+
+                10);                        // Position, just below 'Media'
+
+ 
+	 add_submenu_page(
+
+                "helpfiles",                   // parent slug
+
+                "Reviewer help files",              // page title
+
+                "Reviewer help files",              // menu title
+
+                "upload_files",             // required capability
+
+                "reviewer_help",            // menu slug
+
+                array( 'Instructions_Reviewers', 'render_instr_rev_html' ));   // callable
+
+                     
+        }
+
+
+
 if ( !class_exists( 'GiglogAdmin_Plugin' ) ) {
     require_once __DIR__ . '/includes/public/shortcodes/giglog_bands.php';
     require_once __DIR__ . '/includes/public/shortcodes/giglog_display_unprocessed.php';
