@@ -27,6 +27,7 @@ if ( !class_exists( 'GiglogAdmin_Plugin' ) ) {
     require_once __DIR__ . '/includes/admin/views/giglog_import_gigs.php';
     require_once __DIR__ . '/includes/admin/helpfiles/instrunctions.php';
     require_once __DIR__ . '/includes/admin/helpfiles/instr_reviewers.php';
+    require_once __DIR__ . '/includes/admin/helpfiles/instr_photog.php';
 
     class GiglogAdmin_Plugin
     {
@@ -38,7 +39,8 @@ if ( !class_exists( 'GiglogAdmin_Plugin' ) ) {
             add_shortcode('giglog_photog', 'giglogadmin_photographers');
 
             add_action( 'admin_menu', array( 'GiglogAdmin_Plugin', 'add_admin_pages' ));
-            add_action( 'admin_menu', 'add_help_pages');
+            add_action( 'admin_menu', array( 'GiglogAdmin_Plugin', 'add_help_pages' ));
+
             add_filter( 'wp_nav_menu_args', array( 'GiglogAdmin_Plugin', 'nav_menu_args' ));
         }
 
@@ -73,34 +75,34 @@ if ( !class_exists( 'GiglogAdmin_Plugin' ) ) {
 
             add_action( 'load-' . $import_hook, array( 'GiglogAdmin_ImportGigsPage', 'submit_form' ) );
         }
-        function add_help_pages() {
+
+        static function add_help_pages() {
             add_menu_page(
-                "Help for ET users",             // Page title
-                "Help for ET users",                   // Menu title
+                "Help for ET users",        // Page title
+                "Help for ET users",        // Menu title
                 "upload_files",             // Will show for users with this capability
-                "helpfiles",                   // menu slug
+                "helpfiles",                // menu slug
                 array( 'Instructions_Page', 'render_instr_html' ),     // callable
                 'dashicons-tickets-alt',    // Icon url
                 10);                        // Position, just below 'Media'
- 
-	 add_submenu_page(
-                "helpfiles",                   // parent slug
-                "Reviewer help files",              // page title
-                "Reviewer help files",              // menu title
+
+            add_submenu_page(
+                "helpfiles",                // parent slug
+                "Reviewer help files",      // page title
+                "Reviewer help files",      // menu title
                 "upload_files",             // required capability
                 "reviewer_help",            // menu slug
                 array( 'Instructions_Reviewers', 'render_instr_rev_html' ));   // callable
-                
-    add_submenu_page(
-                "helpfiles",                   // parent slug
-                "Photogalleries help files",              // page title
-                "Photogalleries help files",              // menu title
-                "upload_files",             // required capability
-                "photog_help",            // menu slug
-                array( 'Instructions_Photogs', 'render_instr_photo_html' ));   // callable                       
-                     
+
+            add_submenu_page(
+                "helpfiles",                 // parent slug
+                "Photogalleries help files", // page title
+                "Photogalleries help files", // menu title
+                "upload_files",              // required capability
+                "photog_help",               // menu slug
+                array( 'Instructions_Photogs', 'render_instr_photo_html' ));   // callable
         }
-        
+
         /*
          * Show menus based on whether user is logged in or not.
          *
