@@ -47,48 +47,40 @@ if ( !class_exists( 'GiglogAdmin_AdminPage' ) ) {
 
         static function get_filters()
         {
-            global $wpdb;
+            $cities = array_merge(["ALL"], GiglogAdmin_Venue::all_cities());
+            $selected_city =
+                filter_input(INPUT_POST, "selectcity", FILTER_SANITIZE_SPECIAL_CHARS)
+                || $cities[0];
 
-            //echo (var_dump($_POST["selectvenue"]));
+            $select = '<form method="POST" action=""><select name="selectcity">';
 
-            $results = $wpdb->get_results('select distinct wpgvenue_city from wpg_venues');
-            $select= '<form method="POST" action=""><select name="selectcity">';
-            $select.='<option value="ALL" ';
-            if(isset($_POST["selectcity"]) && $_POST["selectcity"] == "ALL")
-            { $select.= ' selected = "selected"';}
-            $select.='> All cities</option>';
-            foreach ( $results AS $row )
-            {
-                $select.='<option value="'.$row->wpgvenue_city.'"';
-                if(isset($_POST["selectcity"]) && $_POST["selectcity"] == $row->wpgvenue_city)
-                { $select.= ' selected = "selected"';}
-                $select.=' >'. $row->wpgvenue_city.'</option>';
+            foreach ( $cities AS $city ) {
+                $select .= '<option value="' . $city . '"' . selected($city, $selected_city) . '>';
+                $select .= $city . '</option>';
             }
 
-            if(isset($_POST["selectcity"]) && $_POST["selectcity"] != "ALL")
-            {
-                $select.='</select>';
+            $select .= '</select>';
+
+            if ( $selected_city != "ALL" ) {
                 //second drop down for venue
 
-                $vquery = "select id, wpgvenue_name from wpg_venues";
-                $vquery.= " where wpgvenue_city='".$_POST["selectcity"]."'";
-                $resultsv = $wpdb->get_results($vquery);
-                $select.= '<select name="selectvenue">';
-                $select.='<option value="0" ';
-                if(isset($_POST["selectvenue"]) && $_POST["selectvenue"] == "0")
-                { $select.= ' selected = "selected"';}
-                $select.='> All venues</option>';
+                $venues = array_merge([[0, "ALL"]], GiglogAdmin_Venue::venues_in_city($selected_city));
+                $selected_venue =
+                    filter_input(INPUT_POST, "selectvenue", FILTER_SANITIZE_SPECIAL_CHARS)
+                    || $venues[0];
 
-                foreach ( $resultsv AS $rowv )
-                {
-                    $select.='<option value="'.$rowv->id.'"';
-                    if(isset($_POST["selectvenue"]) && $_POST["selectvenue"] == $rowv->id)
-                    { $select.= ' selected = "selected"';}
-                    $select.=' >'. $rowv->wpgvenue_name.'</option>';
+                $select .= '<select name="selectvenue">';
+
+                foreach ( $venues AS $venue ) {
+                    $select .= '<option value="' . $venue[0] . '"' . selected($venue, $selected_venue) . '>';
+                    $select .= $venue[1] . '</option>';
                 }
-                //end IF that checks if city was selected
+
+                $select .= '</select>';
             }
-            $select.='</select><input type="submit" value="Filter"></form>';
+
+            $select .= '<input type="submit" value="Filter"></form>';
+
             return $select;
         }
 
