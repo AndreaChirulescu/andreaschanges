@@ -48,5 +48,15 @@ if ( !class_exists('GiglogAdmin_Venue') ) {
 
             return array_map(function ($r) { return $r->wpgvenue_city; }, $results);
         }
+
+        static function venues_in_city($city)
+        {
+            global $wpdb;
+            $q = $wpdb->prepare(
+                "select id, wpgvenue_name from wpg_venues where wpgvenue_city=?", $city);
+            $results = $wpdb->get_results($q);
+
+            return array_map(function ($r) { return [$r->id, $r->wpgvenue_name]; }, $results);
+        }
     }
 }
