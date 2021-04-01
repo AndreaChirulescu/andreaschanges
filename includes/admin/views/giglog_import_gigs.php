@@ -19,6 +19,7 @@
 if ( !class_exists( 'GiglogAdmin_ImportGigsPage' ) ) {
     require_once __DIR__ . '/../../band.php';
     require_once __DIR__ . '/../../concert.php';
+    require_once __DIR__ . '/../../concertlogs.php';
     require_once __DIR__ . '/../../venue.php';
 
     class GiglogAdmin_ImportGigsPage {
@@ -60,22 +61,22 @@ if ( !class_exists( 'GiglogAdmin_ImportGigsPage' ) ) {
          * Empty lines are ignored.
          */
         static function process_upload($file) {
-            $concertlist = '<p>Inserted the following:</p>';
             $newconcert= [];
             $fo = new SplFileObject($file['tmp_name']);
 
             foreach ($fo as $line) {
+                $line = trim( $line );
                 if ( empty($line) ) {
                     // Skip empty lines
                     continue;
                 }
 
                 $resultArray = explode("\t", $line);
-                $band        = $resultArray[0];
-                $venue       = $resultArray[1];
+                $band        = trim($resultArray[0]);
+                $venue       = trim($resultArray[1]);
                 $condate     = date('Y-m-d', strtotime($resultArray[2]));
-                $ticketlink  = $resultArray[3];
-                $eventlink   = $resultArray[4];
+                $ticketlink  = trim($resultArray[3]);
+                $eventlink   = trim($resultArray[4]);
                 //first item in the row should be band $resultArray[0]; second should be venue $resultArray[1]; third should be concert date $resultArray[2];
                 //fourth item is ticketlink $resultArray[3];  fifth item is eventlink $resultArray[4];
 
@@ -91,22 +92,27 @@ if ( !class_exists( 'GiglogAdmin_ImportGigsPage' ) ) {
 
                 $cresults = GiglogAdmin_Concert::get($newconcert[0], $newconcert[1], $condate);
                 if ($cresults) {
-                    $concertlist .= 'DUPLICATE ROW detected BAND ' . $band . ' with band ID ' . $newconcert[0];
-                    $concertlist .= ', VENUE ' . $venue . ' with venue ID ' . $newconcert[1];
-                    $concertlist .= ', CONCERTDATE ' . $condate;
-                    $concertlist .= ' <br />';
+                    error_log( 'DUPLICATE ROW detected: '
+                        . ' BAND ' . $band . ' with band ID ' . $newconcert[0]
+                        . ', VENUE ' . $venue . ' with venue ID ' . $newconcert[1]
+                        . ', CONCERTDATE ' . $condate);
                 } else {
-                    $newconcertid = GiglogAdmin_Band::create(
-                        $newconcerts[0],
-                        $newconcerts[1],
+                    $id = GiglogAdmin_Concert::create(
+                        $newconcert[0],
+                        $newconcert[1],
                         $condate,
                         $ticketlink,
                         $eventlink);
 
-                    $concertlist .= 'BAND ' . $band . ' with band ID ' . $newconcert[0];
-                    $concertlist .= ', VENUE ' . $venue . ' with venue ID ' . $newconcert[1];
-                    $concertlist .= ', CONCERTDATE ' . $condate . ', Ticket LINK ' . $ticketlink . ', event LINK' . $eventlink;
-                    $concertlist .= ' <br />';
+                    error_log( 'NEW CONCERT ADDED: '
+                        . ' ID: ' . $id
+                        . ' BAND ' . $band . ' with band ID ' . $newconcert[0]
+                        . ', VENUE ' . $venue . ' with venue ID ' . $newconcert[1]
+                        . ', CONCERTDATE ' . $condate
+                        . ', Ticket LINK ' . $ticketlink
+                        . ', Event LINK ' . $eventlink);
+
+                    GiglogAdmin_Concertlogs::add($id);
                 }
             }
         }
