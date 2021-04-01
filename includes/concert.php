@@ -23,13 +23,18 @@ if ( !class_exists('GiglogAdmin_Concert') ) {
         {
             global $wpdb;
 
-            $wpdb->insert('wpg_concerts', array(
+            $res = $wpdb->insert('wpg_concerts', array(
                 'band' => $band,
                 'venue' => $venue,
                 'wpgconcert_date' => $date,
                 'wpgconcert_tickets' => $ticketlink,
                 'wpgconcert_event' => $eventlink
             ));
+
+            if ( !$res ) {
+                error_log( __CLASS__ . '::' . __FUNCTION__ . ": {$wpdb->last_error}");
+                die;
+            }
 
             return $wpdb->insert_id;
         }
@@ -43,6 +48,7 @@ if ( !class_exists('GiglogAdmin_Concert') ) {
                 . ' and venue = ' . $venue
                 . ' and wpgconcert_date ="' . $date . '"';
 
+            error_log(__CLASS__ . '::' . __FUNCTION__ . ": {$sql}");
             return $wpdb->get_results($sql);
         }
     }
