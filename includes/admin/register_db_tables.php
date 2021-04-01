@@ -247,13 +247,15 @@ if (!function_exists('giglogadmin_populate_countries')) {
     }
 }
 
-if ( !function_exists( "giglog_register_db_tables") ) {
-    $db_version = get_option('giglogadmin_db_version');
-    if ($db_version == 1) {
-        return;
-    }
+if ( !function_exists( "giglog_register_db_tables") )
+{
+    function giglog_register_db_tables()
+    {
+        $db_version = get_option('giglogadmin_db_version');
+        if ($db_version == 2) {
+            return;
+        }
 
-    function giglog_register_db_tables() {
         $bands_table =
             "CREATE TABLE IF NOT EXISTS `wpg_bands` (
                 `id` int(11) NOT NULL AUTO_INCREMENT,
@@ -358,38 +360,53 @@ if ( !function_exists( "giglog_register_db_tables") ) {
             }
         }
 
-        giglogadmin_populate_countries();
+        if ($db_version == NULL || $db_version < 1)
+        {
+            giglogadmin_populate_countries();
 
-        $wpdb->query(
-            "ALTER TABLE `wpg_countries`
-             ADD FULLTEXT KEY `id`
-                (`id`,`wpgc_fullname`,`wpgcountry_name`,`wpgc_iso3`,`wpgc_numcode`);");
+            $wpdb->query(
+                "ALTER TABLE `wpg_countries`
+                 ADD FULLTEXT KEY `id`
+                    (`id`,`wpgc_fullname`,`wpgcountry_name`,`wpgc_iso3`,`wpgc_numcode`);");
 
-        $wpdb->query(
-            "ALTER TABLE `wpg_bands`
-                ADD CONSTRAINT `wpgband_country`
-                    FOREIGN KEY (`wpgband_country`)
-                    REFERENCES `wpg_countries` (`id`) ON DELETE NO ACTION;");
+            $wpdb->query(
+                "ALTER TABLE `wpg_bands`
+                    ADD CONSTRAINT `wpgband_country`
+                        FOREIGN KEY (`wpgband_country`)
+                        REFERENCES `wpg_countries` (`id`) ON DELETE NO ACTION;");
 
-        $wpdb->query(
-            "ALTER TABLE `wpg_concertlogs`
-                ADD CONSTRAINT `wpglog_concerts`
-                    FOREIGN KEY (`wpgcl_concertid`)
-                    REFERENCES `wpg_concerts` (`id`) ON DELETE CASCADE ON UPDATE NO ACTION,
-                ADD CONSTRAINT `wpglog_status`
-                    FOREIGN KEY (`wpgcl_status`)
-                    REFERENCES `wpg_pressstatus` (`id`) ON DELETE NO ACTION ON UPDATE NO ACTION;");
+            $wpdb->query(
+                "ALTER TABLE `wpg_concertlogs`
+                    ADD CONSTRAINT `wpglog_concerts`
+                        FOREIGN KEY (`wpgcl_concertid`)
+                        REFERENCES `wpg_concerts` (`id`) ON DELETE CASCADE ON UPDATE NO ACTION,
+                    ADD CONSTRAINT `wpglog_status`
+                        FOREIGN KEY (`wpgcl_status`)
+                        REFERENCES `wpg_pressstatus` (`id`) ON DELETE NO ACTION ON UPDATE NO ACTION;");
 
-        $wpdb->query(
-            "ALTER TABLE `wpg_concerts`
-                ADD CONSTRAINT `wpgconcert_band`
-                    FOREIGN KEY (`band`)
-                    REFERENCES `wpg_bands` (`id`) ON DELETE NO ACTION,
-                ADD CONSTRAINT `wpgconcert_venue`
-                    FOREIGN KEY (`venue`)
-                    REFERENCES `wpg_venues` (`id`) ON DELETE NO ACTION;");
+            $wpdb->query(
+                "ALTER TABLE `wpg_concerts`
+                    ADD CONSTRAINT `wpgconcert_band`
+                        FOREIGN KEY (`band`)
+                        REFERENCES `wpg_bands` (`id`) ON DELETE NO ACTION,
+                    ADD CONSTRAINT `wpgconcert_venue`
+                        FOREIGN KEY (`venue`)
+                        REFERENCES `wpg_venues` (`id`) ON DELETE NO ACTION;");
+        }
 
-        update_option("giglogadmin_db_version", 1);
+        if ($db_version == NULL || $db_version < 2)
+        {
+            $wpdb->query(
+                "INSERT INTO `wpg_pressstatus` (`id`, `wpgs_name`) VALUES
+                    (1, ' '),
+                    (2, 'Accred Requested'),
+                    (3, 'Photo Approved'),
+                    (4, 'Text Approved'),
+                    (5, 'Photo and Text approved'),
+                    (6, 'Rejected');");
+        }
+
+        update_option("giglogadmin_db_version", 2);
     }
 
     giglog_register_db_tables();
