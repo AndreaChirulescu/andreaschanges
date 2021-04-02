@@ -100,10 +100,10 @@ if ( !class_exists( 'GiglogAdmin_AdminPage' ) ) {
                 <th>STATUS</th></tr>';
 
             // Use the submitted "city" if any. Otherwise, use the default/static value.
-            $cty = filter_input( INPUT_POST, 'selectcity' );
+            $cty = filter_input( INPUT_POST, 'selectcity', FILTER_SANITIZE_SPECIAL_CHARS );
             $cty = $cty ? $cty: 'ALL';
 
-            $venue = filter_input( INPUT_POST, 'selectvenue' );
+            $venue = filter_input( INPUT_POST, 'selectvenue', FILTER_SANITIZE_SPECIAL_CHARS );
             $venue = $venue ? $venue : '0';
 
 
