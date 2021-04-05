@@ -142,10 +142,10 @@ if ( !class_exists( 'GiglogAdmin_AdminPage' ) ) {
                 //$content .= DATE_FORMAT($fdate,'%d.%b.%Y');
                 $content .= '<td>' .$newformat. '</td>';
                 $content .= '<td></td>'; //.giglogadmin_getpublishstatus($row->id ).'</td>';
-                $content .= '<td>'.giglogadmin_returnuser('photo1', $row->id ).'</td>';
-                $content .= '<td>'.giglogadmin_returnuser('photo2', $row->id ).'</td>';
-                $content .= '<td>'.giglogadmin_returnuser('rev1', $row->id ).'</td>';
-                $content .= '<td>'.giglogadmin_returnuser('rev2', $row->id ).'</td>';
+                $content .= '<td>'.GiglogAdmin_AdminPage::returnuser('photo1', $row->id ).'</td>';
+                $content .= '<td>'.GiglogAdmin_AdminPage::returnuser('photo2', $row->id ).'</td>';
+                $content .= '<td>'.GiglogAdmin_AdminPage::returnuser('rev1', $row->id ).'</td>';
+                $content .= '<td>'.GiglogAdmin_AdminPage::returnuser('rev2', $row->id ).'</td>';
                 $content .= '<td  class="adminbuttons">'.$row -> wpgs_name;
                 if (current_user_can('administrator')) //($hf_username == 'etadmin')
                     $content .= '<span><form method="POST" action=""> <input type="hidden" name="cid" value="' . $row->id.  '" /><input type="submit" name="reqsent" value="REQSENT"/><input type="submit" name="phok" value="PHOK"/><input type="submit" name="txtok" value="TXOK"/><input type="submit" name="allok" value="ALLOK"/><input type="submit" name="rej" value="REJ"/>
@@ -156,9 +156,26 @@ if ( !class_exists( 'GiglogAdmin_AdminPage' ) ) {
             }
             $content .= '</table>';
 
+
+            // return the table
+            return $content;
+        }
+
+        static function update()
+        {
+            if ('POST' !== $_SERVER['REQUEST_METHOD'])
+                return;
+
+            // Use the submitted "city" if any. Otherwise, use the default/static value.
+            $cty = filter_input( INPUT_POST, 'selectcity', FILTER_SANITIZE_SPECIAL_CHARS );
+            $cty = $cty ? $cty: 'ALL';
+
+            $venue = filter_input( INPUT_POST, 'selectvenue', FILTER_SANITIZE_SPECIAL_CHARS );
+            $venue = $venue ? $venue : '0';
+
             if(isset($_POST['assignitem']))
             {
-                echo (giglogadmin_assignconcert($_POST['pid'],$_POST['cid']));
+                GiglogAdmin_AdminPage::assignconcert($_POST['pid'],$_POST['cid']);
 
                 $url2=$_SERVER['REQUEST_URI'];
                 header("Refresh: 1; URL=$url2");  //reload page
@@ -166,7 +183,7 @@ if ( !class_exists( 'GiglogAdmin_AdminPage' ) ) {
 
             if(isset($_POST['unassignitem']))
             {
-                echo (giglogadmin_unassignconcert($_POST['pid'],$_POST['cid']));
+                GiglogAdmin_AdminPage::unassignconcert($_POST['pid'],$_POST['cid']);
 
                 $url3=$_SERVER['REQUEST_URI'];
                 header("Refresh: 1; URL=$url3");  //reload page
@@ -174,7 +191,7 @@ if ( !class_exists( 'GiglogAdmin_AdminPage' ) ) {
 
             if(isset($_POST['reqsent']))
             {
-                echo (giglogadmin_assignconcert($_POST['pid'],$_POST['cid']));
+                GiglogAdmin_AdminPage::assignconcert($_POST['pid'],$_POST['cid']);
                 $usql = "UPDATE wpg_concertlogs  SET wpgcl_status=2  WHERE wpgcl_concertid=".$_POST['cid'];
                 $uresults = $wpdb->get_results($usql);
                 $url2=$_SERVER['REQUEST_URI'];
@@ -216,9 +233,142 @@ if ( !class_exists( 'GiglogAdmin_AdminPage' ) ) {
                 $url2=$_SERVER['REQUEST_URI'];
                 header("Refresh: 1; URL=$url2");  //reload page
             }
+        }
 
-            // return the table
-            return $content;
+        static function assignconcert($p1, $c)
+        {
+            global $wpdb;
+
+            $hf_user = wp_get_current_user();
+            $hf_username = $hf_user->user_login;
+            $to = 'live@eternal-terror.com';
+            $subject = $hf_username.' has taken '.$p1. 'for a concert with id '.$c;
+            $body = 'The email body content';
+            $headers = array('Content-Type: text/html; charset=UTF-8');
+
+
+
+            if ($p1 == 'photo1') $usql = "UPDATE wpg_concertlogs  SET wpgcl_photo1='".$hf_username."'  WHERE wpgcl_concertid=".$c;
+            if ($p1 == 'photo2') $usql = "UPDATE wpg_concertlogs  SET wpgcl_photo2='".$hf_username."'  WHERE wpgcl_concertid=".$c;
+            if ($p1 == 'rev1') $usql = "UPDATE wpg_concertlogs  SET wpgcl_rev1='".$hf_username."'  WHERE wpgcl_concertid=".$c;
+            if ($p1 == 'rev2') $usql = "UPDATE wpg_concertlogs  SET wpgcl_rev2='".$hf_username."'  WHERE wpgcl_concertid=".$c;
+
+            $uresults = $wpdb->get_results($usql);
+            $wpdb->insert( 'wpg_logchanges', array (
+                'id' => '',
+                'userid' => $hf_username,
+                'action' => 'assigned '.$p1,
+                'concertid' => $c));
+            echo ($wpdb->last_error );
+            wp_mail( $to, $subject, $body, $headers );
+
+
+        }
+
+        static function unassignconcert($p1, $c)
+        {
+            global $wpdb;
+
+            $hf_user = wp_get_current_user();
+            $hf_username = $hf_user->user_login;
+            $to = 'live@eternal-terror.com';
+            $subject = $hf_username.' has UNASSINED  '.$p1. 'for a concert with id '.$c;
+            $body = 'The email body content';
+            $headers = array('Content-Type: text/html; charset=UTF-8');
+
+
+
+            if ($p1 == 'photo1') $usql = "UPDATE wpg_concertlogs  SET wpgcl_photo1=''  WHERE wpgcl_concertid=".$c;
+            if ($p1 == 'photo2') $usql = "UPDATE wpg_concertlogs  SET wpgcl_photo2=''  WHERE wpgcl_concertid=".$c;
+            if ($p1 == 'rev1') $usql = "UPDATE wpg_concertlogs  SET wpgcl_rev1='' WHERE wpgcl_concertid=".$c;
+            if ($p1 == 'rev2') $usql = "UPDATE wpg_concertlogs  SET wpgcl_rev2=''  WHERE wpgcl_concertid=".$c;
+
+
+            $uresults = $wpdb->get_results($usql);
+            $wpdb->insert( 'wpg_logchanges', array (
+                'id' => '',
+                'userid' => $hf_username,
+                'action' => 'unassigned '.$p1,
+                'concertid' => $c));
+            echo ($wpdb->last_error );
+            wp_mail( $to, $subject, $body, $headers );
+
+
+        }
+
+        static function returnuser($p1, $c)
+        {
+            global $wpdb;
+            $hf_user = wp_get_current_user();
+            $hf_username = $hf_user->user_login;
+
+            //PHOTO1
+            if ($p1 == 'photo1')
+            {
+                //checking if taken
+                $vquery0 = "select wpgcl_photo1 from wpg_concertlogs where wpgcl_concertid=".$c ;
+                $results = $wpdb->get_results($vquery0);
+                foreach ( $results AS $row )   $x= $row -> wpgcl_photo1;
+                if ($x !='' and $x!=$hf_username)  { return ('Taken by '.$x); }
+                else
+                    if  ($x==$hf_username)  //if current user
+                        return ('<form class="unassignit" method="POST" action=""> <input type="hidden" name="cid" value="' . $c. '" /><input type="hidden" name="pid" value="' . $p1. '" /><input type="submit" name="unassignitem" value="X"/>
+                        </form>');
+                    else  //not taken by anyone
+                        return ('<form method="POST" action=""> <input type="hidden" name="cid" value="' . $c. '" /><input type="hidden" name="pid" value="' . $p1. '" /><input  type="submit" name="assignitem" value=""/>
+                        </form>');
+            }
+            //PHOTO2
+            if ($p1 == 'photo2')
+            {
+                $vquery0 = "select wpgcl_photo2 from wpg_concertlogs where wpgcl_concertid=".$c ;
+                $results = $wpdb->get_results($vquery0);
+                foreach ( $results AS $row )   $x= $row -> wpgcl_photo2;
+                if ($x !='' and $x!=$hf_username)  { return ('Taken by '.$x); }
+                else
+                    if  ($x==$hf_username)  //if current user
+                        return ('<form class="unassignit"  method="POST" action=""> <input type="hidden" name="cid" value="' . $c. '" /><input type="hidden" name="pid" value="' . $p1. '" /><input type="submit" name="unassignitem" value="X"/>
+                        </form>');
+
+                    else  //not taken by anyone
+                        return ('<form method="POST" action=""> <input type="hidden" name="cid" value="' . $c. '" /><input type="hidden" name="pid" value="' . $p1. '" /><input type="submit" name="assignitem" value=""/>
+                        </form>');
+
+            }
+            //TEXT1
+            if ($p1 == 'rev1')
+            {
+                $vquery0 = "select wpgcl_rev1 from wpg_concertlogs where wpgcl_concertid=".$c ;
+                $results = $wpdb->get_results($vquery0);
+                foreach ( $results AS $row )   $x= $row -> wpgcl_rev1;
+                if ($x !='' and $x!=$hf_username)  { return ('Taken by '.$x); }
+                else
+                    if  ($x==$hf_username)  //if current user
+                        return ('<form class="unassignit"  method="POST" action=""> <input type="hidden" name="cid" value="' . $c. '" /><input type="hidden" name="pid" value="' . $p1. '" /><input type="submit" name="unassignitem" value="X"/>
+                        </form>');
+                    else //not taken by anyone
+                        return ('<form method="POST" action=""> <input type="hidden" name="cid" value="' . $c. '" /><input type="hidden" name="pid" value="' . $p1. '" /><input type="submit" name="assignitem" value=""/>
+                        </form>');
+
+            }
+            //TEXT2
+            if ($p1 == 'rev2')
+            {
+                $vquery0 = "select wpgcl_rev2 from wpg_concertlogs where wpgcl_concertid=".$c ;
+                $results = $wpdb->get_results($vquery0);
+                foreach ( $results AS $row )   $x= $row -> wpgcl_rev2;
+                if ($x !='' and $x!=$hf_username)  { return ('Taken by '.$x); }
+                else
+                    if  ($x==$hf_username)  //if current user
+                        return ('<form class="unassignit"  method="POST" action=""> <input type="hidden" name="cid" value="' . $c. '" /><input type="hidden" name="pid" value="' . $p1. '" /><input type="submit" name="unassignitem" value="X"/>
+                        </form>');
+                    else //not taken by anyone
+                        return ('<form method="POST" action=""> <input type="hidden" name="cid" value="' . $c. '" /><input type="hidden" name="pid" value="' . $p1. '" /><input type="submit" name="assignitem" value=""/>
+                        </form>');
+
+            }
+
+
         }
     }
 }

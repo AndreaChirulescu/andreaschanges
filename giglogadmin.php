@@ -65,6 +65,8 @@ if ( !class_exists( 'GiglogAdmin_Plugin' ) ) {
                 'dashicons-tickets-alt',    // Icon url
                 11);                        // Position, just below 'Media'
 
+            add_action( 'load-' . $top, array( 'GiglogAdmin_AdminPage', 'update' ) );
+
             $import_hook = add_submenu_page(
                 "giglog",                   // parent slug
                 "Import gigs",              // page title
