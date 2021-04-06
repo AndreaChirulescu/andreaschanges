@@ -1,0 +1,55 @@
+div.takenby {
+  background-color: #FFFFE0;
+  padding: 20px;
+  display: none;
+}
+  
+span.takenby:hover + div.takenby {
+  display: block;
+}
+
+span.takenby
+{
+ color:red;
+}
+
+.assignit input
+{	   
+    background:red; 
+	font-size: small;
+	padding: none;
+	background: url('http://andreutza.biz/wordpress/wp-content/uploads/2021/01/checkedbox.png') no-repeat;
+	  background-size: 20px 20px;
+	vertical-align: center;
+}
+.assignit 
+{
+	padding: none !important;
+	font-size: small;
+	vertical-align: center;
+}
+
+.unassignit input
+{	   
+    background:red; 
+	font-size: small;
+	padding: none;
+	background: url('http://andreutza.biz/wordpress/wp-content/uploads/2021/01/redicon.png') no-repeat;
+	  background-size: 20px 20px;
+	vertical-align: center;
+}
+.adminbuttons form
+{
+	display: flex; /* 2. display flex to the rescue */
+  flex-direction: row;
+}
+.adminbuttons input
+{  width: 80px;
+	background-image: none !important;
+	display: block;alignment-baseline
+}
+.adminbuttons
+{
+	padding: unset;
+	width: 80px;
+}

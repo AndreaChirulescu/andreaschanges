@@ -96,7 +96,7 @@ function giglogadmin_returnuser($p1, $c)
         $vquery0 = "select wpgcl_photo1 from wpg_concertlogs where wpgcl_concertid=".$c ;
         $results = $wpdb->get_results($vquery0);
         foreach ( $results AS $row )   $x= $row -> wpgcl_photo1;
-        if ($x !='' and $x!=$hf_username)  { return ('Taken by '.$x); }
+        if ($x !='' and $x!=$hf_username)  { return ('<span class="takenby">Taken</span><div class="takenby">Taken by '.$x.'</div>'); }
         else
             if  ($x==$hf_username)  //if current user
                 return ('<form class="unassignit" method="POST" action=""> <input type="hidden" name="cid" value="' . $c. '" /><input type="hidden" name="pid" value="' . $p1. '" /><input type="submit" name="unassignitem" value=""/>
@@ -111,7 +111,7 @@ function giglogadmin_returnuser($p1, $c)
         $vquery0 = "select wpgcl_photo2 from wpg_concertlogs where wpgcl_concertid=".$c ;
         $results = $wpdb->get_results($vquery0);
         foreach ( $results AS $row )   $x= $row -> wpgcl_photo2;
-        if ($x !='' and $x!=$hf_username)  { return ('Taken by '.$x); }
+        if ($x !='' and $x!=$hf_username)  { return ('<span class="takenby">Taken</span><div class="takenby">Taken by '.$x.'</div>'); }
         else
             if  ($x==$hf_username)  //if current user
                 return ('<form class="unassignit"  method="POST" action=""> <input type="hidden" name="cid" value="' . $c. '" /><input type="hidden" name="pid" value="' . $p1. '" /><input type="submit" name="unassignitem" value=""/>
@@ -128,7 +128,7 @@ function giglogadmin_returnuser($p1, $c)
         $vquery0 = "select wpgcl_rev1 from wpg_concertlogs where wpgcl_concertid=".$c ;
         $results = $wpdb->get_results($vquery0);
         foreach ( $results AS $row )   $x= $row -> wpgcl_rev1;
-        if ($x !='' and $x!=$hf_username)  { return ('Taken by '.$x); }
+        if ($x !='' and $x!=$hf_username)  { ('<span class="takenby">Taken</span><div class="takenby">Taken by '.$x.'</div>'); }
         else
             if  ($x==$hf_username)  //if current user
                 return ('<form class="unassignit"  method="POST" action=""> <input type="hidden" name="cid" value="' . $c. '" /><input type="hidden" name="pid" value="' . $p1. '" /><input type="submit" name="unassignitem" value=""/>
@@ -144,7 +144,7 @@ function giglogadmin_returnuser($p1, $c)
         $vquery0 = "select wpgcl_rev2 from wpg_concertlogs where wpgcl_concertid=".$c ;
         $results = $wpdb->get_results($vquery0);
         foreach ( $results AS $row )   $x= $row -> wpgcl_rev2;
-        if ($x !='' and $x!=$hf_username)  { return ('Taken by '.$x); }
+        if ($x !='' and $x!=$hf_username)  { ('<span class="takenby">Taken</span><div class="takenby">Taken by '.$x.'</div>'); }
         else
             if  ($x==$hf_username)  //if current user
                 return ('<form class="unassignit"  method="POST" action=""> <input type="hidden" name="cid" value="' . $c. '" /><input type="hidden" name="pid" value="' . $p1. '" /><input type="submit" name="unassignitem" value=""/>
@@ -233,7 +233,10 @@ function giglogadmin_getconcertsphotog ( ) {
     $content .= '<tr class="assignithrow">
         <th>CITY</th><th>BAND</th><th>VENUE</th><th>DATE</th><th> </th>
         <th>PHOTO1</th><th>PHOTO2</th><th>TEXT1</th><th>TEXT2</th>
-        <th>STATUS</th></tr>';
+        <th>STATUS</th>'
+    if (current_user_can('administrator')) //($hf_username == 'etadmin')
+        $content .=  '<th>AdminButtons</th>';
+    $content .= '</tr>';
 
     // Use the submitted "city" if any. Otherwise, use the default/static value.
     $cty= filter_input( INPUT_POST, 'selectcity' );
@@ -286,10 +289,13 @@ function giglogadmin_getconcertsphotog ( ) {
         $content .= '<td>'.giglogadmin_returnuser('rev1', $row->id ).'</td>';
         $content .= '<td>'.giglogadmin_returnuser('rev2', $row->id ).'</td>';
         $content .= '<td  class="adminbuttons">'.$row -> wpgs_name;
+        $content .= '</td>';
         if (current_user_can('administrator')) //($hf_username == 'etadmin')
+        {   $content .= '<td  class="adminbuttons">';
             $content .= '<span><form method="POST" action=""> <input type="hidden" name="cid" value="' . $row->id.  '" /><input type="submit" name="reqsent" value="REQSENT"/><input type="submit" name="phok" value="PHOK"/><input type="submit" name="txtok" value="TXOK"/><input type="submit" name="allok" value="ALLOK"/><input type="submit" name="rej" value="REJ"/>
             </form></span>';
-        $content .= '</td>';
+            $content .= '</td>';
+        }    
         $content .= '</tr>';
         $lastType = $row->wpgvenue_city;
     }
