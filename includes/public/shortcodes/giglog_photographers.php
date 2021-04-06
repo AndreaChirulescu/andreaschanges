@@ -233,7 +233,7 @@ function giglogadmin_getconcertsphotog ( ) {
     $content .= '<tr class="assignithrow">
         <th>CITY</th><th>BAND</th><th>VENUE</th><th>DATE</th><th> </th>
         <th>PHOTO1</th><th>PHOTO2</th><th>TEXT1</th><th>TEXT2</th>
-        <th>STATUS</th>'
+        <th>STATUS</th>';
     if (current_user_can('administrator')) //($hf_username == 'etadmin')
         $content .=  '<th>AdminButtons</th>';
     $content .= '</tr>';
@@ -295,7 +295,7 @@ function giglogadmin_getconcertsphotog ( ) {
             $content .= '<span><form method="POST" action=""> <input type="hidden" name="cid" value="' . $row->id.  '" /><input type="submit" name="reqsent" value="REQSENT"/><input type="submit" name="phok" value="PHOK"/><input type="submit" name="txtok" value="TXOK"/><input type="submit" name="allok" value="ALLOK"/><input type="submit" name="rej" value="REJ"/>
             </form></span>';
             $content .= '</td>';
-        }    
+        }
         $content .= '</tr>';
         $lastType = $row->wpgvenue_city;
     }
