@@ -275,6 +275,7 @@ if ( !function_exists( "giglog_register_db_tables") )
                 `wpgcl_rev2` varchar(200) DEFAULT NULL,
                 `wpgcl_int` varchar(200) DEFAULT NULL,
                 `wpgcl_status` int(11) DEFAULT 1,
+                `wpgcl_createddate` date NOT NULL DEFAULT current_timestamp(),                
                 PRIMARY KEY (`id`),
                 KEY `wpglog_status` (`wpgcl_status`),
                 KEY `wpglog_concerts` (`wpgcl_concertid`)
