@@ -30,6 +30,13 @@ span.takenby
 	vertical-align: center;
 }
 
+table.assignit
+
+{
+      white-space: nowrap;
+      overflow: hidden;
+}
+
 .unassignit input
 {
     background:red;

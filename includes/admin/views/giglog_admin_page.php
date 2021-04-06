@@ -83,6 +83,27 @@ if ( !class_exists( 'GiglogAdmin_AdminPage' ) ) {
 
             return $select;
         }
+        
+         static function adminactions()  //didn't get this one to work, the point was to create the drop down menu with a function, but it works fine to create it directly in the query
+        {
+            global $wpdb;  
+            $query = "SELECT id,wpgs_name from wpg_pressstatus" ;
+            $statuses = $wpdb->get_results($query);
+
+            $select = '<form method="POST" action=""><select name="selectstatus">';
+
+            foreach ( $statuses AS $sts ) {
+
+                $select .= '<option value="' . $sts . '">';
+                $select .= $sts -> wpgs_name . '</option>';
+            }
+
+            $select .= '</select>';
+            $select .= '<input type="submit" value="Adminstatus"></form>';
+            return $select;
+        }
+
+
 
         static function get_concerts()
         {
@@ -97,7 +118,10 @@ if ( !class_exists( 'GiglogAdmin_AdminPage' ) ) {
             $content .= '<tr class="assignithrow">
                 <th>CITY</th><th>BAND</th><th>VENUE</th><th>DATE</th><th> </th>
                 <th>PHOTO1</th><th>PHOTO2</th><th>TEXT1</th><th>TEXT2</th>
-                <th>STATUS</th></tr>';
+                <th>STATUS</th>';
+                if (current_user_can('administrator')) //($hf_username == 'etadmin')
+                $content .=  '<th>AdminOptions</th>';
+                $content .= '</tr>';
 
             // Use the submitted "city" if any. Otherwise, use the default/static value.
             $cty = filter_input( INPUT_POST, 'selectcity', FILTER_SANITIZE_SPECIAL_CHARS );
@@ -146,11 +170,20 @@ if ( !class_exists( 'GiglogAdmin_AdminPage' ) ) {
                 $content .= '<td>'.GiglogAdmin_AdminPage::returnuser('photo2', $row->id ).'</td>';
                 $content .= '<td>'.GiglogAdmin_AdminPage::returnuser('rev1', $row->id ).'</td>';
                 $content .= '<td>'.GiglogAdmin_AdminPage::returnuser('rev2', $row->id ).'</td>';
-                $content .= '<td  class="adminbuttons">'.$row -> wpgs_name;
+                $content .= '<td>'.$row -> wpgs_name.'</td>';
                 if (current_user_can('administrator')) //($hf_username == 'etadmin')
-                    $content .= '<span><form method="POST" action=""> <input type="hidden" name="cid" value="' . $row->id.  '" /><input type="submit" name="reqsent" value="REQSENT"/><input type="submit" name="phok" value="PHOK"/><input type="submit" name="txtok" value="TXOK"/><input type="submit" name="allok" value="ALLOK"/><input type="submit" name="rej" value="REJ"/>
-                    </form></span>';
-                $content .= '</td>';
+                {   $content .= '<td  class="adminbuttons">';
+                    $stquery = "SELECT id,wpgs_name from wpg_pressstatus" ;
+                    $statuses = $wpdb->get_results($stquery);
+                    $content .= '<form method="POST" action=""><input type="hidden" name="cid" value="' . $row->id.  '" /><select name="selectstatus">';
+                    foreach ( $statuses AS $sts ) 
+                        {
+                            $content .= '<option value="'.$sts->id. '">'.$sts -> wpgs_name .'</option>';
+                        }
+                    $content .= '</select>';
+                    $content .= '<input type="submit" value="Set status"></form>';
+                    $content .= '</td>';
+                }
                 $content .= '</tr>';
                 $lastType = $row->wpgvenue_city;
             }
@@ -162,7 +195,7 @@ if ( !class_exists( 'GiglogAdmin_AdminPage' ) ) {
         }
 
         static function update()
-        {
+        {   global $wpdb; 
             if ('POST' !== $_SERVER['REQUEST_METHOD'])
                 return;
 
@@ -188,51 +221,17 @@ if ( !class_exists( 'GiglogAdmin_AdminPage' ) ) {
                 $url3=$_SERVER['REQUEST_URI'];
                 header("Refresh: 1; URL=$url3");  //reload page
             }
-
-            if(isset($_POST['reqsent']))
+            
+            //handling the admin drop down menu  
+            if(isset($_POST['selectstatus']))
             {
-                GiglogAdmin_AdminPage::assignconcert($_POST['pid'],$_POST['cid']);
-                $usql = "UPDATE wpg_concertlogs  SET wpgcl_status=2  WHERE wpgcl_concertid=".$_POST['cid'];
-                $uresults = $wpdb->get_results($usql);
-                $url2=$_SERVER['REQUEST_URI'];
-                header("Refresh: 1; URL=$url2");  //reload page
+               $usql = "UPDATE wpg_concertlogs  SET wpgcl_status=".$_POST['selectstatus']." WHERE wpgcl_concertid=".$_POST['cid'];                
+               $uresults = $wpdb->get_results($usql);
+               //$url2=$_SERVER['REQUEST_URI'];  //doesn't seem to be needed actually, leaving here just in case
+               //header("Refresh: 1; URL=$url2");  //reload page
             }
 
-            if(isset($_POST['phok']))
-            {
-                $usql = "UPDATE wpg_concertlogs  SET wpgcl_status=3  WHERE wpgcl_concertid=".$_POST['cid'];
-                $uresults = $wpdb->get_results($usql);
-
-                $url2=$_SERVER['REQUEST_URI'];
-                header("Refresh: 1; URL=$url2");  //reload page
-            }
-
-            if(isset($_POST['txtok']))
-            {
-                $usql = "UPDATE wpg_concertlogs  SET wpgcl_status=4  WHERE wpgcl_concertid=".$_POST['cid'];
-                $uresults = $wpdb->get_results($usql);
-
-                $url2=$_SERVER['REQUEST_URI'];
-                header("Refresh: 1; URL=$url2");  //reload page
-            }
-
-            if(isset($_POST['allok']))
-            {
-                $usql = "UPDATE wpg_concertlogs  SET wpgcl_status=5  WHERE wpgcl_concertid=".$_POST['cid'];
-                $uresults = $wpdb->get_results($usql);
-
-                $url2=$_SERVER['REQUEST_URI'];
-                header("Refresh: 1; URL=$url2");  //reload page
-            }
-
-            if(isset($_POST['rej']))
-            {
-                $usql = "UPDATE wpg_concertlogs  SET wpgcl_status=6  WHERE wpgcl_concertid=".$_POST['cid'];
-                $uresults = $wpdb->get_results($usql);
-
-                $url2=$_SERVER['REQUEST_URI'];
-                header("Refresh: 1; URL=$url2");  //reload page
-            }
+         
         }
 
         static function assignconcert($p1, $c)
