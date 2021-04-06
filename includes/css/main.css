@@ -3,7 +3,7 @@ div.takenby {
   padding: 20px;
   display: none;
 }
-  
+
 span.takenby:hover + div.takenby {
   display: block;
 }
@@ -14,15 +14,16 @@ span.takenby
 }
 
 .assignit input
-{	   
-    background:red; 
+{
+    background:red;
 	font-size: small;
 	padding: none;
-	background: url('http://andreutza.biz/wordpress/wp-content/uploads/2021/01/checkedbox.png') no-repeat;
-	  background-size: 20px 20px;
+	background: url('/wp-content/plugins/giglogadmin/assets/images/checkedbox.png') no-repeat;
+    background-size: 20px 20px;
 	vertical-align: center;
 }
-.assignit 
+
+.assignit
 {
 	padding: none !important;
 	font-size: small;
@@ -30,12 +31,12 @@ span.takenby
 }
 
 .unassignit input
-{	   
-    background:red; 
+{
+    background:red;
 	font-size: small;
 	padding: none;
-	background: url('http://andreutza.biz/wordpress/wp-content/uploads/2021/01/redicon.png') no-repeat;
-	  background-size: 20px 20px;
+	background: url('/wp-content/plugins/giglogadmin/assets/images/redicon.png') no-repeat;
+	background-size: 20px 20px;
 	vertical-align: center;
 }
 .adminbuttons form
