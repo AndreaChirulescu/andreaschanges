@@ -76,6 +76,9 @@ if ( !class_exists( 'GiglogAdmin_Plugin' ) ) {
                 array( 'GiglogAdmin_ImportGigsPage', 'render_html' ));   // callable
 
             add_action( 'load-' . $import_hook, array( 'GiglogAdmin_ImportGigsPage', 'submit_form' ) );
+
+            wp_register_style( 'css_style', plugins_url( '/includes/css/main.css', __FILE__ ) );
+            wp_enqueue_style('css_style');
         }
 
         static function add_help_pages() {
@@ -125,8 +128,6 @@ if ( !class_exists( 'GiglogAdmin_Plugin' ) ) {
 
     register_activation_hook( __FILE__, array( 'GiglogAdmin_Plugin', 'activate' ));
     register_deactivation_hook( __FILE__, array( 'GiglogAdmin_Plugin', 'deactivate' ));
-    wp_register_style ( 'css_style', plugins_url ( '/includes/css/main.css', __FILE__ ) ); 
-    wp_enqueue_style('css_style');
 
 
     GiglogAdmin_Plugin::init();
