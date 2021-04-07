@@ -84,22 +84,26 @@ if ( !class_exists( 'GiglogAdmin_AdminPage' ) ) {
             return $select;
         }
 
-        static function adminactions()  //didn't get this one to work, the point was to create the drop down menu with a function, but it works fine to create it directly in the query
+        static function adminactions($concert_id)
         {
             global $wpdb;
             $query = "SELECT id,wpgs_name from wpg_pressstatus" ;
             $statuses = $wpdb->get_results($query);
 
-            $select = '<form method="POST" action=""><select name="selectstatus">';
+            $select =
+                '<form method="POST" action="">'
+                . '<input type="hidden" name="cid" value="' . $concert_id .  '" />'
+                . '<select name="selectstatus">';
 
             foreach ( $statuses AS $sts ) {
-
-                $select .= '<option value="' . $sts . '">';
-                $select .= $sts -> wpgs_name . '</option>';
+                $select .= '<option value="' . $sts->id . '">' . $sts->wpgs_name . '</option>';
             }
 
-            $select .= '</select>';
-            $select .= '<input type="submit" value="Adminstatus"></form>';
+            $select .=
+                '</select>'
+                . '<input type="submit" value="Set status">'
+                . '</form>';
+
             return $select;
         }
 
@@ -169,18 +173,12 @@ if ( !class_exists( 'GiglogAdmin_AdminPage' ) ) {
                 $content .= '<td>'.GiglogAdmin_AdminPage::returnuser('rev1', $row->id ).'</td>';
                 $content .= '<td>'.GiglogAdmin_AdminPage::returnuser('rev2', $row->id ).'</td>';
                 $content .= '<td>'.$row -> wpgs_name.'</td>';
-                if (current_user_can('administrator')) //($hf_username == 'etadmin')
-                {   $content .= '<td  class="adminbuttons">';
-                    $stquery = "SELECT id,wpgs_name from wpg_pressstatus" ;
-                    $statuses = $wpdb->get_results($stquery);
-                    $content .= '<form method="POST" action=""><input type="hidden" name="cid" value="' . $row->id.  '" /><select name="selectstatus">';
-                    foreach ( $statuses AS $sts )
-                        {
-                            $content .= '<option value="'.$sts->id. '">'.$sts -> wpgs_name .'</option>';
-                        }
-                    $content .= '</select>';
-                    $content .= '<input type="submit" value="Set status"></form>';
-                    $content .= '</td>';
+
+                if (current_user_can('administrator')) {
+                    $content .=
+                        '<td  class="adminbuttons">'
+                        . GiglogAdmin_AdminPage::adminactions($row->id)
+                        . '</td>';
                 }
                 $content .= '</tr>';
                 $lastType = $row->wpgvenue_city;
@@ -192,7 +190,9 @@ if ( !class_exists( 'GiglogAdmin_AdminPage' ) ) {
         }
 
         static function update()
-        {   global $wpdb;
+        {
+            global $wpdb;
+
             if ('POST' !== $_SERVER['REQUEST_METHOD'])
                 return;
 
