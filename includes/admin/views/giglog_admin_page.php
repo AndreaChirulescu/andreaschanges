@@ -52,7 +52,7 @@ if ( !class_exists( 'GiglogAdmin_AdminPage' ) ) {
                 filter_input(INPUT_POST, "selectcity", FILTER_SANITIZE_SPECIAL_CHARS)
                 || $cities[0];
 
-            $select = '<form method="POST" action=""><select name="selectcity">';
+            $select = '<form method="POST" action="">FILTER DATA: <select name="selectcity">';
 
             foreach ( $cities AS $city ) {
                 $select .= '<option value="' . $city . '"' . selected($city, $selected_city) . '>';
@@ -78,8 +78,12 @@ if ( !class_exists( 'GiglogAdmin_AdminPage' ) ) {
 
                 $select .= '</select>';
             }
+            //option to select own concerts only
+            $select .= '<input  class="ownconc" type="checkbox" value="1"';
+                if(isset($_POST['my_checkbox'])) $select .=' checked="checked" ';
+            $select.=' name="my_checkbox">Show own concerts only</input>';
 
-            $select .= '<input type="submit" value="Filter"></form>';
+            $select .= '<input type="submit" value="APPLY"></form>';
 
             return $select;
         }
@@ -143,10 +147,11 @@ if ( !class_exists( 'GiglogAdmin_AdminPage' ) ) {
 
             $query .= ($cty == "ALL") ? "" : "  and wpgv.wpgvenue_city='" .$cty ."'";
             $query .= ($venue == "0") ? "" : "  and wpgv.id='" .$venue ."'";
+            $query.= (empty($_POST['my_checkbox'])) ? "": " and (wpgcl_photo1 ='".$hf_username."' or wpgcl_photo2 ='".$hf_username."' or wpgcl_rev1 ='".$hf_username."' or wpgcl_rev2 ='".$hf_username."')";
             $query .=" order by wpgv.wpgvenue_city, wpgconcert_date, wpgc.id" ;
             $results = $wpdb->get_results($query);
-
             $lastType = '';
+
             foreach ( $results AS $row ) {
                 $content .= '<tr class="assignitr">';
 
