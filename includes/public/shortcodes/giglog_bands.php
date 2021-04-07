@@ -77,7 +77,7 @@ and wpgc.venue = wpgv.id
 and wpgconcert_date >= CURDATE()";
     $query .= ($cty == "ALL") ? "" : "  and wpgv.wpgvenue_city='" . $cty . "'";
     $query .= ($venue == "0") ? "" : "  and wpgv.id='" . $venue . "'";
-    $query .= " order by wpgv.wpgvenue_city, wpgconcert_date";
+    $query .= " order by wpgv.wpgvenue_city, wpgconcert_date, wpgc.id";
     //echo($query);
     $results = $wpdb->get_results($query);
 

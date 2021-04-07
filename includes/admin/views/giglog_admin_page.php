@@ -143,7 +143,7 @@ if ( !class_exists( 'GiglogAdmin_AdminPage' ) ) {
 
             $query .= ($cty == "ALL") ? "" : "  and wpgv.wpgvenue_city='" .$cty ."'";
             $query .= ($venue == "0") ? "" : "  and wpgv.id='" .$venue ."'";
-            $query .=" order by wpgv.wpgvenue_city, wpgconcert_date" ;
+            $query .=" order by wpgv.wpgvenue_city, wpgconcert_date, wpgc.id" ;
             $results = $wpdb->get_results($query);
 
             $lastType = '';
