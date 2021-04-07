@@ -13,15 +13,31 @@ span.takenby
  color:red;
 }
 
-.assignit input
+input[name="assignitem"]
 {
-    background:red;
+
+    background: transparent;
+
+	border: none;     
+   
 	font-size: small;
+
 	padding: none;
-	background: url('/wp-content/plugins/giglogadmin/assets/images/checkedbox.png') no-repeat;
-    background-size: 20px 20px;
+
+	background-image: url('/wp-content/plugins/giglogadmin/assets/images/checkedbox.png');
+    
+	background-repeat: no-repeat;
+
+	background-size: 15px 15px;
+        
+	width: 20px;
+  
+	height: 20px;
+
 	vertical-align: center;
+
 }
+
 
 .assignit
 {
@@ -37,15 +53,32 @@ table.assignit
       overflow: hidden;
 }
 
-.unassignit input
+input[name="unassignitem"]
+
 {
-    background:red;
+
+        background: transparent;
+
+	border: none;     
+   
 	font-size: small;
+
 	padding: none;
-	background: url('/wp-content/plugins/giglogadmin/assets/images/redicon.png') no-repeat;
-	background-size: 20px 20px;
+
+	background-image: url('/wp-content/plugins/giglogadmin/assets/images/redicon.png');
+
+	background-repeat: no-repeat;
+
+	background-size: 15px 15px;
+        
+	width: 20px;
+  
+	height: 20px;
+
 	vertical-align: center;
+
 }
+
 .adminbuttons form
 {
 	display: flex; /* 2. display flex to the rescue */

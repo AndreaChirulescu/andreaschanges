@@ -329,7 +329,7 @@ if ( !class_exists( 'GiglogAdmin_AdminPage' ) ) {
                 $vquery0 = "select wpgcl_rev1 from wpg_concertlogs where wpgcl_concertid=".$c ;
                 $results = $wpdb->get_results($vquery0);
                 foreach ( $results AS $row )   $x= $row -> wpgcl_rev1;
-                if ($x !='' and $x!=$hf_username)  { ('<span class="takenby">Taken</span><div class="takenby">Taken by '.$x.'</div>'); }
+                if ($x !='' and $x!=$hf_username)  { return('<span class="takenby">Taken</span><div class="takenby">Taken by '.$x.'</div>'); }
                 else
                     if  ($x==$hf_username)  //if current user
                         return ('<form class="unassignit"  method="POST" action=""> <input type="hidden" name="cid" value="' . $c. '" /><input type="hidden" name="pid" value="' . $p1. '" /><input type="submit" name="unassignitem" value=""/>
@@ -345,7 +345,7 @@ if ( !class_exists( 'GiglogAdmin_AdminPage' ) ) {
                 $vquery0 = "select wpgcl_rev2 from wpg_concertlogs where wpgcl_concertid=".$c ;
                 $results = $wpdb->get_results($vquery0);
                 foreach ( $results AS $row )   $x= $row -> wpgcl_rev2;
-                if ($x !='' and $x!=$hf_username)  { ('<span class="takenby">Taken</span><div class="takenby">Taken by '.$x.'</div>'); }
+                if ($x !='' and $x!=$hf_username)  { return('<span class="takenby">Taken</span><div class="takenby">Taken by '.$x.'</div>'); }
                 else
                     if  ($x==$hf_username)  //if current user
                         return ('<form class="unassignit"  method="POST" action=""> <input type="hidden" name="cid" value="' . $c. '" /><input type="hidden" name="pid" value="' . $p1. '" /><input type="submit" name="unassignitem" value=""/>
