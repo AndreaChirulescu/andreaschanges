@@ -83,10 +83,10 @@ if ( !class_exists( 'GiglogAdmin_AdminPage' ) ) {
 
             return $select;
         }
-        
-         static function adminactions()  //didn't get this one to work, the point was to create the drop down menu with a function, but it works fine to create it directly in the query
+
+        static function adminactions()  //didn't get this one to work, the point was to create the drop down menu with a function, but it works fine to create it directly in the query
         {
-            global $wpdb;  
+            global $wpdb;
             $query = "SELECT id,wpgs_name from wpg_pressstatus" ;
             $statuses = $wpdb->get_results($query);
 
@@ -102,8 +102,6 @@ if ( !class_exists( 'GiglogAdmin_AdminPage' ) ) {
             $select .= '<input type="submit" value="Adminstatus"></form>';
             return $select;
         }
-
-
 
         static function get_concerts()
         {
@@ -176,7 +174,7 @@ if ( !class_exists( 'GiglogAdmin_AdminPage' ) ) {
                     $stquery = "SELECT id,wpgs_name from wpg_pressstatus" ;
                     $statuses = $wpdb->get_results($stquery);
                     $content .= '<form method="POST" action=""><input type="hidden" name="cid" value="' . $row->id.  '" /><select name="selectstatus">';
-                    foreach ( $statuses AS $sts ) 
+                    foreach ( $statuses AS $sts )
                         {
                             $content .= '<option value="'.$sts->id. '">'.$sts -> wpgs_name .'</option>';
                         }
@@ -189,13 +187,12 @@ if ( !class_exists( 'GiglogAdmin_AdminPage' ) ) {
             }
             $content .= '</table>';
 
-
             // return the table
             return $content;
         }
 
         static function update()
-        {   global $wpdb; 
+        {   global $wpdb;
             if ('POST' !== $_SERVER['REQUEST_METHOD'])
                 return;
 
@@ -221,17 +218,15 @@ if ( !class_exists( 'GiglogAdmin_AdminPage' ) ) {
                 $url3=$_SERVER['REQUEST_URI'];
                 header("Refresh: 1; URL=$url3");  //reload page
             }
-            
-            //handling the admin drop down menu  
+
+            //handling the admin drop down menu
             if(isset($_POST['selectstatus']))
             {
-               $usql = "UPDATE wpg_concertlogs  SET wpgcl_status=".$_POST['selectstatus']." WHERE wpgcl_concertid=".$_POST['cid'];                
+               $usql = "UPDATE wpg_concertlogs  SET wpgcl_status=".$_POST['selectstatus']." WHERE wpgcl_concertid=".$_POST['cid'];
                $uresults = $wpdb->get_results($usql);
                //$url2=$_SERVER['REQUEST_URI'];  //doesn't seem to be needed actually, leaving here just in case
                //header("Refresh: 1; URL=$url2");  //reload page
             }
-
-         
         }
 
         static function assignconcert($p1, $c)
@@ -260,8 +255,6 @@ if ( !class_exists( 'GiglogAdmin_AdminPage' ) ) {
                 'concertid' => $c));
             echo ($wpdb->last_error );
             wp_mail( $to, $subject, $body, $headers );
-
-
         }
 
         static function unassignconcert($p1, $c)
@@ -275,13 +268,10 @@ if ( !class_exists( 'GiglogAdmin_AdminPage' ) ) {
             $body = 'The email body content';
             $headers = array('Content-Type: text/html; charset=UTF-8');
 
-
-
             if ($p1 == 'photo1') $usql = "UPDATE wpg_concertlogs  SET wpgcl_photo1=''  WHERE wpgcl_concertid=".$c;
             if ($p1 == 'photo2') $usql = "UPDATE wpg_concertlogs  SET wpgcl_photo2=''  WHERE wpgcl_concertid=".$c;
             if ($p1 == 'rev1') $usql = "UPDATE wpg_concertlogs  SET wpgcl_rev1='' WHERE wpgcl_concertid=".$c;
             if ($p1 == 'rev2') $usql = "UPDATE wpg_concertlogs  SET wpgcl_rev2=''  WHERE wpgcl_concertid=".$c;
-
 
             $uresults = $wpdb->get_results($usql);
             $wpdb->insert( 'wpg_logchanges', array (
@@ -291,8 +281,6 @@ if ( !class_exists( 'GiglogAdmin_AdminPage' ) ) {
                 'concertid' => $c));
             echo ($wpdb->last_error );
             wp_mail( $to, $subject, $body, $headers );
-
-
         }
 
         static function returnuser($p1, $c)
@@ -317,6 +305,7 @@ if ( !class_exists( 'GiglogAdmin_AdminPage' ) ) {
                         return ('<form method="POST" action=""> <input type="hidden" name="cid" value="' . $c. '" /><input type="hidden" name="pid" value="' . $p1. '" /><input  type="submit" name="assignitem" value=""/>
                         </form>');
             }
+
             //PHOTO2
             if ($p1 == 'photo2')
             {
@@ -332,8 +321,8 @@ if ( !class_exists( 'GiglogAdmin_AdminPage' ) ) {
                     else  //not taken by anyone
                         return ('<form method="POST" action=""> <input type="hidden" name="cid" value="' . $c. '" /><input type="hidden" name="pid" value="' . $p1. '" /><input type="submit" name="assignitem" value=""/>
                         </form>');
-
             }
+
             //TEXT1
             if ($p1 == 'rev1')
             {
@@ -348,8 +337,8 @@ if ( !class_exists( 'GiglogAdmin_AdminPage' ) ) {
                     else //not taken by anyone
                         return ('<form method="POST" action=""> <input type="hidden" name="cid" value="' . $c. '" /><input type="hidden" name="pid" value="' . $p1. '" /><input type="submit" name="assignitem" value=""/>
                         </form>');
-
             }
+
             //TEXT2
             if ($p1 == 'rev2')
             {
@@ -364,7 +353,6 @@ if ( !class_exists( 'GiglogAdmin_AdminPage' ) ) {
                     else //not taken by anyone
                         return ('<form method="POST" action=""> <input type="hidden" name="cid" value="' . $c. '" /><input type="hidden" name="pid" value="' . $p1. '" /><input type="submit" name="assignitem" value=""/>
                         </form>');
-
             }
         }
     }
