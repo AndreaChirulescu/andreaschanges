@@ -252,7 +252,7 @@ if ( !function_exists( "giglog_register_db_tables") )
     function giglog_register_db_tables()
     {
         $db_version = get_option('giglogadmin_db_version');
-        if ($db_version == 2) {
+        if ($db_version == 3) {
             return;
         }
 
@@ -275,7 +275,6 @@ if ( !function_exists( "giglog_register_db_tables") )
                 `wpgcl_rev2` varchar(200) DEFAULT NULL,
                 `wpgcl_int` varchar(200) DEFAULT NULL,
                 `wpgcl_status` int(11) DEFAULT 1,
-                `wpgcl_createddate` date NOT NULL DEFAULT current_timestamp(),                
                 PRIMARY KEY (`id`),
                 KEY `wpglog_status` (`wpgcl_status`),
                 KEY `wpglog_concerts` (`wpgcl_concertid`)
@@ -407,7 +406,15 @@ if ( !function_exists( "giglog_register_db_tables") )
                     (6, 'Rejected');");
         }
 
-        update_option("giglogadmin_db_version", 2);
+        if ($db_version == NULL || $db_version < 3)
+        {
+            $wpdb->query(
+                "ALTER TABLE `wpg_concertlogs`
+                    ADD COLUMN IF NOT EXISTS
+                        `wpgcl_createddate` date NOT NULL DEFAULT current_timestamp();");
+        }
+
+        update_option("giglogadmin_db_version", 3);
     }
 
     giglog_register_db_tables();
