@@ -40,5 +40,14 @@ if ( !class_exists('GiglogAdmin_Band') ) {
 
             return $results ? $results[0]->id : GiglogAdmin_Band::create($name);
         }
+        static function all_bands()
+        {
+            global $wpdb;         
+            
+            $results = $wpdb->get_results("select id, wpgband_name as vname from wpg_bands order by wpgband_name");
+            
+            return ($results);
+        }
+
     }
 }

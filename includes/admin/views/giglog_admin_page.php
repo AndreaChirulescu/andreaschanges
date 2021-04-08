@@ -42,7 +42,41 @@ if ( !class_exists( 'GiglogAdmin_AdminPage' ) ) {
                 <p><?php echo GiglogAdmin_AdminPage::get_filters() ?></p>
                 <p><?php echo GiglogAdmin_AdminPage::get_concerts() ?></p>
             </div>
+ 
+        <form method="POST" action="" class="concedit" > Here Be Dragons <br>
+        <label for="band">Band:</label><?php echo GiglogAdmin_AdminPage::get_allbands() ?><br>
+        <label for="venue">Venue:</label><?php echo GiglogAdmin_AdminPage::get_allvenues() ?><br>
+        <label for="cdate">Date:</label><input type="date" id="cdate" name="cdate"><br>
+        <label for="ticket">Tickets:</label><input type="text" id="ticket" name="ticket"><br>
+        <label for="eventurl">Event link:</label><input type="text" id="eventurl" name="eventurl"><br>
+
+        <p><button>Submit</button></p>
+        </form>
             <?php
+        }
+        static function get_allvenues()
+        {    $select .= '<select name="selectvenue">';   
+             foreach ( GiglogAdmin_Venue::all_venues() AS $venue ) 
+             {
+             $select .= '<option value="' . $venue -> id. '">'.$venue->vname;
+             $select .='</option>';
+ 			              }
+             $select .= '</select>';
+        return($select);
+
+         }
+
+        static function get_allbands()
+        {               
+          $select .= '<select name="selectband">';
+		  foreach ( GiglogAdmin_Band::all_bands() AS $band )
+          {
+            $select .= '<option value="' . $band -> id. '">'.$band->vname;
+            $select .='</option>';	
+          }
+             $select .= '</select>';
+          return($select);
+
         }
 
         static function get_filters()
