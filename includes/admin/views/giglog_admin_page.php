@@ -42,21 +42,22 @@ if ( !class_exists( 'GiglogAdmin_AdminPage' ) ) {
                 <p><?php echo GiglogAdmin_AdminPage::get_filters() ?></p>
                 <p><?php echo GiglogAdmin_AdminPage::get_concerts() ?></p>
             </div>
- 
-        <form method="POST" action="" class="concedit" > Here Be Dragons <br>
-        <label for="band">Band:</label><?php echo GiglogAdmin_AdminPage::get_allbands() ?><br>
-        <label for="venue">Venue:</label><?php echo GiglogAdmin_AdminPage::get_allvenues() ?><br>
-        <label for="cdate">Date:</label><input type="date" id="cdate" name="cdate"><br>
-        <label for="ticket">Tickets:</label><input type="text" id="ticket" name="ticket"><br>
-        <label for="eventurl">Event link:</label><input type="text" id="eventurl" name="eventurl"><br>
 
-        <p><button>Submit</button></p>
-        </form>
-            <?php
+
+            <form method="POST" action="" class="concedit" > Here Be Dragons <br>
+                <label for="band">Band:</label><?php echo GiglogAdmin_AdminPage::get_allbands() ?><br>
+                <label for="venue">Venue:</label><?php echo GiglogAdmin_AdminPage::get_allvenues() ?><br>
+                <label for="cdate">Date:</label><input type="date" id="cdate" name="cdate"><br>
+                <label for="ticket">Tickets:</label><input type="text" id="ticket" name="ticket"><br>
+                <label for="eventurl">Event link:</label><input type="text" id="eventurl" name="eventurl"><br>
+
+                <p><button>Submit</button></p>
+            </form>
+            <?php   //currnet comment and above form can be removed once we decide how to...form. The form is meant to allow adding single concerts or editing one in the table.
         }
         static function get_allvenues()
-        {    $select .= '<select name="selectvenue">';   
-             foreach ( GiglogAdmin_Venue::all_venues() AS $venue ) 
+        {    $select .= '<select name="selectvenue">';
+             foreach ( GiglogAdmin_Venue::all_venues() AS $venue )
              {
              $select .= '<option value="' . $venue -> id. '">'.$venue->vname;
              $select .='</option>';
@@ -67,12 +68,13 @@ if ( !class_exists( 'GiglogAdmin_AdminPage' ) ) {
          }
 
         static function get_allbands()
-        {               
+        {
           $select .= '<select name="selectband">';
+
 		  foreach ( GiglogAdmin_Band::all_bands() AS $band )
           {
             $select .= '<option value="' . $band -> id. '">'.$band->vname;
-            $select .='</option>';	
+            $select .='</option>';
           }
              $select .= '</select>';
           return($select);
@@ -144,7 +146,7 @@ if ( !class_exists( 'GiglogAdmin_AdminPage' ) ) {
 
             return $select;
         }
-        
+
         //function to calculate if the concert has been added in the past 10 days or before that and show a green NEW for the newest rows
         	static function getpublishstatus($concert_id)
             {
@@ -158,7 +160,7 @@ if ( !class_exists( 'GiglogAdmin_AdminPage' ) ) {
                 $date2 = new DateTime($x, new DateTimeZone('Europe/London'));
                 $dd = $date2 -> diff($date1) ->format("%a");
     			}
-                
+
             if ($dd <= 10) return ('<span style="color:green">NEW</span>');
 			}
 

@@ -18,20 +18,20 @@ input[name="assignitem"]
 
     background: transparent;
 
-	border: none;     
-   
+	border: none;
+
 	font-size: small;
 
 	padding: none;
 
 	background-image: url('/wp-content/plugins/giglogadmin/assets/images/checkedbox.png');
-    
+
 	background-repeat: no-repeat;
 
 	background-size: 15px 15px;
-        
+
 	width: 20px;
-  
+
 	height: 20px;
 
 	vertical-align: center;
@@ -59,8 +59,8 @@ input[name="unassignitem"]
 
         background: transparent;
 
-	border: none;     
-   
+	border: none;
+
 	font-size: small;
 
 	padding: none;
@@ -70,9 +70,9 @@ input[name="unassignitem"]
 	background-repeat: no-repeat;
 
 	background-size: 15px 15px;
-        
+
 	width: 20px;
-  
+
 	height: 20px;
 
 	vertical-align: center;
@@ -82,7 +82,8 @@ input[name="unassignitem"]
 .adminbuttons form
 {
 	display: flex; /* 2. display flex to the rescue */
-  flex-direction: row;
+
+    flex-direction: row;
 }
 .adminbuttons input
 {  width: 80px;

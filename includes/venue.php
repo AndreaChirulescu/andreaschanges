@@ -48,11 +48,11 @@ if ( !class_exists('GiglogAdmin_Venue') ) {
 
             return array_map(function ($r) { return $r->wpgvenue_city; }, $results);
         }
-        
+
         static function all_venues()
         {
             global $wpdb;
-            
+
             $results = $wpdb->get_results("select id, CONCAT( IFNULL(wpgvenue_name,''),'-',IFNULL(wpgvenue_city,'')) as vname from wpg_venues");
 
             return ($results);
