@@ -56,7 +56,7 @@ if ( !class_exists( 'GiglogAdmin_AdminPage' ) ) {
             <?php   //currnet comment and above form can be removed once we decide how to...form. The form is meant to allow adding single concerts or editing one in the table.
         }
         static function get_allvenues()
-        {    $select .= '<select name="selectvenue">';
+        {    $select = '<select name="selectvenue">';
              foreach ( GiglogAdmin_Venue::all_venues() AS $venue )
              {
              $select .= '<option value="' . $venue -> id. '">'.$venue->vname;
@@ -69,7 +69,7 @@ if ( !class_exists( 'GiglogAdmin_AdminPage' ) ) {
 
         static function get_allbands()
         {
-          $select .= '<select name="selectband">';
+          $select = '<select name="selectband">';
 
 		  foreach ( GiglogAdmin_Band::all_bands() AS $band )
           {
