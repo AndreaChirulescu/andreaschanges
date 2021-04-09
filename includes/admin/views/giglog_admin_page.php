@@ -55,30 +55,28 @@ if ( !class_exists( 'GiglogAdmin_AdminPage' ) ) {
             </form>
             <?php   //currnet comment and above form can be removed once we decide how to...form. The form is meant to allow adding single concerts or editing one in the table.
         }
-        static function get_allvenues()
-        {    $select = '<select name="selectvenue">';
-             foreach ( GiglogAdmin_Venue::all_venues() AS $venue )
-             {
-             $select .= '<option value="' . $venue -> id. '">'.$venue->vname;
-             $select .='</option>';
- 			              }
-             $select .= '</select>';
-        return($select);
 
-         }
+        static function get_allvenues()
+        {
+            $select = '<select name="selectvenue">';
+            foreach ( GiglogAdmin_Venue::all_venues() AS $venue ) {
+                $select .= '<option value="' . $venue -> id. '">'.$venue->vname;
+                $select .='</option>';
+            }
+            $select .= '</select>';
+            return($select);
+        }
 
         static function get_allbands()
         {
-          $select = '<select name="selectband">';
+            $select = '<select name="selectband">';
 
-		  foreach ( GiglogAdmin_Band::all_bands() AS $band )
-          {
-            $select .= '<option value="' . $band -> id. '">'.$band->vname;
-            $select .='</option>';
-          }
-             $select .= '</select>';
-          return($select);
-
+            foreach ( GiglogAdmin_Band::all_bands() AS $band ) {
+                $select .= '<option value="' . $band -> id. '">'.$band->vname;
+                $select .='</option>';
+            }
+            $select .= '</select>';
+            return($select);
         }
 
         static function get_filters()
@@ -148,21 +146,21 @@ if ( !class_exists( 'GiglogAdmin_AdminPage' ) ) {
         }
 
         //function to calculate if the concert has been added in the past 10 days or before that and show a green NEW for the newest rows
-        	static function getpublishstatus($concert_id)
-            {
+        static function getpublishstatus($concert_id)
+        {
             global $wpdb;
             $date1 = new DateTime("now");
             $dsql = "select wpgcl_createddate from wpg_concertlogs where wpgcl_concertid=".$concert_id;
             $results = $wpdb->get_results($dsql);
-            foreach ( $results AS $row )
-            { //$x = strtotime($row -> filedate);
+            foreach ( $results AS $row ) {
+                //$x = strtotime($row -> filedate);
                 $x= date('Y-m-d H:i:s', strtotime($row -> wpgcl_createddate));
                 $date2 = new DateTime($x, new DateTimeZone('Europe/London'));
                 $dd = $date2 -> diff($date1) ->format("%a");
-    			}
+            }
 
             if ($dd <= 10) return ('<span style="color:green">NEW</span>');
-			}
+        }
 
 
         static function get_concerts()
