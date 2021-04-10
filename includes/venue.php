@@ -1,5 +1,4 @@
 <?php
-
 // SPDX-FileCopyrightText: 2021 Andrea Chirulescu <andrea.chirulescu@gmail.com>
 // SPDX-FileCopyrightText: 2021 Harald Eilertsen <haraldei@anduin.net>
 //
@@ -30,11 +29,11 @@ if ( !class_exists('GiglogAdmin_Venue') ) {
         }
 
         static function create($name,$city)
-        {   if(empty($city)) $city='Oslo';
-            $attrs = new stdClass();
-            $attrs->wpgvenue_name = $name;
-            $attrs->wpgvenue_city = $city;
-            $venue = new GiglogAdmin_Venue($attrs);
+        {
+            $venue = new GiglogAdmin_Venue((object) [
+                'wpgvenue_name' => $name,
+                'wpgvenue_city' => !empty($city) ? $city : 'Oslo',
+            ]);
             $venue->save();
 
             return $venue;

@@ -31,19 +31,22 @@ final class VenueTest extends TestCase
     {
         global $wpdb;
 
-        $v = new stdClass();
-        $v->id = 42;
-        $v->wpgvenue_name = 'Slarkhaillen';
-        $v->wpgvenue_city = 'Ofoten';
-        $v->wpgvenue_address = 'Baillsvingen 4';
-        $v->wpgvenue_webpage = 'https://slarkhaillen.no';
+        $results = array(
+            (object) [
+                'id' => 42,
+                'wpgvenue_name' => 'Slarkhaillen',
+                'wpgvenue_city' => 'Ofoten',
+                'wpgvenue_address' => 'Baillsvingen 4',
+                'wpgvenue_webpage' => 'https://slarkhaillen.no'
+            ]);
 
         $wpdb = $this->createStub(wpdb::class);
-        $wpdb->method('get_results')->willReturn(array($v));
+        $wpdb->method('get_results')->willReturn($results);
+
         $venue = GiglogAdmin_Venue::find_or_create("Slarkhaillen");
 
-        $this->assertEquals(42, $venue->id());
-        $this->assertEquals($v->wpgvenue_name, $venue->name());
+        $this->assertEquals($results[0]->id, $venue->id());
+        $this->assertEquals($results[0]->wpgvenue_name, $venue->name());
     }
 
     public function testFindAllVenuesInCity() : void
@@ -52,10 +55,11 @@ final class VenueTest extends TestCase
 
         $results = array();
         for ($i = 0; $i < 3; $i++) {
-            $results[$i] = new stdClass();
-            $results[$i]->id = 42 + $i;
-            $results[$i]->wpgvenue_name = "Venue #" . $i;
-            $results[$i]->wpgvenue_city = "Osaka";
+            $results[$i] = (object) [
+                'id' => 42 + $i,
+                'wpgvenue_name' => "Venue #" . $i,
+                'wpgvenue_city' => "Osaka"
+            ];
         }
 
         $wpdb = $this->createStub(wpdb::class);
@@ -77,10 +81,11 @@ final class VenueTest extends TestCase
 
         $results = array();
         for ($i = 0; $i < 3; $i++) {
-            $results[$i] = new stdClass();
-            $results[$i]->id = 42 + $i;
-            $results[$i]->wpgvenue_name = "Venue #" . $i;
-            $results[$i]->wpgvenue_city = "City #" . $i;
+            $results[$i] = (object) [
+                'id' => 42 + $i,
+                'wpgvenue_name' => "Venue #" . $i,
+                'wpgvenue_city' => "City #" . $i
+            ];
         }
 
         $wpdb = $this->createStub(wpdb::class);
