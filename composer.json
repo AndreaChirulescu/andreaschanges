@@ -1,0 +1,17 @@
+{
+    "name": "eternal-terror/giglogadmin",
+    "description": "Assign reviewers and photographers to concerts for WordPress",
+    "type": "wordpress-plugin",
+    "license": "AGPLv3",
+    "authors": [
+        {
+            "name": "Harald Eilertsen",
+            "email": "haraldei@anduin.net"
+        },
+        {
+            "name": "Andrea Chirulescu",
+            "email": "andrea.chirulescu@gmail.com"
+        }
+    ],
+    "require": {}
+}
