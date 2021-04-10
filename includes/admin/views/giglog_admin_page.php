@@ -60,7 +60,7 @@ if ( !class_exists( 'GiglogAdmin_AdminPage' ) ) {
         {
             $select = '<select name="selectvenue">';
             foreach ( GiglogAdmin_Venue::all_venues() AS $venue ) {
-                $select .= '<option value="' . $venue -> id. '">'.$venue->vname;
+                $select .= '<option value="' . $venue->id() . '">'. $venue->name();
                 $select .='</option>';
             }
             $select .= '</select>';
@@ -98,7 +98,13 @@ if ( !class_exists( 'GiglogAdmin_AdminPage' ) ) {
             if ( $selected_city != "ALL" ) {
                 //second drop down for venue
 
-                $venues = array_merge([[0, "ALL"]], GiglogAdmin_Venue::venues_in_city($selected_city));
+                $venues = GiglogAdmin_Venue::venues_in_city($selected_city);
+                $venue_list = array_merge(
+                    [0, "ALL"],
+                    array_map(
+                        function($v) { return [$v->id(), $v->name()]; },
+                        $venues));
+
                 $selected_venue =
                     filter_input(INPUT_POST, "selectvenue", FILTER_SANITIZE_SPECIAL_CHARS)
                     || $venues[0];

@@ -85,7 +85,8 @@ if ( !class_exists( 'GiglogAdmin_ImportGigsPage' ) ) {
                 if (is_numeric($venue))
                     $newconcert[1] = $venue;
                 else {
-                    $newconcert[1] = GiglogAdmin_Venue::find_or_create($venue);
+                    $v = GiglogAdmin_Venue::find_or_create($venue);
+                    $newconcert[1] = $v->id();
                 }
 
                 //not sure how to check dates, hopefully manual verification of files will take care of it

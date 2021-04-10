@@ -19,26 +19,50 @@
 if ( !class_exists('GiglogAdmin_Venue') ) {
     class GiglogAdmin_Venue
     {
+        private $id;
+        private $name;
+        private $city;
+        private $address;
+        private $webpage;
+
+        /*
+         * Constructs a new venue object from an array of attributes.
+         * The attributes are expected to be named as in the database,
+         * so this constructor can be used to construct the object
+         * directly from the database row.
+         */
+        private function __construct($attrs)
+        {
+            $this->id = isset($attrs->id) ? $attrs->id : NULL;
+            $this->name = isset($attrs->wpgvenue_name) ? $attrs->wpgvenue_name : NULL;
+            $this->city = isset($attrs->wpgvenue_city) ? $attrs->wpgvenue_city : NULL;
+            $this->address = isset($attrs->wpgvenue_address) ? $attrs->wpgvenue_address : NULL;
+            $this->webpage = isset($attrs->wpgvenue_webpage) ? $attrs->wpgvenue_webpage : NULL;
+        }
+
         static function create($name)
         {
-            global $wpdb;
+            $attrs = new stdClass();
+            $attrs->wpgvenue_name = $name;
+            $venue = new GiglogAdmin_Venue($attrs);
+            $venue->save();
 
-            $wpdb->insert('wpg_venues', array(
-                'id' => '',
-                'wpgvenue_name' => $name
-            ));
-
-            return $wpdb->insert_id;
+            return $venue;
         }
 
         static function find_or_create($name)
         {
             global $wpdb;
 
-            $venuesql = 'SELECT id FROM wpg_venues WHERE upper(wpgvenue_name)="' . $name . '"';
+            $venuesql = 'SELECT * FROM wpg_venues WHERE upper(wpgvenue_name)="' . $name . '"';
             $results  = $wpdb->get_results($venuesql);
 
-            return $results ? $results[0]->id : GiglogAdmin_Venue::create($name);
+            if ($results) {
+                return new GiglogAdmin_Venue($results[0]);
+            }
+            else {
+                return GiglogAdmin_Venue::create($name);
+            }
         }
 
         static function all_cities()
@@ -53,9 +77,9 @@ if ( !class_exists('GiglogAdmin_Venue') ) {
         {
             global $wpdb;
 
-            $results = $wpdb->get_results("select id, CONCAT( IFNULL(wpgvenue_name,''),'-',IFNULL(wpgvenue_city,'')) as vname from wpg_venues");
+            $results = $wpdb->get_results("select * from wpg_venues");
 
-            return ($results);
+            return array_map(function ($r) { return new GiglogAdmin_Venue($r); }, $results);
         }
 
 
@@ -66,7 +90,34 @@ if ( !class_exists('GiglogAdmin_Venue') ) {
                 "select id, wpgvenue_name from wpg_venues where wpgvenue_city=?", $city);
             $results = $wpdb->get_results($q);
 
-            return array_map(function ($r) { return [$r->id, $r->wpgvenue_name]; }, $results);
+            return array_map(function ($r) { return new GiglogAdmin_Venue($r); }, $results);
+        }
+
+        public function save()
+        {
+            global $wpdb;
+
+            $wpdb->insert('wpg_venues', array(
+                'id' => '',
+                'wpgvenue_name' => $this->name
+            ));
+
+            $this->id = $wpdb->insert_id;
+        }
+
+        public function id()
+        {
+            return $this->id;
+        }
+
+        public function name()
+        {
+            return $this->name;
+        }
+
+        public function city()
+        {
+            return $this->city;
         }
     }
 }
