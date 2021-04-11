@@ -13,7 +13,7 @@
  * GNU Affero General Public License for more details.
  *
  * You should have received a copy of the GNU Affero General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
 if ( !class_exists('GiglogAdmin_Band') ) {
@@ -37,7 +37,7 @@ if ( !class_exists('GiglogAdmin_Band') ) {
             global $wpdb;
             if(empty($country)) $country = 'NO';
             $bandsql = 'SELECT id FROM wpg_bands WHERE upper(wpgband_name)="' . $name . '"';
-            $results = $wpdb->get_results($bandsql); 
+            $results = $wpdb->get_results($bandsql);
 
             return $results ? $results[0]->id : GiglogAdmin_Band::create($name, $country);
         }
@@ -50,7 +50,7 @@ if ( !class_exists('GiglogAdmin_Band') ) {
 
             return ($results);
         }
-        
+
         static function all_countries()
         {
             global $wpdb;

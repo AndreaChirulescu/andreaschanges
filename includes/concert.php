@@ -13,7 +13,7 @@
  * GNU Affero General Public License for more details.
  *
  * You should have received a copy of the GNU Affero General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
 if ( !class_exists('GiglogAdmin_Concert') ) {
@@ -38,7 +38,7 @@ if ( !class_exists('GiglogAdmin_Concert') ) {
 
             return $wpdb->insert_id;
         }
-        
+
         public static function updatec($id, $band, $venue, $cdate, $ticketlink, $eventlink)
         {
             global $wpdb;
