@@ -38,6 +38,29 @@ if ( !class_exists('GiglogAdmin_Concert') ) {
 
             return $wpdb->insert_id;
         }
+        
+        public static function updatec($id, $band, $venue, $cdate, $ticketlink, $eventlink)
+        {
+            global $wpdb;
+
+            $res = $wpdb->update('wpg_concerts', array(
+                'band' => $band,
+                'venue' => $venue,
+                'wpgconcert_date' => $cdate,
+                'wpgconcert_tickets' => $ticketlink,
+                'wpgconcert_event' => $eventlink
+            ),
+                array('id' => $id)
+            );
+
+            if ( !$res ) {
+             //   exit( var_dump( $wpdb->last_query ) ); //for onscreen debugging when needed
+                error_log( __CLASS__ . '::' . __FUNCTION__ . ": {$wpdb->last_error}");
+                die;
+            }
+
+            return ($wpdb->last_error); //not sure what to return here?
+        }
 
         public static function get($band, $venue, $date)
         {
@@ -53,3 +76,4 @@ if ( !class_exists('GiglogAdmin_Concert') ) {
         }
     }
 }
+?>

@@ -41,44 +41,50 @@ if ( !class_exists( 'GiglogAdmin_AdminPage' ) ) {
 
                 <p><?php echo GiglogAdmin_AdminPage::get_filters() ?></p>
                 <p><?php echo GiglogAdmin_AdminPage::get_concerts() ?></p>
-            </div>
-
-
-            <form method="POST" action="" class="concedit" > Here Be Dragons <br>
-                <label for="band">Band:</label><?php echo GiglogAdmin_AdminPage::get_allbands() ?><br>
-                <label for="venue">Venue:</label><?php echo GiglogAdmin_AdminPage::get_allvenues() ?><br>
-                <label for="cdate">Date:</label><input type="date" id="cdate" name="cdate"><br>
-                <label for="ticket">Tickets:</label><input type="text" id="ticket" name="ticket"><br>
-                <label for="eventurl">Event link:</label><input type="text" id="eventurl" name="eventurl"><br>
-
-                <p><button>Submit</button></p>
-            </form>
-            <?php   //currnet comment and above form can be removed once we decide how to...form. The form is meant to allow adding single concerts or editing one in the table.
+            </div>            
+            <?php   
+            if (current_user_can('administrator'))
+                echo(GiglogAdmin_AdminPage::editforms());  //not sure why it doesn't show without the echo?
         }
 
-        static function get_allvenues()
+        static function get_allvenues($invenue)
         {
-            $select = '<select name="selectvenue">';
+            $select = '<select name="selectvenueadmin">';
+            $select .= '<option value="">Please Select..</option>';
             foreach ( GiglogAdmin_Venue::all_venues() AS $venue ) {
-                $select .= '<option value="' . $venue->id() . '">'. $venue->name();
+                if($invenue==$venue ->id() ) $select .= '<option value="' . $venue -> id(). '" selected="selected">'.$venue->name();
+                else $select .= '<option value="' . $venue->id() . '">'. $venue->name();
                 $select .='</option>';
             }
             $select .= '</select>';
             return($select);
         }
 
-        static function get_allbands()
+        static function get_allbands($inband)
         {
             $select = '<select name="selectband">';
-
+            $select .= '<option value="">Please Select..</option>';
             foreach ( GiglogAdmin_Band::all_bands() AS $band ) {
-                $select .= '<option value="' . $band -> id. '">'.$band->vname;
+                if($inband==$band ->id) $select .= '<option value="' . $band -> id. '" selected="selected">'.$band->vname;
+                else $select .= '<option value="' . $band -> id. '">'.$band->vname;
                 $select .='</option>';
             }
             $select .= '</select>';
             return($select);
         }
 
+        static function get_countries()
+        {
+            $select = '<select name="selectcountry">';
+            $select .= '<option value="">Please Select..</option>';
+            foreach ( GiglogAdmin_Band::all_countries() AS $country ) {
+                $select .= '<option value="' . $country->id. '">'. $country->cname;
+                $select .='</option>';
+            }
+            $select .= '</select>';
+            return($select);
+        }
+        
         static function get_filters()
         {
             $cities = array_merge(["ALL"], GiglogAdmin_Venue::all_cities());
@@ -127,6 +133,49 @@ if ( !class_exists( 'GiglogAdmin_AdminPage' ) ) {
 
             return $select;
         }
+        
+        static function editforms()
+        {   global $wpdb;
+                if($_POST['edit']="EDIT")
+                {
+                $query = "SELECT * FROM wpg_concerts where id = ".$_POST['cid'];
+                $results = $wpdb->get_results($query);
+                foreach($results as $row)
+                    {
+                     $band = $row -> band;
+                     $venue = $row-> venue;
+                     $cdate = $row ->wpgconcert_date;
+                     $ticket = $row->wpgconcert_tickets;
+                     $link = $row->wpgconcert_event;
+                    }
+                
+                }    
+            $content='<form method="POST" action="" class="concedit" > Form to create/edit concerts, bands, venues<br>'
+                .'<input type="hidden" name="pid" value="' .$_POST['cid']. '" />'
+                .'<label for="band">Band:</label>'.GiglogAdmin_AdminPage::get_allbands($band).'<br>'
+                .'<label for="venue">Venue:</label>'.GiglogAdmin_AdminPage::get_allvenues($venue).'<br>'
+                .'<label for="cdate">Date:</label><input type="date" id="cdate" name="cdate" value="'.$cdate.'"><br>'
+                .'<label for="ticket">Tickets:</label><input type="text" id="ticket" name="ticket" value="'.$ticket.'"><br>'
+                .'<label for="eventurl">Event link:</label><input type="text" id="eventurl" name="eventurl" value="'.$link.'"><br>';
+                if ($band=='') 
+                    $content.='<p><input type="submit" name="newconcert" value="Create New Concert"></p>';
+                else 
+                    $content.='<p><input type="submit" name="editconcert" value="Edit Concert"></p>';
+            $content.='</form>';
+            
+            $content.='<form method="POST" action="" class="bandedit" ><br>'
+                .'<label for="bandname">Band Name:</label><input type="text" id="bandname" name="bandname"><br>'
+                .'<label for="eventurl">Band Country:</label>'.GiglogAdmin_AdminPage::get_countries().'<br>'
+                .'<p><input type="submit" name="newband" value="Create New Band"></p>'
+            .'</form>';
+           
+            $content.='<form method="POST" action="" class="bandedit" ><br>'
+                .'<label for="bandname">Venue Name:</label><input type="text" id="venuename" name="venuename"><br>'
+                .'<label for="eventurl">Venue City:</label><input type="text" id="venuecity" name="venuecity"><br>'
+                .'<p><input type="submit" name="newvenue" value="Create New Venue"></p>'
+            .'</form>';  
+            return $content;
+        }
 
         static function adminactions($concert_id)
         {
@@ -145,7 +194,8 @@ if ( !class_exists( 'GiglogAdmin_AdminPage' ) ) {
 
             $select .=
                 '</select>'
-                . '<input type="submit" value="Set status">'
+                . '<input type="submit" value="SetStatus">'
+                . '<input type="submit" name ="edit" value="EDIT">'
                 . '</form>';
 
             return $select;
@@ -251,6 +301,7 @@ if ( !class_exists( 'GiglogAdmin_AdminPage' ) ) {
             // return the table
             return $content;
         }
+         
 
         static function update()
         {
@@ -283,13 +334,56 @@ if ( !class_exists( 'GiglogAdmin_AdminPage' ) ) {
             }
 
             //handling the admin drop down menu
-            if(isset($_POST['selectstatus']))
+            if(isset($_POST['selectstatus']) && $_POST['edit']!="EDIT")
             {
                $usql = "UPDATE wpg_concertlogs  SET wpgcl_status=".$_POST['selectstatus']." WHERE wpgcl_concertid=".$_POST['cid'];
                $uresults = $wpdb->get_results($usql);
                //$url2=$_SERVER['REQUEST_URI'];  //doesn't seem to be needed actually, leaving here just in case
                //header("Refresh: 1; URL=$url2");  //reload page
             }
+                
+            if(isset($_POST['newconcert']))
+            {
+            IF (empty($_POST['selectband'])  || empty($_POST['selectvenueadmin']) || empty($_POST['cdate']) || empty($_POST['ticket']) || empty($_POST['eventurl']))
+                    echo '<script language="javascript">alert("You are missing a value, concert was not created"); </script>';
+            else       
+                {         
+                GiglogAdmin_Concert::create($_POST['selectband'], $_POST['selectvenueadmin'], $_POST['cdate'], $_POST['ticket'], $_POST['eventurl']);
+                echo '<script language="javascript">alert("Yey, concert created"); </script>';
+                }    
+            }
+            if(isset($_POST['editconcert']))
+            {
+            IF (empty($_POST['selectband'])  || empty($_POST['selectvenueadmin']) || empty($_POST['cdate']) || empty($_POST['ticket']) || empty($_POST['eventurl']))
+                    echo '<script language="javascript">alert("You are missing a value, concert was not updated"); </script>';
+            else       
+                {         
+                GiglogAdmin_Concert::updatec($_POST['pid'],$_POST['selectband'], $_POST['selectvenueadmin'], $_POST['cdate'], $_POST['ticket'], $_POST['eventurl']);
+                echo '<script language="javascript">alert("Yey, concert updated"); </script>';
+                }    
+            }            
+            
+            if(isset($_POST['newband']))
+            {
+            IF (empty($_POST['bandname'])) //country is not checked as it is set to Norway by default  
+                    echo '<script language="javascript">alert("You are missing a value, band was not created"); </script>';
+            else       
+                {         
+                GiglogAdmin_Band::create($_POST['bandname'],$_POST['selectcountry']);  
+                echo '<script language="javascript">alert("Yey, band created"); </script>';
+                }    
+            }
+            
+            if(isset($_POST['newvenue']))
+            {
+            IF (empty($_POST['venuename']) || empty($_POST['venuecity']))
+                    echo '<script language="javascript">alert("You are missing a value, venue was not created"); </script>';
+            else       
+                {         
+                GiglogAdmin_Venue::create($_POST['venuename'],$_POST['venuecity']);  
+                echo '<script language="javascript">alert("Yey, venue created"); </script>';
+                }    
+            }            
         }
 
         static function assignconcert($p1, $c)
