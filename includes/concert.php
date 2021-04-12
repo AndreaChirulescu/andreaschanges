@@ -13,32 +13,68 @@
  * GNU Affero General Public License for more details.
  *
  * You should have received a copy of the GNU Affero General Public License
- * along with this program. If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
 if ( !class_exists('GiglogAdmin_Concert') ) {
     class GiglogAdmin_Concert
     {
-        public static function create($band, $venue, $date, $ticketlink, $eventlink)
+        private $id;
+        private $band;
+        private $venue;
+        private $cdate;
+        private $tickets;
+        private $eventlink;
+        
+         /*
+         * Constructs a new venue object from an array of attributes.
+         * The attributes are expected to be named as in the database,
+         * so this constructor can be used to construct the object
+         * directly from the database row.
+         */
+        private function __construct($attrs)
         {
-            global $wpdb;
-
-            $res = $wpdb->insert('wpg_concerts', array(
-                'band' => $band,
-                'venue' => $venue,
-                'wpgconcert_date' => $date,
-                'wpgconcert_tickets' => $ticketlink,
-                'wpgconcert_event' => $eventlink
-            ));
-
-            if ( !$res ) {
-                error_log( __CLASS__ . '::' . __FUNCTION__ . ": {$wpdb->last_error}");
-                die;
-            }
-
-            return $wpdb->insert_id;
+            $this->id = isset($attrs->id) ? $attrs->id : NULL;
+            $this->band = isset($attrs->band) ? $attrs->band : NULL;
+            $this->venue = isset($attrs->venue) ? $attrs->venue : NULL;
+            $this->cdate = isset($attrs->wpgconcert_date) ? $attrs->wpgconcert_date : NULL;
+            $this->tickets = isset($attrs->wpgconcert_tickets) ? $attrs->wpgconcert_tickets : NULL;
+            $this->eventlink = isset($attrs->wpgconcert_event) ? $attrs->wpgconcert_event : NULL;
         }
+        
+        static function find_or_create($id,$band, $venue, $cdate, $ticketlink, $eventlink)
+        {
+            global $wpdb;   
+            if($id)
+            {
+                $csql = 'SELECT * FROM wpg_concerts WHERE id="' . $id . '"';
+                $results  = $wpdb->get_results($csql);
 
+                if ($results) 
+                    return new GiglogAdmin_Concert($results[0]);
+            }
+            else {
+               
+                return GiglogAdmin_Concert::create($band, $venue, $cdate, $ticketlink, $eventlink);
+            }
+        }
+        
+        public static function create($band, $venue, $cdate, $ticketlink, $eventlink)
+        {
+            $attrs = new stdClass();
+            $attrs->id = '';
+            $attrs->band = $band;
+            $attrs->venue = $venue;
+            $attrs->wpgconcert_date = $cdate;
+            $attrs->wpgconcert_tickets = $ticketlink;
+            $attrs->wpgconcert_event = $eventlink;
+            $cid = new GiglogAdmin_Concert($attrs);
+            $cid->save();
+
+            return $cid;
+        }    
+           
+        
         public static function updatec($id, $band, $venue, $cdate, $ticketlink, $eventlink)
         {
             global $wpdb;
@@ -74,6 +110,48 @@ if ( !class_exists('GiglogAdmin_Concert') ) {
             error_log(__CLASS__ . '::' . __FUNCTION__ . ": {$sql}");
             return $wpdb->get_results($sql);
         }
+        
+        public function save()
+        {
+            global $wpdb;
+
+            $wpdb->insert('wpg_concerts', array(
+                'id' => '',
+                'band' => $this->band,
+                'venue' => $this->venue,
+                'wpgconcert_date' => $this->cdate,
+                'wpgconcert_tickets' => $this->tickets,
+                'wpgconcert_event' => $this->eventlink
+            ));
+
+            $this->id = $wpdb->insert_id;
+        }
+        
+        public function id()
+        {
+            return $this->id;
+        }
+
+        public function band()
+        {
+            return $this->band;
+        }
+        public function venue()
+        {
+            return $this->venue;
+        }   
+        public function cdate()
+        {
+            return $this->cdate;
+        }
+        public function tickets()
+        {
+            return $this->tickets;
+        }
+        public function eventlink()
+        {
+            return $this->eventlink;
+        }        
     }
 }
 ?>

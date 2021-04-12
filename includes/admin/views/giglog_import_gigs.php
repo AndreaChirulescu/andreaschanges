@@ -85,7 +85,7 @@ if ( !class_exists( 'GiglogAdmin_ImportGigsPage' ) ) {
                 if (is_numeric($venue))
                     $newconcert[1] = $venue;
                 else {
-                    $v = GiglogAdmin_Venue::find_or_create($venue,'Oslo');
+                    $v = GiglogAdmin_Venue::find_or_create($venue,'Oslo');  //phase 666 of the project should maybe consider both city and band country when creating concerts/importing files
                     $newconcert[1] = $v->id();
                 }
 
@@ -98,22 +98,34 @@ if ( !class_exists( 'GiglogAdmin_ImportGigsPage' ) ) {
                         . ', VENUE ' . $venue . ' with venue ID ' . $newconcert[1]
                         . ', CONCERTDATE ' . $condate);
                 } else {
-                    $id = GiglogAdmin_Concert::create(
+                    $id = GiglogAdmin_Concert::find_or_create(
+                        '',
                         $newconcert[0],
                         $newconcert[1],
                         $condate,
                         $ticketlink,
-                        $eventlink);
-
+                        $eventlink);                        
+                        
                     error_log( 'NEW CONCERT ADDED: '
-                        . ' ID: ' . $id
+                        . ' ID: ' . $id->id()
                         . ' BAND ' . $band . ' with band ID ' . $newconcert[0]
                         . ', VENUE ' . $venue . ' with venue ID ' . $newconcert[1]
                         . ', CONCERTDATE ' . $condate
                         . ', Ticket LINK ' . $ticketlink
                         . ', Event LINK ' . $eventlink);
 
-                    GiglogAdmin_Concertlogs::add($id);
+                    GiglogAdmin_Concertlogs::add($id->id());
+                    
+                    /*the last line can be replaced by a trigger 
+                    CREATE TRIGGER `insertIntoPhotoLogs` AFTER INSERT ON `wpg_concerts`
+                    FOR EACH ROW INSERT INTO wpg_concertlogs (
+                    wpg_concertlogs.id,
+                    wpg_concertlogs.wpgcl_concertid,
+                    wpg_concertlogs.wpgcl_status)
+    
+                    VALUES
+                    (null, new.id, 1)
+                    */
                 }
             }
         }
