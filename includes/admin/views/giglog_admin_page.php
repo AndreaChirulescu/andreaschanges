@@ -136,9 +136,10 @@ if ( !class_exists( 'GiglogAdmin_AdminPage' ) ) {
 
         static function editforms()
         {   global $wpdb;
-                if($_POST['edit']="EDIT")
-                {
-                $query = "SELECT * FROM wpg_concerts where id = ".$_POST['cid'];
+            $cid = filter_input(INPUT_POST, "cid");
+            if(($_POST['edit']=="EDIT")&&!empty($cid))
+            {
+                $query = "SELECT * FROM wpg_concerts where id = ".$cid;
                 $results = $wpdb->get_results($query);
                 foreach($results as $row)
                     {
@@ -149,15 +150,15 @@ if ( !class_exists( 'GiglogAdmin_AdminPage' ) ) {
                      $link = $row->wpgconcert_event;
                     }
 
-                }
+            }
             $content='<form method="POST" action="" class="concedit" > Form to create/edit concerts, bands, venues<br>'
-                .'<input type="hidden" name="pid" value="' .$_POST['cid']. '" />'
+                .'<input type="hidden" name="pid" value="' .$cid. '" />'
                 .'<label for="band">Band:</label>'.GiglogAdmin_AdminPage::get_allbands($band).'<br>'
                 .'<label for="venue">Venue:</label>'.GiglogAdmin_AdminPage::get_allvenues($venue).'<br>'
                 .'<label for="cdate">Date:</label><input type="date" id="cdate" name="cdate" value="'.$cdate.'"><br>'
                 .'<label for="ticket">Tickets:</label><input type="text" id="ticket" name="ticket" value="'.$ticket.'"><br>'
                 .'<label for="eventurl">Event link:</label><input type="text" id="eventurl" name="eventurl" value="'.$link.'"><br>';
-                if ($band=='')
+                if ($band=='') //actions differ if we update or create a concert, hence two buttons needed
                     $content.='<p><input type="submit" name="newconcert" value="Create New Concert"></p>';
                 else
                     $content.='<p><input type="submit" name="editconcert" value="Edit Concert"></p>';
@@ -334,7 +335,7 @@ if ( !class_exists( 'GiglogAdmin_AdminPage' ) ) {
             }
 
             //handling the admin drop down menu
-            if(isset($_POST['selectstatus']) && $_POST['edit']!="EDIT")
+            if(isset($_POST['selectstatus']) && $_POST['edit']!="EDIT" && !empty($_POST['cid']))
             {
                $usql = "UPDATE wpg_concertlogs  SET wpgcl_status=".$_POST['selectstatus']." WHERE wpgcl_concertid=".$_POST['cid'];
                $uresults = $wpdb->get_results($usql);
@@ -344,7 +345,7 @@ if ( !class_exists( 'GiglogAdmin_AdminPage' ) ) {
 
             if(isset($_POST['newconcert']))
             {
-            if (empty($_POST['selectband'])  || empty($_POST['selectvenueadmin']) || empty($_POST['cdate']) || empty($_POST['ticket']) || empty($_POST['eventurl']))
+            IF (empty($_POST['selectband'])  || empty($_POST['selectvenueadmin']) || empty($_POST['cdate']) || empty($_POST['ticket']) || empty($_POST['eventurl']))
                     echo '<script language="javascript">alert("You are missing a value, concert was not created"); </script>';
             else
                 {
@@ -354,7 +355,7 @@ if ( !class_exists( 'GiglogAdmin_AdminPage' ) ) {
             }
             if(isset($_POST['editconcert']))
             {
-            if (empty($_POST['selectband'])  || empty($_POST['selectvenueadmin']) || empty($_POST['cdate']) || empty($_POST['ticket']) || empty($_POST['eventurl']))
+            IF (empty($_POST['selectband'])  || empty($_POST['selectvenueadmin']) || empty($_POST['cdate']) || empty($_POST['ticket']) || empty($_POST['eventurl']))
                     echo '<script language="javascript">alert("You are missing a value, concert was not updated"); </script>';
             else
                 {
@@ -365,7 +366,7 @@ if ( !class_exists( 'GiglogAdmin_AdminPage' ) ) {
 
             if(isset($_POST['newband']))
             {
-            if (empty($_POST['bandname'])) //country is not checked as it is set to Norway by default
+            IF (empty($_POST['bandname'])) //country is not checked as it is set to Norway by default
                     echo '<script language="javascript">alert("You are missing a value, band was not created"); </script>';
             else
                 {
@@ -376,7 +377,7 @@ if ( !class_exists( 'GiglogAdmin_AdminPage' ) ) {
 
             if(isset($_POST['newvenue']))
             {
-            if (empty($_POST['venuename']) || empty($_POST['venuecity']))
+            IF (empty($_POST['venuename']) || empty($_POST['venuecity']))
                     echo '<script language="javascript">alert("You are missing a value, venue was not created"); </script>';
             else
                 {
