@@ -80,12 +80,12 @@ if ( !class_exists( 'GiglogAdmin_ImportGigsPage' ) ) {
                 //first item in the row should be band $resultArray[0]; second should be venue $resultArray[1]; third should be concert date $resultArray[2];
                 //fourth item is ticketlink $resultArray[3];  fifth item is eventlink $resultArray[4];
 
-                $newconcert[0] = GiglogAdmin_Band::find_or_create($band);
+                $newconcert[0] = GiglogAdmin_Band::find_or_create($band,'NO');
 
                 if (is_numeric($venue))
                     $newconcert[1] = $venue;
                 else {
-                    $v = GiglogAdmin_Venue::find_or_create($venue);
+                    $v = GiglogAdmin_Venue::find_or_create($venue,'Oslo');
                     $newconcert[1] = $v->id();
                 }
 
