@@ -137,7 +137,8 @@ if ( !class_exists( 'GiglogAdmin_AdminPage' ) ) {
         static function editforms()
         {
             $cid = filter_input(INPUT_POST, "cid");
-            if($_POST['edit']=="EDIT" && !empty($cid))   //A bit overdoing with the checks if concert ID is empty both here and in find_cid. But based on that, things are NULL or not. Better ideas?
+
+            if(isset($_POST['edit']) && $_POST['edit']=="EDIT" && !empty($cid))   //A bit overdoing with the checks if concert ID is empty both here and in find_cid. But based on that, things are NULL or not. Better ideas?
                 $c = GiglogAdmin_Concert::find_cid($cid);
             else
                 $c = GiglogAdmin_Concert::find_cid('');
