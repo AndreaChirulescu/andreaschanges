@@ -91,42 +91,12 @@ if ( !class_exists( 'GiglogAdmin_ImportGigsPage' ) ) {
 
                 //not sure how to check dates, hopefully manual verification of files will take care of it
 
-                $cresults = GiglogAdmin_Concert::get($newconcert[0], $newconcert[1], $condate);
-                if ($cresults) {
-                    error_log( 'DUPLICATE ROW detected: '
-                        . ' BAND ' . $band . ' with band ID ' . $newconcert[0]
-                        . ', VENUE ' . $venue . ' with venue ID ' . $newconcert[1]
-                        . ', CONCERTDATE ' . $condate);
-                } else {
-                    $id = GiglogAdmin_Concert::find_or_create(
-                        '',
+                    GiglogAdmin_Concert::find_or_create(
                         $newconcert[0],
                         $newconcert[1],
                         $condate,
                         $ticketlink,
                         $eventlink);
-
-                    error_log( 'NEW CONCERT ADDED: '
-                        . ' ID: ' . $id->id()
-                        . ' BAND ' . $band . ' with band ID ' . $newconcert[0]
-                        . ', VENUE ' . $venue . ' with venue ID ' . $newconcert[1]
-                        . ', CONCERTDATE ' . $condate
-                        . ', Ticket LINK ' . $ticketlink
-                        . ', Event LINK ' . $eventlink);
-
-                    GiglogAdmin_Concertlogs::add($id->id());
-
-                    /*the last line can be replaced by a trigger
-                    CREATE TRIGGER `insertIntoPhotoLogs` AFTER INSERT ON `wpg_concerts`
-                    FOR EACH ROW INSERT INTO wpg_concertlogs (
-                    wpg_concertlogs.id,
-                    wpg_concertlogs.wpgcl_concertid,
-                    wpg_concertlogs.wpgcl_status)
-
-                    VALUES
-                    (null, new.id, 1)
-                    */
-                }
             }
         }
     }

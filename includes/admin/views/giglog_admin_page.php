@@ -137,7 +137,10 @@ if ( !class_exists( 'GiglogAdmin_AdminPage' ) ) {
         static function editforms()
         {   global $wpdb;
             $cid = filter_input(INPUT_POST, "cid");
-            $c = GiglogAdmin_Concert::find_or_create($cid,'','','','','');
+            if($_POST['edit']=="EDIT" && !empty($cid))   //A bit overdoing with the checks if concert ID is empty both here and in find_cid. But based on that, things are NULL or not. Better ideas?
+                $c = GiglogAdmin_Concert::find_cid($cid);
+            else
+                $c = GiglogAdmin_Concert::find_cid('');
 
             $content='<form method="POST" action="" class="concedit" > Form to create/edit concerts, bands, venues<br>'
                 .'<input type="hidden" name="pid" value="' .$c->id(). '" />'
@@ -337,7 +340,7 @@ if ( !class_exists( 'GiglogAdmin_AdminPage' ) ) {
                     echo '<script language="javascript">alert("You are missing a value, concert was not created"); </script>';
             else
                 {
-                GiglogAdmin_Concert::create($_POST['selectband'], $_POST['selectvenueadmin'], $_POST['cdate'], $_POST['ticket'], $_POST['eventurl']);
+                GiglogAdmin_Concert::find_or_create($_POST['selectband'], $_POST['selectvenueadmin'], $_POST['cdate'], $_POST['ticket'], $_POST['eventurl']);
                 echo '<script language="javascript">alert("Yey, concert created"); </script>';
                 }
             }

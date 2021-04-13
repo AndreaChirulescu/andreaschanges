@@ -42,20 +42,36 @@ if ( !class_exists('GiglogAdmin_Concert') ) {
             $this->eventlink = isset($attrs->wpgconcert_event) ? $attrs->wpgconcert_event : NULL;
         }
 
-        static function find_or_create($id,$band, $venue, $cdate, $ticketlink, $eventlink)
+
+        static function find_or_create($band, $venue, $cdate, $ticketlink, $eventlink)
         {
             global $wpdb;
-            if($id)
+            $cresults = GiglogAdmin_Concert::get($band, $venue, $cdate);
+            if ($cresults) {
+                error_log( 'DUPLICATE ROW detected: '
+                    . ' BAND ID ' . $band
+                    . ', VENUE  ID ' . $venue
+                    . ', CONCERTDATE ' . $cdate);
+                }
+            else
+                return GiglogAdmin_Concert::create($band, $venue, $cdate, $ticketlink, $eventlink);
+        }
+
+
+        static function find_cid($id)
+        {   global $wpdb;
+            if(!empty($id))
             {
                 $csql = 'SELECT * FROM wpg_concerts WHERE id="' . $id . '"';
                 $results  = $wpdb->get_results($csql);
-
                 if ($results)
+                {
                     return new GiglogAdmin_Concert($results[0]);
+                }
             }
-            else {
-
-                return GiglogAdmin_Concert::create($band, $venue, $cdate, $ticketlink, $eventlink);
+            else
+            {   $arr = array_fill(0, 6, null);
+                return new GiglogAdmin_Concert($arr);
             }
         }
 
@@ -71,6 +87,24 @@ if ( !class_exists('GiglogAdmin_Concert') ) {
             $cid = new GiglogAdmin_Concert($attrs);
             $cid->save();
 
+            error_log( 'NEW CONCERT ADDED: '
+            . ' ID: ' . $cid -> id()
+            . ' BAND ID ' . $band
+            . ', VENUE ID ' . $venue
+            . ', CONCERTDATE ' . $cdate
+            . ', Ticket LINK ' . $ticketlink
+            . ', Event LINK ' . $eventlink);
+            GiglogAdmin_Concertlogs::add($cid->id());
+                    /*the last line can be replaced by a trigger
+                    CREATE TRIGGER `insertIntoPhotoLogs` AFTER INSERT ON `wpg_concerts`
+                    FOR EACH ROW INSERT INTO wpg_concertlogs (
+                    wpg_concertlogs.id,
+                    wpg_concertlogs.wpgcl_concertid,
+                    wpg_concertlogs.wpgcl_status)
+
+                    VALUES
+                    (null, new.id, 1)
+                    */
             return $cid;
         }
 
