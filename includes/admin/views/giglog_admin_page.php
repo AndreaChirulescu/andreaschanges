@@ -137,8 +137,9 @@ if ( !class_exists( 'GiglogAdmin_AdminPage' ) ) {
         static function editforms()
         {
             $cid = filter_input(INPUT_POST, "cid");
+            $editing = filter_input(INPUT_POST, "edit") == "EDIT";
 
-            if(isset($_POST['edit']) && $_POST['edit']=="EDIT" && !empty($cid))   //A bit overdoing with the checks if concert ID is empty both here and in find_cid. But based on that, things are NULL or not. Better ideas?
+            if ($editing && !empty($cid))   //A bit overdoing with the checks if concert ID is empty both here and in find_cid. But based on that, things are NULL or not. Better ideas?
                 $c = GiglogAdmin_Concert::find_cid($cid);
             else
                 $c = new GiglogAdmin_Concert();
@@ -150,10 +151,15 @@ if ( !class_exists( 'GiglogAdmin_AdminPage' ) ) {
                 .'<label for="cdate">Date:</label><input type="date" id="cdate" name="cdate" value="'.$c->cdate().'"><br>'
                 .'<label for="ticket">Tickets:</label><input type="text" id="ticket" name="ticket" value="'.$c->tickets().'"><br>'
                 .'<label for="eventurl">Event link:</label><input type="text" id="eventurl" name="eventurl" value="'.$c->eventlink().'"><br>';
-                if ($c->band()=='') //actions differ if we update or create a concert, hence two buttons needed
-                    $content.='<p><input type="submit" name="newconcert" value="Create New Concert"></p>';
-                else
-                    $content.='<p><input type="submit" name="editconcert" value="Edit Concert"></p>';
+
+            // actions differ if we update or create a concert, hence two buttons needed
+            if ($editing) {
+                $content.='<p><input type="submit" name="editconcert" value="Edit Concert"></p>';
+            }
+            else {
+                $content.='<p><input type="submit" name="newconcert" value="Create New Concert"></p>';
+            }
+
             $content.='</form>';
 
             $content.='<form method="POST" action="" class="bandedit" ><br>'
