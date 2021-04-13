@@ -104,8 +104,8 @@ if ( !class_exists( 'GiglogAdmin_ImportGigsPage' ) ) {
                         $newconcert[1],
                         $condate,
                         $ticketlink,
-                        $eventlink);                        
-                        
+                        $eventlink);
+
                     error_log( 'NEW CONCERT ADDED: '
                         . ' ID: ' . $id->id()
                         . ' BAND ' . $band . ' with band ID ' . $newconcert[0]
@@ -115,14 +115,14 @@ if ( !class_exists( 'GiglogAdmin_ImportGigsPage' ) ) {
                         . ', Event LINK ' . $eventlink);
 
                     GiglogAdmin_Concertlogs::add($id->id());
-                    
-                    /*the last line can be replaced by a trigger 
+
+                    /*the last line can be replaced by a trigger
                     CREATE TRIGGER `insertIntoPhotoLogs` AFTER INSERT ON `wpg_concerts`
                     FOR EACH ROW INSERT INTO wpg_concertlogs (
                     wpg_concertlogs.id,
                     wpg_concertlogs.wpgcl_concertid,
                     wpg_concertlogs.wpgcl_status)
-    
+
                     VALUES
                     (null, new.id, 1)
                     */

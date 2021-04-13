@@ -25,7 +25,7 @@ if ( !class_exists('GiglogAdmin_Concert') ) {
         private $cdate;
         private $tickets;
         private $eventlink;
-        
+
          /*
          * Constructs a new venue object from an array of attributes.
          * The attributes are expected to be named as in the database,
@@ -41,24 +41,24 @@ if ( !class_exists('GiglogAdmin_Concert') ) {
             $this->tickets = isset($attrs->wpgconcert_tickets) ? $attrs->wpgconcert_tickets : NULL;
             $this->eventlink = isset($attrs->wpgconcert_event) ? $attrs->wpgconcert_event : NULL;
         }
-        
+
         static function find_or_create($id,$band, $venue, $cdate, $ticketlink, $eventlink)
         {
-            global $wpdb;   
+            global $wpdb;
             if($id)
             {
                 $csql = 'SELECT * FROM wpg_concerts WHERE id="' . $id . '"';
                 $results  = $wpdb->get_results($csql);
 
-                if ($results) 
+                if ($results)
                     return new GiglogAdmin_Concert($results[0]);
             }
             else {
-               
+
                 return GiglogAdmin_Concert::create($band, $venue, $cdate, $ticketlink, $eventlink);
             }
         }
-        
+
         public static function create($band, $venue, $cdate, $ticketlink, $eventlink)
         {
             $attrs = new stdClass();
@@ -72,9 +72,9 @@ if ( !class_exists('GiglogAdmin_Concert') ) {
             $cid->save();
 
             return $cid;
-        }    
-           
-        
+        }
+
+
         public static function updatec($id, $band, $venue, $cdate, $ticketlink, $eventlink)
         {
             global $wpdb;
@@ -110,7 +110,7 @@ if ( !class_exists('GiglogAdmin_Concert') ) {
             error_log(__CLASS__ . '::' . __FUNCTION__ . ": {$sql}");
             return $wpdb->get_results($sql);
         }
-        
+
         public function save()
         {
             global $wpdb;
@@ -126,7 +126,7 @@ if ( !class_exists('GiglogAdmin_Concert') ) {
 
             $this->id = $wpdb->insert_id;
         }
-        
+
         public function id()
         {
             return $this->id;
@@ -139,7 +139,7 @@ if ( !class_exists('GiglogAdmin_Concert') ) {
         public function venue()
         {
             return $this->venue;
-        }   
+        }
         public function cdate()
         {
             return $this->cdate;
@@ -151,7 +151,7 @@ if ( !class_exists('GiglogAdmin_Concert') ) {
         public function eventlink()
         {
             return $this->eventlink;
-        }        
+        }
     }
 }
 ?>
