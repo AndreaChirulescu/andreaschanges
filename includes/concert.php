@@ -32,7 +32,7 @@ if ( !class_exists('GiglogAdmin_Concert') ) {
          * so this constructor can be used to construct the object
          * directly from the database row.
          */
-        private function __construct($attrs)
+        public function __construct($attrs = [])
         {
             $this->id = isset($attrs->id) ? $attrs->id : NULL;
             $this->band = isset($attrs->band) ? $attrs->band : NULL;
@@ -59,7 +59,9 @@ if ( !class_exists('GiglogAdmin_Concert') ) {
 
 
         static function find_cid($id)
-        {   global $wpdb;
+        {
+            global $wpdb;
+
             if(!empty($id))
             {
                 $csql = 'SELECT * FROM wpg_concerts WHERE id="' . $id . '"';
@@ -70,8 +72,8 @@ if ( !class_exists('GiglogAdmin_Concert') ) {
                 }
             }
             else
-            {   $arr = array_fill(0, 6, null);
-                return new GiglogAdmin_Concert($arr);
+            {
+                return new GiglogAdmin_Concert();
             }
         }
 
