@@ -1,3 +1,8 @@
+// SPDX-FileCopyrightText: 2021 Andrea Chirulescu <andrea.chirulescu@gmail.com>
+// SPDX-FileCopyrightText: 2021 Harald Eilertsen <haraldei@anduin.net>
+//
+// SPDX-License-Identifier: AGPL-3.0-or-later
+
 <?php
 /*
  * code used  for giglogadmin for the page where users such as photographers/concert reviewers

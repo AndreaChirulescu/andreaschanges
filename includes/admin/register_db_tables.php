@@ -1,3 +1,8 @@
+// SPDX-FileCopyrightText: 2021 Andrea Chirulescu <andrea.chirulescu@gmail.com>
+// SPDX-FileCopyrightText: 2021 Harald Eilertsen <haraldei@anduin.net>
+//
+// SPDX-License-Identifier: AGPL-3.0-or-later
+
 <?php
 if (!function_exists('giglogadmin_populate_countries')) {
     function giglogadmin_populate_countries()
