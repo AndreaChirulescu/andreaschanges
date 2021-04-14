@@ -28,21 +28,20 @@ if ( !class_exists('GiglogAdmin_Venue') ) {
             $this->webpage = isset($attrs->wpgvenue_webpage) ? $attrs->wpgvenue_webpage : NULL;
         }
 
-        static function create($name,$city)
+        static function create($name, $city = 'Oslo')
         {
             $venue = new GiglogAdmin_Venue((object) [
                 'wpgvenue_name' => $name,
-                'wpgvenue_city' => !empty($city) ? $city : 'Oslo',
+                'wpgvenue_city' => $city,
             ]);
             $venue->save();
 
             return $venue;
         }
 
-        static function find_or_create($name, $city)
+        static function find_or_create($name, $city = 'Oslo')
         {
             global $wpdb;
-            if(empty($city)) $city='Oslo';
             $venuesql = 'SELECT * FROM wpg_venues WHERE upper(wpgvenue_name)="' . $name . '"';
             $results  = $wpdb->get_results($venuesql);
 
