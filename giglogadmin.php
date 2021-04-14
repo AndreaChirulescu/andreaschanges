@@ -1,8 +1,3 @@
-// SPDX-FileCopyrightText: 2021 Andrea Chirulescu <andrea.chirulescu@gmail.com>
-// SPDX-FileCopyrightText: 2021 Harald Eilertsen <haraldei@anduin.net>
-//
-// SPDX-License-Identifier: AGPL-3.0-or-later
-
 <?php
 /**
  * Gigolog Admin
@@ -10,7 +5,7 @@
  * @package     giglogadmin
  * @author      Andrea Chirulescu, Harald Eilertsen
  * @copyright   2021 Andrea Chirulescu, Harald Eilertsen
- * @license     AGPL-3.0
+ * @license     AGPL-3.0-or-later
  *
  * @wordpress-plugin
  * Plugin Name: Giglog Admin
@@ -21,6 +16,11 @@
  * License:     AGPLv3
  * License URI: https://www.gnu.org/licenses/agpl-3.0.txthttps://www.gnu.org/licenses/agpl-3.0.txt
  */
+
+// SPDX-FileCopyrightText: 2021 Andrea Chirulescu <andrea.chirulescu@gmail.com>
+// SPDX-FileCopyrightText: 2021 Harald Eilertsen <haraldei@anduin.net>
+//
+// SPDX-License-Identifier: AGPL-3.0-or-later
 
 
 if ( !class_exists( 'GiglogAdmin_Plugin' ) ) {

@@ -1,9 +1,9 @@
+<?php
 // SPDX-FileCopyrightText: 2021 Andrea Chirulescu <andrea.chirulescu@gmail.com>
 // SPDX-FileCopyrightText: 2021 Harald Eilertsen <haraldei@anduin.net>
 //
 // SPDX-License-Identifier: AGPL-3.0-or-later
 
-<?php
 /*
  * snippet used to  upload files with concerts. File is tab delimited file.
  * Band Venue Date TicketLink Eventlink. The form is at the end of this snippet

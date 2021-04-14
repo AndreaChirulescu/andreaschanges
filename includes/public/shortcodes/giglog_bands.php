@@ -1,9 +1,9 @@
+<?php
 // SPDX-FileCopyrightText: 2021 Andrea Chirulescu <andrea.chirulescu@gmail.com>
 // SPDX-FileCopyrightText: 2021 Harald Eilertsen <haraldei@anduin.net>
 //
 // SPDX-License-Identifier: AGPL-3.0-or-later
 
-<?php
 /*
  * code used for giglogadmin for the open page where everyone sees the list of
  * concerts. First function displays filters by city, venue and the second one
