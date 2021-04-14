@@ -32,21 +32,6 @@ if ( !class_exists('GiglogAdmin_Concert') ) {
         }
 
 
-        static function find_or_create($band, $venue, $cdate, $ticketlink, $eventlink)
-        {
-            global $wpdb;
-            $cresults = GiglogAdmin_Concert::get($band, $venue, $cdate);
-            if ($cresults) {
-                error_log( 'DUPLICATE ROW detected: '
-                    . ' BAND ID ' . $band
-                    . ', VENUE  ID ' . $venue
-                    . ', CONCERTDATE ' . $cdate);
-                }
-            else
-                return GiglogAdmin_Concert::create($band, $venue, $cdate, $ticketlink, $eventlink);
-        }
-
-
         static function find_cid($id)
         {
             global $wpdb;
@@ -66,26 +51,39 @@ if ( !class_exists('GiglogAdmin_Concert') ) {
             }
         }
 
-        public static function create($band, $venue, $cdate, $ticketlink, $eventlink)
+        static function check_duplicate($band, $venue, $cdate, $ticketlink, $eventlink)
         {
-            $attrs = new stdClass();
-            $attrs->id = '';
-            $attrs->band = $band;
-            $attrs->venue = $venue;
-            $attrs->wpgconcert_date = $cdate;
-            $attrs->wpgconcert_tickets = $ticketlink;
-            $attrs->wpgconcert_event = $eventlink;
-            $cid = new GiglogAdmin_Concert($attrs);
-            $cid->save();
+            global $wpdb;
 
-            error_log( 'NEW CONCERT ADDED: '
-            . ' ID: ' . $cid -> id()
-            . ' BAND ID ' . $band
-            . ', VENUE ID ' . $venue
-            . ', CONCERTDATE ' . $cdate
-            . ', Ticket LINK ' . $ticketlink
-            . ', Event LINK ' . $eventlink);
-            GiglogAdmin_Concertlogs::add($cid->id());
+            $cresults = GiglogAdmin_Concert::get($band, $venue, $cdate);
+            if ($cresults)
+                return($cresults);
+            else
+                return ('new');
+
+        }
+        public static function create($band, $venue, $cdate, $ticketlink, $eventlink)
+        {   $c = GiglogAdmin_Concert::check_duplicate($band, $venue, $cdate, $ticketlink, $eventlink);
+            if ($c=='new')
+            {
+                $attrs = new stdClass();
+                $attrs->id = '';
+                $attrs->band = $band;
+                $attrs->venue = $venue;
+                $attrs->wpgconcert_date = $cdate;
+                $attrs->wpgconcert_tickets = $ticketlink;
+                $attrs->wpgconcert_event = $eventlink;
+                $cid = new GiglogAdmin_Concert($attrs);
+                $cid->save();
+
+                error_log( 'NEW CONCERT ADDED: '
+                . ' ID: ' . $cid -> id()
+                . ' BAND ID ' . $band
+                . ', VENUE ID ' . $venue
+                . ', CONCERTDATE ' . $cdate
+                . ', Ticket LINK ' . $ticketlink
+                . ', Event LINK ' . $eventlink);
+                GiglogAdmin_Concertlogs::add($cid->id());
                     /*the last line can be replaced by a trigger
                     CREATE TRIGGER `insertIntoPhotoLogs` AFTER INSERT ON `wpg_concerts`
                     FOR EACH ROW INSERT INTO wpg_concertlogs (
@@ -96,11 +94,20 @@ if ( !class_exists('GiglogAdmin_Concert') ) {
                     VALUES
                     (null, new.id, 1)
                     */
-            return $cid;
+                return $cid;
+            }
+            else
+            {
+                error_log( 'DUPLICATE ROW detected: '
+                . ' BAND ID ' . $band
+                . ', VENUE  ID ' . $venue
+                . ', CONCERTDATE ' . $cdate);
+                return('dup');
+            }
         }
 
 
-        public static function updatec($id, $band, $venue, $cdate, $ticketlink, $eventlink)
+        public static function update_concert($id, $band, $venue, $cdate, $ticketlink, $eventlink)
         {
             global $wpdb;
 
@@ -120,7 +127,7 @@ if ( !class_exists('GiglogAdmin_Concert') ) {
                 die;
             }
 
-            return ($wpdb->last_error); //not sure what to return here?
+            return ($wpdb->last_error);
         }
 
         public static function get($band, $venue, $date)

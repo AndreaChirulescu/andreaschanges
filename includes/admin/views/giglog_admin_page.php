@@ -62,12 +62,13 @@ if ( !class_exists( 'GiglogAdmin_AdminPage' ) ) {
             return($select);
         }
 
-        static function get_countries()
+        static function get_countries($incountry)
         {
             $select = '<select name="selectcountry">';
             $select .= '<option value="">Please Select..</option>';
             foreach ( GiglogAdmin_Band::all_countries() AS $country ) {
-                $select .= '<option value="' . $country->id. '">'. $country->cname;
+                if($incountry==$country ->id) $select .= '<option value="' . $country -> id. '" selected="selected">'.$country->cname;
+                else $select .= '<option value="' . $country->id. '">'. $country->cname;
                 $select .='</option>';
             }
             $select .= '</select>';
@@ -152,10 +153,18 @@ if ( !class_exists( 'GiglogAdmin_AdminPage' ) ) {
             $content.='</form>';
 
             $content.='<form method="POST" action="" class="bandedit" ><br>'
-                .'<label for="bandname">Band Name:</label><input type="text" id="bandname" name="bandname"><br>'
-                .'<label for="eventurl">Band Country:</label>'.GiglogAdmin_AdminPage::get_countries().'<br>'
-                .'<p><input type="submit" name="newband" value="Create New Band"></p>'
-            .'</form>';
+                .'<input type="hidden" name="bid" value="' .$c->band(). '" />'
+                .'<label for="bandname">Band Name:</label><input type="text" id="bandname" name="bandname" value="'.GiglogAdmin_Band::get_band($c->band())[0].'"><br>'
+                .'<label for="eventurl">Band Country:</label>'.GiglogAdmin_AdminPage::get_countries(GiglogAdmin_Band::get_band($c->band())[1]).'<br>';
+
+            if ($editing) {
+                $content.='<p><input type="submit" name="editband" value="Edit Band"></p>';
+            }
+            else {
+                $content.='<p><input type="submit" name="newband" value="Create New Band"></p>';
+            }
+
+            $content.='</form>';
 
             $content.='<form method="POST" action="" class="bandedit" ><br>'
                 .'<label for="bandname">Venue Name:</label><input type="text" id="venuename" name="venuename"><br>'
@@ -336,8 +345,9 @@ if ( !class_exists( 'GiglogAdmin_AdminPage' ) ) {
                     echo '<script language="javascript">alert("You are missing a value, concert was not created"); </script>';
             else
                 {
-                GiglogAdmin_Concert::find_or_create($_POST['selectband'], $_POST['selectvenueadmin'], $_POST['cdate'], $_POST['ticket'], $_POST['eventurl']);
-                echo '<script language="javascript">alert("Yey, concert created"); </script>';
+                $ret = GiglogAdmin_Concert::create($_POST['selectband'], $_POST['selectvenueadmin'], $_POST['cdate'], $_POST['ticket'], $_POST['eventurl']);
+                if ($ret!='dup') echo '<script language="javascript">alert("Yey, concert created"); </script>';
+                else echo '<script language="javascript">alert("Nay, concert was duplicated"); </script>';
                 }
             }
             if(isset($_POST['editconcert']))
@@ -346,7 +356,7 @@ if ( !class_exists( 'GiglogAdmin_AdminPage' ) ) {
                     echo '<script language="javascript">alert("You are missing a value, concert was not updated"); </script>';
             else
                 {
-                GiglogAdmin_Concert::updatec($_POST['pid'],$_POST['selectband'], $_POST['selectvenueadmin'], $_POST['cdate'], $_POST['ticket'], $_POST['eventurl']);
+                GiglogAdmin_Concert::update_concert($_POST['pid'],$_POST['selectband'], $_POST['selectvenueadmin'], $_POST['cdate'], $_POST['ticket'], $_POST['eventurl']);
                 echo '<script language="javascript">alert("Yey, concert updated"); </script>';
                 }
             }
@@ -359,6 +369,17 @@ if ( !class_exists( 'GiglogAdmin_AdminPage' ) ) {
                 {
                 GiglogAdmin_Band::create($_POST['bandname'],$_POST['selectcountry']);
                 echo '<script language="javascript">alert("Yey, band created"); </script>';
+                }
+            }
+
+            if(isset($_POST['editband']))
+            {
+            IF (empty($_POST['bandname'])) //country is not checked as it is set to Norway by default
+                    echo '<script language="javascript">alert("You are missing band name, band was not edited"); </script>';
+            else
+                {
+                GiglogAdmin_Band::update_band($_POST['bid'],$_POST['bandname'],$_POST['selectcountry']);
+                echo '<script language="javascript">alert("Yey, band updated"); </script>';
                 }
             }
 
