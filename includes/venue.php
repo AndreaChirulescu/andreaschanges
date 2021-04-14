@@ -87,7 +87,8 @@ if ( !class_exists('GiglogAdmin_Venue') ) {
 
             $wpdb->insert('wpg_venues', array(
                 'id' => '',
-                'wpgvenue_name' => $this->name
+                'wpgvenue_name' => $this->name,
+                'wpgvenue_city' => $this->city,
             ));
 
             $this->id = $wpdb->insert_id;
