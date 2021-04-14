@@ -75,7 +75,7 @@ if ( !class_exists('GiglogAdmin_Venue') ) {
         {
             global $wpdb;
             $q = $wpdb->prepare(
-                "select id, wpgvenue_name from wpg_venues where wpgvenue_city=?", $city);
+                "select id, wpgvenue_name from wpg_venues where wpgvenue_city=%s", $city);
             $results = $wpdb->get_results($q);
 
             return array_map(function ($r) { return new GiglogAdmin_Venue($r); }, $results);
