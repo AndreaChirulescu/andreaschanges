@@ -22,34 +22,41 @@ if ( !class_exists('GiglogAdmin_Band') ) {
 
         static function create($bandname, $country = 'NO')
         {
-            global $wpdb;
+            $band = GiglogAdmin_Band::find($bandname, $country);
 
-            $bandsql = 'SELECT id FROM wpg_bands WHERE upper(wpgband_name)="' . $bandname . '" and wpgband_country = "'.$country.'"';
-            $results = $wpdb->get_results($bandsql);
-            $attrs = new stdClass();
-            $attrs->bandname = $bandname;
-            $attrs->country = $country;
+            if ( ! $band ) {
+                $band = new GiglogAdmin_Band((object) [
+                    'bandname' => $bandname,
+                    'country' => $country,
+                ]);
 
-            if ($results)
-            {
-                $attrs->id = $results[0]->id;
-                $bid = new GiglogAdmin_Band($attrs);
-            }
-            else
-            {
-                $attrs->id = '';
-
-                $bid = new GiglogAdmin_Band($attrs);
-                $bid->save();
-
+                $band->save();
 
                 error_log( 'NEW BAND ADDED: '
-                    . ' ID: ' . $bid -> id()
-                    . ' BAND NAME ' . $bandname
-                    . ', COUNTRY ' . $country);
+                    . ' ID: ' . $band->id()
+                    . ' BAND NAME ' . $band->bandname()
+                    . ', COUNTRY ' . $band->country());
             }
 
-            return $bid;
+            return $band;
+        }
+
+        static function find($name, $country)
+        {
+            global $wpdb;
+
+            $q = 'SELECT * FROM wpg_bands '
+                . 'WHERE upper(wpgband_name)="' . $name
+                . '" and wpgband_country = "' . $country.'"';
+
+            $results = $wpdb->get_results($q);
+
+            if ($results) {
+                return new GiglogAdmin_Band($results[0]);
+            }
+            else {
+                return NULL;
+            }
         }
 
 

@@ -10,7 +10,7 @@ require __DIR__ . '/../includes/band.php';
 
 final class BandTest extends WP_UnitTestCase
 {
-    public function testCreatingBandWithName(): void
+    public function testCreatingBandWithName() : void
     {
         $count = count(GiglogAdmin_Band::all_bands());
 
@@ -18,5 +18,13 @@ final class BandTest extends WP_UnitTestCase
 
         $this->assertEquals("The Flamboyant Blasphemers", $band->bandname());
         $this->assertEquals($count + 1, count(GiglogAdmin_Band::all_bands()));
+    }
+
+    public function testCreateExistingBand() : void
+    {
+        $band1 = GiglogAdmin_Band::create("The Flamboyant Blasphemers");
+        $band2 = GiglogAdmin_Band::create("The Flamboyant Blasphemers");
+
+        $this->assertEquals($band1->id(), $band2->id());
     }
 }
