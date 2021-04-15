@@ -20,10 +20,10 @@ if ( !class_exists('GiglogAdmin_Band') ) {
             $this->country = isset($attrs->country) ? $attrs->country : 'NO';
         }
 
-        static function create($bandname, $country)
+        static function create($bandname, $country = 'NO')
         {
             global $wpdb;
-            if (empty($country)) $country = 'NO';
+
             $bandsql = 'SELECT id FROM wpg_bands WHERE upper(wpgband_name)="' . $bandname . '" and wpgband_country = "'.$country.'"';
             $results = $wpdb->get_results($bandsql);
             $attrs = new stdClass();
@@ -37,20 +37,19 @@ if ( !class_exists('GiglogAdmin_Band') ) {
             }
             else
             {
+                $attrs->id = '';
 
-            $attrs->id = '';
-
-            $bid = new GiglogAdmin_Band($attrs);
-            $bid->save();
+                $bid = new GiglogAdmin_Band($attrs);
+                $bid->save();
 
 
-            error_log( 'NEW BAND ADDED: '
-            . ' ID: ' . $bid -> id()
-            . ' BAND NAME ' . $bandname
-            . ', COUNTRY ' . $country);
+                error_log( 'NEW BAND ADDED: '
+                    . ' ID: ' . $bid -> id()
+                    . ' BAND NAME ' . $bandname
+                    . ', COUNTRY ' . $country);
             }
-            return ($bid->id());
 
+            return $bid;
         }
 
 
