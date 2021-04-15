@@ -1,5 +1,4 @@
 <?php
-
 // SPDX-FileCopyrightText: 2021 Andrea Chirulescu <andrea.chirulescu@gmail.com>
 // SPDX-FileCopyrightText: 2021 Harald Eilertsen <haraldei@anduin.net>
 //
@@ -29,21 +28,20 @@ if ( !class_exists('GiglogAdmin_Venue') ) {
             $this->webpage = isset($attrs->wpgvenue_webpage) ? $attrs->wpgvenue_webpage : NULL;
         }
 
-        static function create($name,$city)
-        {   if(empty($city)) $city='Oslo';
-            $attrs = new stdClass();
-            $attrs->wpgvenue_name = $name;
-            $attrs->wpgvenue_city = $city;
-            $venue = new GiglogAdmin_Venue($attrs);
+        static function create($name, $city = 'Oslo')
+        {
+            $venue = new GiglogAdmin_Venue((object) [
+                'wpgvenue_name' => $name,
+                'wpgvenue_city' => $city,
+            ]);
             $venue->save();
 
             return $venue;
         }
 
-        static function find_or_create($name, $city)
+        static function find_or_create($name, $city = 'Oslo')
         {
             global $wpdb;
-            if(empty($city)) $city='Oslo';
             $venuesql = 'SELECT * FROM wpg_venues WHERE upper(wpgvenue_name)="' . $name . '"';
             $results  = $wpdb->get_results($venuesql);
 
@@ -77,7 +75,7 @@ if ( !class_exists('GiglogAdmin_Venue') ) {
         {
             global $wpdb;
             $q = $wpdb->prepare(
-                "select id, wpgvenue_name from wpg_venues where wpgvenue_city=?", $city);
+                "select id, wpgvenue_name from wpg_venues where wpgvenue_city=%s", $city);
             $results = $wpdb->get_results($q);
 
             return array_map(function ($r) { return new GiglogAdmin_Venue($r); }, $results);
@@ -89,7 +87,8 @@ if ( !class_exists('GiglogAdmin_Venue') ) {
 
             $wpdb->insert('wpg_venues', array(
                 'id' => '',
-                'wpgvenue_name' => $this->name
+                'wpgvenue_name' => $this->name,
+                'wpgvenue_city' => $this->city,
             ));
 
             $this->id = $wpdb->insert_id;

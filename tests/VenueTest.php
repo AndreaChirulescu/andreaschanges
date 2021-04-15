@@ -6,92 +6,76 @@
 
 declare(strict_types=1);
 
-use PHPUnit\Framework\TestCase;
+require __DIR__ . '/../includes/venue.php';
 
-require 'tests/stubs/wpdb_stub.php';
-require 'includes/venue.php';
-
-final class VenueTest extends TestCase
+final class VenueTest extends WP_UnitTestCase
 {
     public function testCreatingVenueWithName(): void
     {
+        $count = count(GiglogAdmin_Venue::all_venues());
+
         $venue = GiglogAdmin_Venue::create("Svene Samfunns- og Bedehus");
         $this->assertEquals("Svene Samfunns- og Bedehus", $venue->name());
-        $this->assertEquals(1, $venue->id());
+
+        $this->assertEquals($count + 1, count(GiglogAdmin_Venue::all_venues()));
     }
 
     public function testFindOrCreateNonExistingVenue() : void
     {
+        $count = count(GiglogAdmin_Venue::all_venues());
+
         $venue = GiglogAdmin_Venue::find_or_create("Svene Samfunns- og Bedehus");
         $this->assertEquals("Svene Samfunns- og Bedehus", $venue->name());
-        $this->assertEquals(1, $venue->id());
+
+        $this->assertEquals($count + 1, count(GiglogAdmin_Venue::all_venues()));
     }
 
     public function testFindOrCreateExistingVenue() : void
     {
         global $wpdb;
 
-        $v = new stdClass();
-        $v->id = 42;
-        $v->wpgvenue_name = 'Slarkhaillen';
-        $v->wpgvenue_city = 'Ofoten';
-        $v->wpgvenue_address = 'Baillsvingen 4';
-        $v->wpgvenue_webpage = 'https://slarkhaillen.no';
+        $venue = GiglogAdmin_Venue::create("Svene Samfunns- og Bedehus");
+        $other = GiglogAdmin_Venue::find_or_create("Svene Samfunns- og Bedehus");
 
-        $wpdb = $this->createStub(wpdb::class);
-        $wpdb->method('get_results')->willReturn(array($v));
-        $venue = GiglogAdmin_Venue::find_or_create("Slarkhaillen");
-
-        $this->assertEquals(42, $venue->id());
-        $this->assertEquals($v->wpgvenue_name, $venue->name());
+        $this->assertEquals($other->id(), $venue->id());
+        $this->assertEquals($other->name(), $venue->name());
     }
 
     public function testFindAllVenuesInCity() : void
     {
         global $wpdb;
 
-        $results = array();
         for ($i = 0; $i < 3; $i++) {
-            $results[$i] = new stdClass();
-            $results[$i]->id = 42 + $i;
-            $results[$i]->wpgvenue_name = "Venue #" . $i;
-            $results[$i]->wpgvenue_city = "Osaka";
+            GiglogAdmin_Venue::create("Venue in Osaka #" . $i, "Osaka");
         }
 
-        $wpdb = $this->createStub(wpdb::class);
-        $wpdb->method('prepare')->willReturn("prepared");
-        $wpdb->method('get_results')->willReturn($results);
-
-        $venues = GiglogAdmin_Venue::venues_in_city("Osaka");
-
-        for ($i = 0; $i < 3; $i++) {
-            $this->assertEquals("Osaka", $venues[$i]->city());
-            $this->assertEquals("Venue #" . $i, $venues[$i]->name());
-            $this->assertEquals(42 + $i, $venues[$i]->id());
+        for ($i = 0; $i < 5; $i++) {
+            GiglogAdmin_Venue::create("Venue in Berlin #" . $i, "Berlin");
         }
+
+        for ($i = 0; $i < 2; $i++) {
+            GiglogAdmin_Venue::create("Venue in Svene #" . $i, "Svene");
+        }
+
+        $venues_in_osaka = GiglogAdmin_Venue::venues_in_city("Osaka");
+        $venues_in_berlin = GiglogAdmin_Venue::venues_in_city("Berlin");
+        $venues_in_svene = GiglogAdmin_Venue::venues_in_city("Svene");
+
+        $this->assertEquals(3, count($venues_in_osaka));
+        $this->assertEquals(5, count($venues_in_berlin));
+        $this->assertEquals(2, count($venues_in_svene));
     }
 
     public function testFindAllVenues() : void
     {
         global $wpdb;
 
-        $results = array();
         for ($i = 0; $i < 3; $i++) {
-            $results[$i] = new stdClass();
-            $results[$i]->id = 42 + $i;
-            $results[$i]->wpgvenue_name = "Venue #" . $i;
-            $results[$i]->wpgvenue_city = "City #" . $i;
+            GiglogAdmin_Venue::create("Venue #" . $i);
         }
-
-        $wpdb = $this->createStub(wpdb::class);
-        $wpdb->method('get_results')->willReturn($results);
 
         $venues = GiglogAdmin_Venue::all_venues();
+        $this->assertEquals(3, count($venues));
 
-        for ($i = 0; $i < 3; $i++) {
-            $this->assertEquals("City #" . $i, $venues[$i]->city());
-            $this->assertEquals("Venue #" . $i, $venues[$i]->name());
-            $this->assertEquals(42 + $i, $venues[$i]->id());
-        }
     }
 }
