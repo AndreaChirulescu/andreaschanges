@@ -69,7 +69,7 @@ if ( !class_exists( 'GiglogAdmin_ImportGigsPage' ) ) {
                 //first item in the row should be band $resultArray[0]; second should be venue $resultArray[1]; third should be concert date $resultArray[2];
                 //fourth item is ticketlink $resultArray[3];  fifth item is eventlink $resultArray[4];
 
-                $newconcert[0] = GiglogAdmin_Band::find_or_create($band,'NO');
+                $newconcert[0] = GiglogAdmin_Band::create($band,'');
 
                 if (is_numeric($venue))
                     $newconcert[1] = $venue;
@@ -80,7 +80,7 @@ if ( !class_exists( 'GiglogAdmin_ImportGigsPage' ) ) {
 
                 //not sure how to check dates, hopefully manual verification of files will take care of it
 
-                    GiglogAdmin_Concert::find_or_create(
+                    GiglogAdmin_Concert::create(
                         $newconcert[0],
                         $newconcert[1],
                         $condate,
