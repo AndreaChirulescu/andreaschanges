@@ -419,7 +419,12 @@ if ( !function_exists( "giglog_register_db_tables") )
                         `wpgcl_createddate` date NOT NULL DEFAULT current_timestamp();");
         }
 
-        update_option("giglogadmin_db_version", 3);
+        if ($db_version == NULL || $db_version < 4)
+        {
+            $wpdb->query(
+                "INSERT INTO `wpg_countries` (`id`, `wpgc_fullname`, `wpgcountry_name`, `wpgc_iso3`, `wpgc_numcode`) VALUES ('NN', 'UNKNOWN', 'Unknown', 'NNN', '666');");
+        }
+        update_option("giglogadmin_db_version", 4);
     }
 
     giglog_register_db_tables();
