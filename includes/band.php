@@ -20,37 +20,43 @@ if ( !class_exists('GiglogAdmin_Band') ) {
             $this->country = isset($attrs->country) ? $attrs->country : 'NO';
         }
 
-        static function create($bandname, $country)
+        static function create($bandname, $country = 'NO')
+        {
+            $band = GiglogAdmin_Band::find($bandname, $country);
+
+            if ( ! $band ) {
+                $band = new GiglogAdmin_Band((object) [
+                    'bandname' => $bandname,
+                    'country' => $country,
+                ]);
+
+                $band->save();
+
+                error_log( 'NEW BAND ADDED: '
+                    . ' ID: ' . $band->id()
+                    . ' BAND NAME ' . $band->bandname()
+                    . ', COUNTRY ' . $band->country());
+            }
+
+            return $band;
+        }
+
+        static function find($name, $country)
         {
             global $wpdb;
-            if (empty($country)) $country = 'NO';
-            $bandsql = 'SELECT id FROM wpg_bands WHERE upper(wpgband_name)="' . $bandname . '" and wpgband_country = "'.$country.'"';
-            $results = $wpdb->get_results($bandsql);
-            $attrs = new stdClass();
-            $attrs->bandname = $bandname;
-            $attrs->country = $country;
 
-            if ($results)
-            {
-                $attrs->id = $results[0]->id;
-                $bid = new GiglogAdmin_Band($attrs);
+            $q = 'SELECT * FROM wpg_bands '
+                . 'WHERE upper(wpgband_name)="' . $name
+                . '" and wpgband_country = "' . $country.'"';
+
+            $results = $wpdb->get_results($q);
+
+            if ($results) {
+                return new GiglogAdmin_Band($results[0]);
             }
-            else
-            {
-
-            $attrs->id = '';
-
-            $bid = new GiglogAdmin_Band($attrs);
-            $bid->save();
-
-
-            error_log( 'NEW BAND ADDED: '
-            . ' ID: ' . $bid -> id()
-            . ' BAND NAME ' . $bandname
-            . ', COUNTRY ' . $country);
+            else {
+                return NULL;
             }
-            return ($bid->id());
-
         }
 
 
