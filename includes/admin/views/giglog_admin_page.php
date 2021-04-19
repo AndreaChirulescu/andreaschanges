@@ -75,6 +75,30 @@ if ( !class_exists( 'GiglogAdmin_AdminPage' ) ) {
             return($select);
         }
 
+        static function get_user($cid, $ctype)
+        {
+            $hf_user = wp_get_current_user();
+            $hf_username = $hf_user->user_login;
+            $select = '<select name="'.$ctype.'">';
+            $select .= '<option value="">Please Select..</option>';
+            $users = get_users( array( 'fields' => array( 'user_login' ) ) );
+            foreach ( $users as $user ) {
+                $usr = $user->user_login;
+                $taken = strpos(GiglogAdmin_AdminPage::returnuser($ctype, $cid),$usr);
+                if($taken) $select .= '<option value="' .$usr. '" selected="selected">'.$usr;
+               else
+               {
+                   $takenbyself = strpos(GiglogAdmin_AdminPage::returnuser($ctype, $cid),'name="unassignitem"');
+                   if($takenbyself && $usr==$hf_username) $select .= '<option value="' .$usr. '" selected="selected">'.$usr;
+                   else
+                    $select .= '<option value="'.$usr. '">'. $usr;
+                    $select .='</option>';
+               }
+            }
+            $select .= '</select>';
+            return($select);
+        }
+
         static function get_filters()
         {
             $cities = array_merge(["ALL"], GiglogAdmin_Venue::all_cities());
@@ -140,7 +164,12 @@ if ( !class_exists( 'GiglogAdmin_AdminPage' ) ) {
                 .'<label for="venue">Venue:</label>'.GiglogAdmin_AdminPage::get_allvenues($c->venue()).'<br>'
                 .'<label for="cdate">Date:</label><input type="date" id="cdate" name="cdate" value="'.$c->cdate().'"><br>'
                 .'<label for="ticket">Tickets:</label><input type="text" id="ticket" name="ticket" value="'.$c->tickets().'"><br>'
-                .'<label for="eventurl">Event link:</label><input type="text" id="eventurl" name="eventurl" value="'.$c->eventlink().'"><br>';
+                .'<label for="eventurl">Event link:</label><input type="text" id="eventurl" name="eventurl" value="'.$c->eventlink().'"><br>'
+                .'<label for="photo1">Photo1:</label>'.GiglogAdmin_AdminPage::get_user($c->id(),'photo1').'<br>'
+                .'<label for="photo2">Photo2:</label>'.GiglogAdmin_AdminPage::get_user($c->id(),'photo2').'<br>'
+                .'<label for="rev1">Text1:</label>'.GiglogAdmin_AdminPage::get_user($c->id(),'rev1').'<br>'
+                .'<label for="rev2">Text2:</label>'.GiglogAdmin_AdminPage::get_user($c->id(),'rev2').'<br>'
+                ;
 
             // actions differ if we update or create a concert, hence two buttons needed
             if ($editing) {
@@ -357,8 +386,10 @@ if ( !class_exists( 'GiglogAdmin_AdminPage' ) ) {
             else
                 {
                 GiglogAdmin_Concert::update_concert($_POST['pid'],$_POST['selectband'], $_POST['selectvenueadmin'], $_POST['cdate'], $_POST['ticket'], $_POST['eventurl']);
-                echo '<script language="javascript">alert("Yey, concert updated"); </script>';
+                GiglogAdmin_Concert::update_concertlog($_POST['pid'],$_POST['photo1'], $_POST['photo2'], $_POST['rev1'], $_POST['rev2']);
+                echo '<script language="javascript">alert("Yay, concert updated"); </script>';
                 }
+
             }
 
             if(isset($_POST['newband']))
