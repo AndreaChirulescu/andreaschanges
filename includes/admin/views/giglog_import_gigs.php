@@ -6,7 +6,7 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 
 if ( !class_exists( 'GiglogAdmin_ImportGigsPage' ) ) {
-    require_once __DIR__ . '/../../band.php';
+ //   require_once __DIR__ . '/../../band.php';
     require_once __DIR__ . '/../../concert.php';
     require_once __DIR__ . '/../../concertlogs.php';
     require_once __DIR__ . '/../../venue.php';
@@ -41,7 +41,7 @@ if ( !class_exists( 'GiglogAdmin_ImportGigsPage' ) ) {
          * The file must contain the following columns each separated by _one_
          * tab character:
          *
-         *   1. Bandname
+         *   1. Concertname
          *   2. Venuename
          *   3. Concert date
          *   4. Ticket link
@@ -61,15 +61,15 @@ if ( !class_exists( 'GiglogAdmin_ImportGigsPage' ) ) {
                 }
 
                 $resultArray = explode("\t", $line);
-                $bandname    = trim($resultArray[0]);
+                $cname    = trim($resultArray[0]);
                 $venue       = trim($resultArray[1]);
                 $condate     = date('Y-m-d', strtotime($resultArray[2]));
                 $ticketlink  = trim($resultArray[3]);
                 $eventlink   = trim($resultArray[4]);
-                //first item in the row should be band $resultArray[0]; second should be venue $resultArray[1]; third should be concert date $resultArray[2];
+                //first item in the row should be concert name $resultArray[0]; second should be venue $resultArray[1]; third should be concert date $resultArray[2];
                 //fourth item is ticketlink $resultArray[3];  fifth item is eventlink $resultArray[4];
 
-                $band = GiglogAdmin_Band::create($bandname);
+
 
                 if (is_numeric($venue))
                     $newconcert[1] = $venue;
@@ -81,7 +81,7 @@ if ( !class_exists( 'GiglogAdmin_ImportGigsPage' ) ) {
                 //not sure how to check dates, hopefully manual verification of files will take care of it
 
                     GiglogAdmin_Concert::create(
-                        $band->id(),
+                        $cname,
                         $newconcert[1],
                         $condate,
                         $ticketlink,

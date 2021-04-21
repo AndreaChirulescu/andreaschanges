@@ -52,7 +52,7 @@ function giglogadmin_insertconcerts()
     foreach ($cresults AS $row) {
         $rowfileid   = $row->id;
         $resultArray = explode("\t", $row->rowcontent);
-        $band        = $resultArray[0];
+        $cname        = $resultArray[0];
         $venue       = $resultArray[1];
         $condate     = date('Y-m-d', strtotime($resultArray[2]));
         $ticketlink  = $resultArray[3];
@@ -60,20 +60,7 @@ function giglogadmin_insertconcerts()
         //first item in the row should be band $resultArray[0]; second should be venue $resultArray[1]; third should be concert date $resultArray[2];
         //fourth item is ticketlink $resultArray[3];  fifth item is eventlink $resultArray[4];
 
-        //processing band
-        $bandsql = 'SELECT id FROM wpg_bands WHERE upper(wpgband_name)="' . $band . '"';
-        $results = $wpdb->get_results($bandsql);
-        if ($results)
-            $newconcert[0] = $results[0]->id;
-        else {
-            $wpdb->insert('wpg_bands', array(
-                'id' => '',
-                'wpgband_name' => $band
-            ));
-            echo ($wpdb->last_error);
-            $newconcert[0] = $wpdb->insert_id;
-        }
-        //done processing band
+
 
         //processing venue
         if (is_numeric($venue))
@@ -97,21 +84,21 @@ function giglogadmin_insertconcerts()
         //not sure how to check dates, hopefully manual verification of files will take care of it
 
         //check if concert already exists and return ID if it does.  Not checking by date, to be considered
-        $csql = 'SELECT id from wpg_concerts where band = ' . $newconcert[0] . ' and venue = ' . $newconcert[1] . ' and wpgconcert_date ="' . $condate . '"';
+        $csql = 'SELECT id from wpg_concerts where wpgconcert_name  = ' . $cname . ' and venue = ' . $newconcert[1] . ' and wpgconcert_date ="' . $condate . '"';
 
         $cresults = $wpdb->get_results($csql);
         if ($cresults) {
             $usql = 'UPDATE wpg_files SET processed="D", wpgc_id = ' . $cresults[0]->id . ' WHERE id = ' . $rowfileid;
 
             $uresults = $wpdb->get_results($usql);
-            $concertlist .= 'DUPLICATE ROW detected BAND ' . $band . ' with band ID ' . $newconcert[0];
+            $concertlist .= 'DUPLICATE ROW detected Title ' . $cname . ' with band ID ' . $newconcert[0];
             $concertlist .= ', VENUE ' . $venue . ' with venue ID ' . $newconcert[1];
             $concertlist .= ', CONCERTDATE ' . $condate;
             $concertlist .= ' <br />';
         } else {
             $wpdb->insert('wpg_concerts', array(
                 'id' => '',
-                'band' => $newconcert[0],
+                'wpgconcert_name' => cname,
                 'venue' => $newconcert[1],
                 'wpgconcert_date' => $condate,
                 'wpgconcert_tickets' => $ticketlink,
@@ -123,7 +110,7 @@ function giglogadmin_insertconcerts()
             $usql = 'UPDATE wpg_files SET processed="Y", wpgc_id = ' . $newconcertid . ' WHERE id = ' . $rowfileid;
 
             $uresults = $wpdb->get_results($usql);
-            $concertlist .= 'BAND ' . $band . ' with band ID ' . $newconcert[0];
+            $concertlist .= 'name ' . $cname ;
             $concertlist .= ', VENUE ' . $venue . ' with venue ID ' . $newconcert[1];
             $concertlist .= ', CONCERTDATE ' . $condate . ', Ticket LINK ' . $ticketlink . ', event LINK' . $eventlink;
             $concertlist .= ' <br />';

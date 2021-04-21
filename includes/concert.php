@@ -9,7 +9,7 @@ if ( !class_exists('GiglogAdmin_Concert') ) {
     class GiglogAdmin_Concert
     {
         private $id;
-        private $band;
+        private $cname;
         private $venue;
         private $cdate;
         private $tickets;
@@ -24,7 +24,7 @@ if ( !class_exists('GiglogAdmin_Concert') ) {
         public function __construct($attrs = [])
         {
             $this->id = isset($attrs->id) ? $attrs->id : NULL;
-            $this->band = isset($attrs->band) ? $attrs->band : NULL;
+            $this->cname = isset($attrs->wpgconcert_name) ? $attrs->wpgconcert_name : NULL;
             $this->venue = isset($attrs->venue) ? $attrs->venue : NULL;
             $this->cdate = isset($attrs->wpgconcert_date) ? $attrs->wpgconcert_date : NULL;
             $this->tickets = isset($attrs->wpgconcert_tickets) ? $attrs->wpgconcert_tickets : NULL;
@@ -51,24 +51,24 @@ if ( !class_exists('GiglogAdmin_Concert') ) {
             }
         }
 
-        static function check_duplicate($band, $venue, $cdate, $ticketlink, $eventlink)
+        static function check_duplicate($cname, $venue, $cdate, $ticketlink, $eventlink)
         {
             global $wpdb;
 
-            $cresults = GiglogAdmin_Concert::get($band, $venue, $cdate);
+            $cresults = GiglogAdmin_Concert::get($cname, $venue, $cdate);
             if ($cresults)
                 return($cresults);
             else
                 return ('new');
 
         }
-        public static function create($band, $venue, $cdate, $ticketlink, $eventlink)
-        {   $c = GiglogAdmin_Concert::check_duplicate($band, $venue, $cdate, $ticketlink, $eventlink);
+        public static function create($cname, $venue, $cdate, $ticketlink, $eventlink)
+        {   $c = GiglogAdmin_Concert::check_duplicate($cname, $venue, $cdate, $ticketlink, $eventlink);
             if ($c=='new')
             {
                 $attrs = new stdClass();
                 $attrs->id = '';
-                $attrs->band = $band;
+                $attrs->wpgconcert_name = $cname;
                 $attrs->venue = $venue;
                 $attrs->wpgconcert_date = $cdate;
                 $attrs->wpgconcert_tickets = $ticketlink;
@@ -78,7 +78,7 @@ if ( !class_exists('GiglogAdmin_Concert') ) {
 
                 error_log( 'NEW CONCERT ADDED: '
                 . ' ID: ' . $cid -> id()
-                . ' BAND ID ' . $band
+                . ' CONCERT NAME ' . $cname
                 . ', VENUE ID ' . $venue
                 . ', CONCERTDATE ' . $cdate
                 . ', Ticket LINK ' . $ticketlink
@@ -99,7 +99,7 @@ if ( !class_exists('GiglogAdmin_Concert') ) {
             else
             {
                 error_log( 'DUPLICATE ROW detected: '
-                . ' BAND ID ' . $band
+                . ' CONCERT NAME ' . $cname
                 . ', VENUE  ID ' . $venue
                 . ', CONCERTDATE ' . $cdate);
                 return('dup');
@@ -107,12 +107,12 @@ if ( !class_exists('GiglogAdmin_Concert') ) {
         }
 
 
-        public static function update_concert($id, $band, $venue, $cdate, $ticketlink, $eventlink)
+        public static function update_concert($id, $cname, $venue, $cdate, $ticketlink, $eventlink)
         {
             global $wpdb;
 
             $res = $wpdb->update('wpg_concerts', array(
-                'band' => $band,
+                'wpgconcert_name' => $cname,
                 'venue' => $venue,
                 'wpgconcert_date' => $cdate,
                 'wpgconcert_tickets' => $ticketlink,
@@ -153,12 +153,12 @@ if ( !class_exists('GiglogAdmin_Concert') ) {
 
         }
 
-        public static function get($band, $venue, $date)
+        public static function get($cname, $venue, $date)
         {
             global $wpdb;
 
             $sql = 'SELECT id from wpg_concerts'
-                . ' where band = ' . $band
+                . ' where wpgconcert_name = "' . $cname .'"'
                 . ' and venue = ' . $venue
                 . ' and wpgconcert_date ="' . $date . '"';
 
@@ -172,7 +172,7 @@ if ( !class_exists('GiglogAdmin_Concert') ) {
 
             $wpdb->insert('wpg_concerts', array(
                 'id' => '',
-                'band' => $this->band,
+                'wpgconcert_name' => $this->cname,
                 'venue' => $this->venue,
                 'wpgconcert_date' => $this->cdate,
                 'wpgconcert_tickets' => $this->tickets,
@@ -187,9 +187,9 @@ if ( !class_exists('GiglogAdmin_Concert') ) {
             return $this->id;
         }
 
-        public function band()
+        public function cname()
         {
-            return $this->band;
+            return $this->wpgconcert_name;
         }
         public function venue()
         {

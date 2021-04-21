@@ -424,7 +424,25 @@ if ( !function_exists( "giglog_register_db_tables") )
             $wpdb->query(
                 "INSERT INTO `wpg_countries` (`id`, `wpgc_fullname`, `wpgcountry_name`, `wpgc_iso3`, `wpgc_numcode`) VALUES ('NN', 'UNKNOWN', 'Unknown', 'NNN', '666');");
         }
-        update_option("giglogadmin_db_version", 4);
+
+        if ($db_version == NULL || $db_version < 5)
+        {
+        $wpdb->query(
+            "ALTER TABLE `wpg_concerts`
+                ADD COLUMN IF NOT EXISTS
+                    `wpgconcert_name` VARCHAR(2000) NOT NULL AFTER `id`;");
+        $wpdb->query(
+            "ALTER TABLE `wpg_concerts`
+                ADD COLUMN IF NOT EXISTS
+                    `wpgconcert_type` INT NOT NULL DEFAULT '1' COMMENT '1 concert, 2 festival';");
+        $wpdb->query(
+            "ALTER TABLE `wpg_concerts` DROP INDEX `wpgconcert_band`;");
+        }
+        $wpdb->query(
+             "ALTER TABLE `wpg_concerts` DROP FOREIGN KEY `wpgconcert_band`;");
+        )
+
+        update_option("giglogadmin_db_version", 5);
     }
 
     giglog_register_db_tables();
