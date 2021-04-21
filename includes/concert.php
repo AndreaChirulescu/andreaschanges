@@ -15,8 +15,8 @@ if ( !class_exists('GiglogAdmin_Concert') ) {
         private $tickets;
         private $eventlink;
 
-         /*
-         * Constructs a new venue object from an array of attributes.
+        /*
+         * Constructs a new concert object from an array of attributes.
          * The attributes are expected to be named as in the database,
          * so this constructor can be used to construct the object
          * directly from the database row.
