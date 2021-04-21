@@ -181,10 +181,20 @@ if ( !class_exists( 'GiglogAdmin_AdminPage' ) ) {
 
             $content.='</form>';
 
+            $band = '';
+            $bcountry = '';
+            $b = GiglogAdmin_Band::get_band($c->band());
+            if (is_array($b))
+            {
+                $band = GiglogAdmin_Band::get_band($c->band())[0];
+                $bcountry = GiglogAdmin_AdminPage::get_countries(GiglogAdmin_Band::get_band($c->band())[1]);
+            }
+
+
             $content.='<form method="POST" action="" class="bandedit" ><br>'
-                .'<input type="hidden" name="bid" value="' .$c->band(). '" />'
-                .'<label for="bandname">Band Name:</label><input type="text" id="bandname" name="bandname" value="'.GiglogAdmin_Band::get_band($c->band())[0].'"><br>'
-                .'<label for="eventurl">Band Country:</label>'.GiglogAdmin_AdminPage::get_countries(GiglogAdmin_Band::get_band($c->band())[1]).'<br>';
+            .'<input type="hidden" name="bid" value="' .$c->band(). '" />'
+            .'<label for="bandname">Band Name:</label><input type="text" id="bandname" name="bandname" value="'.$band.'"><br>'
+            .'<label for="eventurl">Band Country:</label>'.$bcountry.'<br>';
 
             if ($editing) {
                 $content.='<p><input type="submit" name="editband" value="Edit Band"></p>';
