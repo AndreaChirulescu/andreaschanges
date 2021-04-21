@@ -12,12 +12,17 @@ if ( !class_exists('GiglogAdmin_Band') ) {
         private $bandname;
         private $country;
 
-
+        /*
+         * Constructs a new band object from an array of attributes.
+         * The attributes are expected to be named as in the database,
+         * so this constructor can be used to construct the object
+         * directly from the database row.
+         */
         public function __construct($attrs = [])
         {
             $this->id = isset($attrs->id) ? $attrs->id : NULL;
-            $this->bandname = isset($attrs->bandname) ? $attrs->bandname : NULL;
-            $this->country = isset($attrs->country) ? $attrs->country : 'NO';
+            $this->bandname = isset($attrs->wpgband_name) ? $attrs->wpgband_name : NULL;
+            $this->country = isset($attrs->wpgband_country) ? $attrs->wpgband_country : 'NO';
         }
 
         static function create($bandname, $country = 'NO')
@@ -26,8 +31,8 @@ if ( !class_exists('GiglogAdmin_Band') ) {
 
             if ( ! $band ) {
                 $band = new GiglogAdmin_Band((object) [
-                    'bandname' => $bandname,
-                    'country' => $country,
+                    'wpgband_name' => $bandname,
+                    'wpgband_country' => $country,
                 ]);
 
                 $band->save();

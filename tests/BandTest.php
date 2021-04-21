@@ -39,6 +39,7 @@ final class BandTest extends WP_UnitTestCase
 
         $this->assertEquals($count, count(GiglogAdmin_Band::all_bands()));
         $this->assertEquals($existing_band->id(), $new_band->id());
+        $this->assertEquals($existing_band->bandname(), $new_band->bandname());
     }
 
     public function testCreateBandsWithSameNameInDifferentCountry() : void
@@ -54,6 +55,7 @@ final class BandTest extends WP_UnitTestCase
         $found = GiglogAdmin_Band::find("The Flamboyant Blasphemers", "NO");
 
         $this->assertNotNull($found);
+        $this->assertEquals("The Flamboyant Blasphemers", $found->bandname());
     }
 
     public function testFindNonExistingBandReturnsNULL() : void
