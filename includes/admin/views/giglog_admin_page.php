@@ -485,7 +485,8 @@ if ( !class_exists( 'GiglogAdmin_AdminPage' ) ) {
             global $wpdb;
             $hf_user = wp_get_current_user();
             $hf_username = $hf_user->user_login;
-
+            if (!empty($c))
+            {
             //PHOTO1
             if ($p1 == 'photo1')
             {
@@ -551,6 +552,8 @@ if ( !class_exists( 'GiglogAdmin_AdminPage' ) ) {
                         return ('<form method="POST" action=""> <input type="hidden" name="cid" value="' . $c. '" /><input type="hidden" name="pid" value="' . $p1. '" /><input type="submit" name="assignitem" value=""/>
                         </form>');
             }
+            }
+            else return ('no concert selected');
         }
     }
 }
