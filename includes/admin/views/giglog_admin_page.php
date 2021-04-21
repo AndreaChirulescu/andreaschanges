@@ -553,6 +553,7 @@ if ( !class_exists( 'GiglogAdmin_AdminPage' ) ) {
                         </form>');
             }
             }
+            else return ('no concert selected');
         }
     }
 }
