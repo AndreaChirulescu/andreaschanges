@@ -427,20 +427,20 @@ if ( !function_exists( "giglog_register_db_tables") )
 
         if ($db_version == NULL || $db_version < 5)
         {
-        $wpdb->query(
-            "ALTER TABLE `wpg_concerts`
+            $wpdb->query(
+                "ALTER TABLE `wpg_concerts`
                 ADD COLUMN IF NOT EXISTS
-                    `wpgconcert_name` VARCHAR(2000) NOT NULL AFTER `id`;");
-        $wpdb->query(
-            "ALTER TABLE `wpg_concerts`
+                `wpgconcert_name` VARCHAR(2000) NOT NULL AFTER `id`;");
+            $wpdb->query(
+                "ALTER TABLE `wpg_concerts`
                 ADD COLUMN IF NOT EXISTS
-                    `wpgconcert_type` INT NOT NULL DEFAULT '1' COMMENT '1 concert, 2 festival';");
-        $wpdb->query(
-            "ALTER TABLE `wpg_concerts` DROP INDEX `wpgconcert_band`;");
+                `wpgconcert_type` INT NOT NULL DEFAULT '1' COMMENT '1 concert, 2 festival';");
+            $wpdb->query(
+                "ALTER TABLE `wpg_concerts` DROP INDEX `wpgconcert_band`;");
+
+            $wpdb->query(
+                "ALTER TABLE `wpg_concerts` DROP FOREIGN KEY `wpgconcert_band`;");
         }
-        $wpdb->query(
-             "ALTER TABLE `wpg_concerts` DROP FOREIGN KEY `wpgconcert_band`;");
-        )
 
         update_option("giglogadmin_db_version", 5);
     }
