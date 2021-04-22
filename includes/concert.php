@@ -189,7 +189,7 @@ if ( !class_exists('GiglogAdmin_Concert') ) {
 
         public function cname()
         {
-            return $this->wpgconcert_name;
+            return $this->cname;
         }
         public function venue()
         {
