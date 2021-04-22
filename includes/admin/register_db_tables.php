@@ -257,7 +257,7 @@ if ( !function_exists( "giglog_register_db_tables") )
     function giglog_register_db_tables()
     {
         $db_version = get_option('giglogadmin_db_version');
-        if ($db_version == 3) {
+        if ($db_version == 5) {
             return;
         }
 
