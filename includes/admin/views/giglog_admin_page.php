@@ -329,17 +329,20 @@ if ( !class_exists( 'GiglogAdmin_AdminPage' ) ) {
                //header("Refresh: 1; URL=$url2");  //reload page
             }
 
-            if(isset($_POST['newconcert']))
-            {
-            IF (empty($_POST['cname'])  || empty($_POST['selectvenueadmin']) || empty($_POST['cdate']) || empty($_POST['ticket']) || empty($_POST['eventurl']))
+            if(isset($_POST['newconcert'])) {
+                if (empty($_POST['cname'])  || empty($_POST['selectvenueadmin']) || empty($_POST['cdate']) || empty($_POST['ticket']) || empty($_POST['eventurl'])) {
                     echo '<script language="javascript">alert("You are missing a value, concert was not created"); </script>';
-            else
-                {
-                $ret = GiglogAdmin_Concert::create($_POST['cname'], $_POST['selectvenueadmin'], $_POST['cdate'], $_POST['ticket'], $_POST['eventurl']);
-                if ($ret!='dup') echo '<script language="javascript">alert("Yey, concert created"); </script>';
-                else echo '<script language="javascript">alert("Nay, concert was duplicated"); </script>';
+                }
+                else {
+                    if (GiglogAdmin_Concert::create($_POST['cname'], $_POST['selectvenueadmin'], $_POST['cdate'], $_POST['ticket'], $_POST['eventurl'])) {
+                        echo '<script language="javascript">alert("Yey, concert created"); </script>';
+                    }
+                    else {
+                        echo '<script language="javascript">alert("Nay, concert was duplicated"); </script>';
+                    }
                 }
             }
+
             if(isset($_POST['editconcert']))
             {
             IF (empty($_POST['cname'])  || empty($_POST['selectvenueadmin']) || empty($_POST['cdate']) || empty($_POST['ticket']) || empty($_POST['eventurl']))

@@ -44,6 +44,6 @@ final class ConcertTest extends WP_UnitTestCase
             "https://example.com/tickets/42",
             "https://example.com/events/93");
 
-        $this->assertEquals("dup", $new);
+        $this->assertNull($new);
     }
 }
