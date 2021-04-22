@@ -376,14 +376,7 @@ if ( !class_exists( 'GiglogAdmin_AdminPage' ) ) {
             $subject = $hf_username.' has taken '.$p1. 'for a concert with id '.$c;
             $body = 'The email body content';
             $headers = array('Content-Type: text/html; charset=UTF-8');
-
-
-
-            if ($p1 == 'photo1') $usql = "UPDATE wpg_concertlogs  SET wpgcl_photo1='".$hf_username."'  WHERE wpgcl_concertid=".$c;
-            if ($p1 == 'photo2') $usql = "UPDATE wpg_concertlogs  SET wpgcl_photo2='".$hf_username."'  WHERE wpgcl_concertid=".$c;
-            if ($p1 == 'rev1') $usql = "UPDATE wpg_concertlogs  SET wpgcl_rev1='".$hf_username."'  WHERE wpgcl_concertid=".$c;
-            if ($p1 == 'rev2') $usql = "UPDATE wpg_concertlogs  SET wpgcl_rev2='".$hf_username."'  WHERE wpgcl_concertid=".$c;
-
+            $usql = "UPDATE wpg_concertlogs  SET wpgcl_".$p1."='".$hf_username."'  WHERE wpgcl_concertid=".$c;
             $uresults = $wpdb->get_results($usql);
             $wpdb->insert( 'wpg_logchanges', array (
                 'id' => '',
@@ -404,12 +397,7 @@ if ( !class_exists( 'GiglogAdmin_AdminPage' ) ) {
             $subject = $hf_username.' has UNASSINED  '.$p1. 'for a concert with id '.$c;
             $body = 'The email body content';
             $headers = array('Content-Type: text/html; charset=UTF-8');
-
-            if ($p1 == 'photo1') $usql = "UPDATE wpg_concertlogs  SET wpgcl_photo1=''  WHERE wpgcl_concertid=".$c;
-            if ($p1 == 'photo2') $usql = "UPDATE wpg_concertlogs  SET wpgcl_photo2=''  WHERE wpgcl_concertid=".$c;
-            if ($p1 == 'rev1') $usql = "UPDATE wpg_concertlogs  SET wpgcl_rev1='' WHERE wpgcl_concertid=".$c;
-            if ($p1 == 'rev2') $usql = "UPDATE wpg_concertlogs  SET wpgcl_rev2=''  WHERE wpgcl_concertid=".$c;
-
+            $usql = "UPDATE wpg_concertlogs  SET wpgcl_".$p1."=''  WHERE wpgcl_concertid=".$c;
             $uresults = $wpdb->get_results($usql);
             $wpdb->insert( 'wpg_logchanges', array (
                 'id' => '',
@@ -426,17 +414,16 @@ if ( !class_exists( 'GiglogAdmin_AdminPage' ) ) {
             $hf_user = wp_get_current_user();
             $hf_username = $hf_user->user_login;
 
+
             if (!empty($c))
             {
 
-            //PHOTO1
-            if ($p1 == 'photo1')
-            {
-                //checking if taken
-                $vquery0 = "select wpgcl_photo1 from wpg_concertlogs where wpgcl_concertid=".$c ;
+                $vquery0 = "select wpgcl_".$p1." as assigneduser from wpg_concertlogs where wpgcl_concertid=".$c ;
                 $results = $wpdb->get_results($vquery0);
-                foreach ( $results AS $row )   $x= $row -> wpgcl_photo1;
-                if ($x !='' and $x!=$hf_username)  { return ('<span class="takenby">Taken</span><div class="takenby">Taken by '.$x.'</div>'); }
+
+                foreach ( $results AS $row ) {
+                $x= $row -> assigneduser;
+                if ($x !='' and $x!=$hf_username)   return ('<span class="takenby">Taken</span><div class="takenby">Taken by '.$x.'</div>');
                 else
                     if  ($x==$hf_username)  //if current user
                         return ('<form class="unassignit" method="POST" action=""> <input type="hidden" name="cid" value="' . $c. '" /><input type="hidden" name="pid" value="' . $p1. '" /><input type="submit" name="unassignitem" value=""/>
@@ -444,57 +431,10 @@ if ( !class_exists( 'GiglogAdmin_AdminPage' ) ) {
                     else  //not taken by anyone
                         return ('<form method="POST" action=""> <input type="hidden" name="cid" value="' . $c. '" /><input type="hidden" name="pid" value="' . $p1. '" /><input  type="submit" name="assignitem" value=""/>
                         </form>');
+
+                }
             }
 
-            //PHOTO2
-            if ($p1 == 'photo2')
-            {
-                $vquery0 = "select wpgcl_photo2 from wpg_concertlogs where wpgcl_concertid=".$c ;
-                $results = $wpdb->get_results($vquery0);
-                foreach ( $results AS $row )   $x= $row -> wpgcl_photo2;
-                if ($x !='' and $x!=$hf_username)  { return ('<span class="takenby">Taken</span><div class="takenby">Taken by '.$x.'</div>'); }
-                else
-                    if  ($x==$hf_username)  //if current user
-                        return ('<form class="unassignit"  method="POST" action=""> <input type="hidden" name="cid" value="' . $c. '" /><input type="hidden" name="pid" value="' . $p1. '" /><input type="submit" name="unassignitem" value=""/>
-                        </form>');
-
-                    else  //not taken by anyone
-                        return ('<form method="POST" action=""> <input type="hidden" name="cid" value="' . $c. '" /><input type="hidden" name="pid" value="' . $p1. '" /><input type="submit" name="assignitem" value=""/>
-                        </form>');
-            }
-
-            //TEXT1
-            if ($p1 == 'rev1')
-            {
-                $vquery0 = "select wpgcl_rev1 from wpg_concertlogs where wpgcl_concertid=".$c ;
-                $results = $wpdb->get_results($vquery0);
-                foreach ( $results AS $row )   $x= $row -> wpgcl_rev1;
-                if ($x !='' and $x!=$hf_username)  { return('<span class="takenby">Taken</span><div class="takenby">Taken by '.$x.'</div>'); }
-                else
-                    if  ($x==$hf_username)  //if current user
-                        return ('<form class="unassignit"  method="POST" action=""> <input type="hidden" name="cid" value="' . $c. '" /><input type="hidden" name="pid" value="' . $p1. '" /><input type="submit" name="unassignitem" value=""/>
-                        </form>');
-                    else //not taken by anyone
-                        return ('<form method="POST" action=""> <input type="hidden" name="cid" value="' . $c. '" /><input type="hidden" name="pid" value="' . $p1. '" /><input type="submit" name="assignitem" value=""/>
-                        </form>');
-            }
-
-            //TEXT2
-            if ($p1 == 'rev2')
-            {
-                $vquery0 = "select wpgcl_rev2 from wpg_concertlogs where wpgcl_concertid=".$c ;
-                $results = $wpdb->get_results($vquery0);
-                foreach ( $results AS $row )   $x= $row -> wpgcl_rev2;
-                if ($x !='' and $x!=$hf_username)  { return('<span class="takenby">Taken</span><div class="takenby">Taken by '.$x.'</div>'); }
-                else
-                    if  ($x==$hf_username)  //if current user
-                        return ('<form class="unassignit"  method="POST" action=""> <input type="hidden" name="cid" value="' . $c. '" /><input type="hidden" name="pid" value="' . $p1. '" /><input type="submit" name="unassignitem" value=""/>
-                        </form>');
-                    else //not taken by anyone
-                        return ('<form method="POST" action=""> <input type="hidden" name="cid" value="' . $c. '" /><input type="hidden" name="pid" value="' . $p1. '" /><input type="submit" name="assignitem" value=""/>
-                        </form>');
-            }
-            }
             else return ('no concert selected');
         }
     }
