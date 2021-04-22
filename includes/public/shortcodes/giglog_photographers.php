@@ -236,7 +236,7 @@ function giglogadmin_getconcertsphotog ( ) {
     //    $content .= '</tr><th>CITY</th><th>ID</th><th>BAND</th><th>VENUE</th><th>DATE</th></tr>';
 
     $content .= '<tr class="assignithrow">
-        <th>CITY</th><th>BAND</th><th>VENUE</th><th>DATE</th><th> </th>
+        <th>CITY</th><th>TITLE</th><th>VENUE</th><th>DATE</th><th> </th>
         <th>PHOTO1</th><th>PHOTO2</th><th>TEXT1</th><th>TEXT2</th>
         <th>STATUS</th>';
     if (current_user_can('administrator')) //($hf_username == 'etadmin')
@@ -252,10 +252,9 @@ function giglogadmin_getconcertsphotog ( ) {
     $venue= $venue? $venue: '0';
 
 
-    $query =  "SELECT wpgc.id, wpgb.wpgband_name as band, wpgv.wpgvenue_name as venue, wpgc.wpgconcert_date, wpgc.wpgconcert_tickets, wpgc.wpgconcert_event, wpgv.wpgvenue_city, wpgv.wpgvenue_webpage, wpgps.wpgs_name
-        FROM wpg_concerts wpgc, wpg_bands wpgb, wpg_venues wpgv, wpg_pressstatus wpgps, wpg_concertlogs wpgcl
-        where wpgc.band=wpgb.id
-        and wpgc.venue = wpgv.id
+    $query =  "SELECT wpgc.id, wpgc.wpgconcert_name, wpgv.wpgvenue_name as venue, wpgc.wpgconcert_date, wpgc.wpgconcert_tickets, wpgc.wpgconcert_event, wpgv.wpgvenue_city, wpgv.wpgvenue_webpage, wpgps.wpgs_name
+        FROM wpg_concerts wpgc, wpg_venues wpgv, wpg_pressstatus wpgps, wpg_concertlogs wpgcl
+        where  wpgc.venue = wpgv.id
         and wpgconcert_date >= CURDATE()
         and wpgps.id = wpgcl.wpgcl_status
         and wpgcl.wpgcl_concertid=wpgc.id";
@@ -281,7 +280,7 @@ function giglogadmin_getconcertsphotog ( ) {
         // Modify these to match the database structure
         //     $content .= '<td>' . $row->id. '</td>';
         $content .= '<td></td>';
-        $content .= '<td>' . $row->band. '</td>';
+        $content .= '<td>' . $row->wpgconcert_name. '</td>';
         $content .= '<td>' . $row->venue. '</td>';
         $fdate =  strtotime($row->wpgconcert_date);
         $newformat = date('d.M.Y',$fdate);

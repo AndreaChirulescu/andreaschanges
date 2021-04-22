@@ -65,7 +65,7 @@ function giglogadmin_getconcerts()
     // Shortcodes RETURN content, so store in a variable to return
     $content = '<table class="concertstb">';
     //    $content .= '</tr><th>CITY</th><th>ID</th><th>BAND</th><th>VENUE</th><th>DATE</th><th>TICKETS</th><th>EVENT</th></tr>';
-    $content .= '<tr class="concertshrow"><th>CITY</th><th>BAND</th><th>VENUE</th><th>DATE</th><th>TICKETS</th><th>EVENT</th></tr>';
+    $content .= '<tr class="concertshrow"><th>CITY</th><th>TITLE</th><th>VENUE</th><th>DATE</th><th>TICKETS</th><th>EVENT</th></tr>';
     // Use the submitted "city" if any. Otherwise, use the default/static value.
     $cty = filter_input(INPUT_POST, 'selectcity');
     $cty = $cty ? $cty : 'ALL';
@@ -75,10 +75,9 @@ function giglogadmin_getconcerts()
     $venue = $venue ? $venue : '0';
 
 
-    $query = "SELECT wpgc.id, wpgb.wpgband_name as band ,wpgv.wpgvenue_name as venue ,wpgc.wpgconcert_date, wpgc.wpgconcert_tickets, wpgc.wpgconcert_event, wpgv.wpgvenue_city, wpgv.wpgvenue_webpage
- FROM wpg_concerts wpgc, wpg_bands wpgb, wpg_venues wpgv
-where wpgc.band=wpgb.id
-and wpgc.venue = wpgv.id
+    $query = "SELECT wpgc.id, wpgc.wpgconcert_name ,wpgv.wpgvenue_name as venue ,wpgc.wpgconcert_date, wpgc.wpgconcert_tickets, wpgc.wpgconcert_event, wpgv.wpgvenue_city, wpgv.wpgvenue_webpage
+ FROM wpg_concerts wpgc, wpg_venues wpgv
+where wpgc.venue = wpgv.id
 and wpgconcert_date >= CURDATE()";
     $query .= ($cty == "ALL") ? "" : "  and wpgv.wpgvenue_city='" . $cty . "'";
     $query .= ($venue == "0") ? "" : "  and wpgv.id='" . $venue . "'";
@@ -101,7 +100,7 @@ and wpgconcert_date >= CURDATE()";
         // Modify these to match the database structure
         //     $content .= '<td>' . $row->id. '</td>';
         $content .= '<td></td>';
-        $content .= '<td>' . $row->band . '</td>';
+        $content .= '<td>' . $row->wpgconcert_name . '</td>';
         $content .= '<td>' . $row->venue . '</td>';
         $fdate     = strtotime($row->wpgconcert_date);
         $newformat = date('d.M.Y', $fdate);
