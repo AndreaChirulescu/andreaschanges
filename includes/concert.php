@@ -51,7 +51,7 @@ if ( !class_exists('GiglogAdmin_Concert') ) {
             }
         }
 
-        static function check_duplicate($cname, $venue, $cdate, $ticketlink, $eventlink)
+        private static function check_duplicate($cname, $venue, $cdate, $ticketlink, $eventlink)
         {
             global $wpdb;
 
@@ -62,8 +62,10 @@ if ( !class_exists('GiglogAdmin_Concert') ) {
                 return ('new');
 
         }
+
         public static function create($cname, $venue, $cdate, $ticketlink, $eventlink)
-        {   $c = GiglogAdmin_Concert::check_duplicate($cname, $venue, $cdate, $ticketlink, $eventlink);
+        {
+            $c = GiglogAdmin_Concert::check_duplicate($cname, $venue, $cdate, $ticketlink, $eventlink);
             if ($c=='new')
             {
                 $attrs = new stdClass();
@@ -102,7 +104,7 @@ if ( !class_exists('GiglogAdmin_Concert') ) {
                 . ' CONCERT NAME ' . $cname
                 . ', VENUE  ID ' . $venue
                 . ', CONCERTDATE ' . $cdate);
-                return('dup');
+                return NULL;
             }
         }
 

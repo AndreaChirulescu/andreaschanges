@@ -17,6 +17,6 @@
         "wp-phpunit/wp-phpunit": "^5.7"
     },
     "scripts": {
-        "test": "./run-tests"
+        "test": "npm run wp-env run phpunit 'phpunit -c /var/www/html/wp-content/plugins/giglogadmin/phpunit.xml'"
     }
 }
