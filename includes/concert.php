@@ -51,41 +51,36 @@ if ( !class_exists('GiglogAdmin_Concert') ) {
             }
         }
 
-        private static function check_duplicate($cname, $venue, $cdate, $ticketlink, $eventlink)
+        public static function create($name, $venue, $date, $ticketlink, $eventlink)
         {
-            global $wpdb;
+            if ( GiglogAdmin_Concert::find($name, $venue, $date) ) {
+                error_log( 'DUPLICATE ROW detected: '
+                    . ' CONCERT NAME ' . $name
+                    . ', VENUE  ID ' . $venue
+                    . ', CONCERTDATE ' . $date);
 
-            $cresults = GiglogAdmin_Concert::get($cname, $venue, $cdate);
-            if ($cresults)
-                return($cresults);
-            else
-                return ('new');
+                return NULL;
+            }
+            else {
+                $concert = new GiglogAdmin_Concert( (object) [
+                    "wpgconcert_name" => $name,
+                    "venue" => $venue,
+                    "wpgconcert_date" => $date,
+                    "wpgconcert_tickets" => $ticketlink,
+                    "wpgconcert_event" => $eventlink,
+                ]);
 
-        }
-
-        public static function create($cname, $venue, $cdate, $ticketlink, $eventlink)
-        {
-            $c = GiglogAdmin_Concert::check_duplicate($cname, $venue, $cdate, $ticketlink, $eventlink);
-            if ($c=='new')
-            {
-                $attrs = new stdClass();
-                $attrs->id = '';
-                $attrs->wpgconcert_name = $cname;
-                $attrs->venue = $venue;
-                $attrs->wpgconcert_date = $cdate;
-                $attrs->wpgconcert_tickets = $ticketlink;
-                $attrs->wpgconcert_event = $eventlink;
-                $cid = new GiglogAdmin_Concert($attrs);
-                $cid->save();
+                $concert->save();
 
                 error_log( 'NEW CONCERT ADDED: '
-                . ' ID: ' . $cid -> id()
-                . ' CONCERT NAME ' . $cname
-                . ', VENUE ID ' . $venue
-                . ', CONCERTDATE ' . $cdate
-                . ', Ticket LINK ' . $ticketlink
-                . ', Event LINK ' . $eventlink);
-                GiglogAdmin_Concertlogs::add($cid->id());
+                    . ' ID: ' . $concert -> id()
+                    . ' CONCERT NAME ' . $name
+                    . ', VENUE ID ' . $venue
+                    . ', CONCERTDATE ' . $date
+                    . ', Ticket LINK ' . $ticketlink
+                    . ', Event LINK ' . $eventlink);
+
+                GiglogAdmin_Concertlogs::add( $concert->id() );
                     /*the last line can be replaced by a trigger
                     CREATE TRIGGER `insertIntoPhotoLogs` AFTER INSERT ON `wpg_concerts`
                     FOR EACH ROW INSERT INTO wpg_concertlogs (
@@ -96,15 +91,7 @@ if ( !class_exists('GiglogAdmin_Concert') ) {
                     VALUES
                     (null, new.id, 1)
                     */
-                return $cid;
-            }
-            else
-            {
-                error_log( 'DUPLICATE ROW detected: '
-                . ' CONCERT NAME ' . $cname
-                . ', VENUE  ID ' . $venue
-                . ', CONCERTDATE ' . $cdate);
-                return NULL;
+                return $concert;
             }
         }
 
@@ -155,7 +142,7 @@ if ( !class_exists('GiglogAdmin_Concert') ) {
 
         }
 
-        public static function get($cname, $venue, $date)
+        public static function find($cname, $venue, $date)
         {
             global $wpdb;
 
