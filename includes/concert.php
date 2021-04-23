@@ -147,7 +147,7 @@ if ( !class_exists('GiglogAdmin_Concert') ) {
             global $wpdb;
 
             $sql = 'SELECT id from wpg_concerts'
-                . ' where wpgconcert_name = "' . $cname .'"'
+                . ' where upper(wpgconcert_name) = upper("' . $cname .'")'
                 . ' and venue = ' . $venue
                 . ' and wpgconcert_date ="' . $date . '"';
 

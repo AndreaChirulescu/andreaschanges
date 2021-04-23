@@ -46,4 +46,26 @@ final class ConcertTest extends WP_UnitTestCase
 
         $this->assertNull($new);
     }
+
+    public function testCreateExistingConcertVariableCase() : void
+    {
+        $venue = GiglogAdmin_Venue::create("a venue");
+        $today = date("Y-m-d");
+
+        GiglogAdmin_Concert::create(
+            "a concert123",
+            $venue->id(),
+            $today,
+            "https://example.com/tickets/42",
+            "https://example.com/events/93");
+
+        $new = GiglogAdmin_Concert::create(
+            "a CoNceRt123",
+            $venue->id(),
+            $today,
+            "https://example.com/tickets/42",
+            "https://example.com/events/93");
+
+        $this->assertNull($new);
+    }
 }
