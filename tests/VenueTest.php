@@ -41,6 +41,17 @@ final class VenueTest extends WP_UnitTestCase
         $this->assertEquals($other->name(), $venue->name());
     }
 
+    public function testFindOrCreateExistingVenueVariableCase() : void
+    {
+        global $wpdb;
+
+        $venue = GiglogAdmin_Venue::create("This is not the venue you are looking for");
+        $other = GiglogAdmin_Venue::find_or_create("ThiS IS noT tHe VenuE YOu aRe looking FoR");
+
+        $this->assertEquals($other->id(), $venue->id());
+        $this->assertEquals($other->name(), $venue->name());
+    }
+
     public function testFindAllVenuesInCity() : void
     {
         global $wpdb;

@@ -102,3 +102,37 @@ input[name="unassignitem"]
 	padding: unset;
 	width: 80px;
 }
+
+/*for giglog editform*/
+.editform input,textarea
+{
+  box-shadow:10px;
+  border-radius:10px;
+}
+
+.editform, .concert
+{
+	display:flex;
+}
+
+.concertform,.venueform
+{
+    padding: 2px;
+    border: 1px solid;
+}
+
+ .editform fieldset {
+     min-width: 200px;
+     display: inline-block;
+ }
+
+ .editform fieldset label{
+        margin-right: 10px;
+     position: relative;
+	 display: block;
+ }
+
+ .editform textarea
+ {
+	 height: auto;
+ }

@@ -134,34 +134,36 @@ if ( !class_exists( 'GiglogAdmin_AdminPage' ) ) {
             else
                 $c = new GiglogAdmin_Concert();
 
-            $content='<form method="POST" action="" class="concedit" > Form to create/edit concerts and venues<br>'
+            $content='<div><h3>Form to create/edit concerts and venues</h3><br></div><div class="editform"><div class="concertform">';
+            $content.='<form method="POST" action="" class="concert" >'
+                .'<div class="concertitems"><strong>CONCERT DETAILS</strong><br><br><fieldset>'
                 .'<input type="hidden" name="pid" value="' .$c->id(). '" />'
-                .'<label for="cname">Concert Name:</label><input type="text" id="cname" name="cname" value="'.$c->cname().'"><br>'
+                .'<label for="cname">Concert Name:</label><textarea id="cname" name="cname" value="'.$c->cname().'">'.$c->cname().'</textarea><br>'
                 .'<label for="venue">Venue:</label>'.GiglogAdmin_AdminPage::get_allvenues($c->venue()).'<br>'
                 .'<label for="cdate">Date:</label><input type="date" id="cdate" name="cdate" value="'.$c->cdate().'"><br>'
                 .'<label for="ticket">Tickets:</label><input type="text" id="ticket" name="ticket" value="'.$c->tickets().'"><br>'
                 .'<label for="eventurl">Event link:</label><input type="text" id="eventurl" name="eventurl" value="'.$c->eventlink().'"><br>'
+                .'</fieldset>';
+            // actions differ if we update or create a concert, hence two buttons needed
+            if ($editing)
+                $content.='<p><input type="submit" name="editconcert" value="Edit Concert"></p>';
+            else
+                $content.='<p><input type="submit" name="newconcert" value="Create New Concert"></p>';
+
+            $content.='</div>';
+            $content.='<div class="useritems"><strong>ASSIGNMENT DETAILS</strong><br><br><fieldset>'
                 .'<label for="photo1">Photo1:</label>'.GiglogAdmin_AdminPage::get_user($c->id(),'photo1').'<br>'
                 .'<label for="photo2">Photo2:</label>'.GiglogAdmin_AdminPage::get_user($c->id(),'photo2').'<br>'
                 .'<label for="rev1">Text1:</label>'.GiglogAdmin_AdminPage::get_user($c->id(),'rev1').'<br>'
-                .'<label for="rev2">Text2:</label>'.GiglogAdmin_AdminPage::get_user($c->id(),'rev2').'<br>'
-                ;
+                .'<label for="rev2">Text2:</label>'.GiglogAdmin_AdminPage::get_user($c->id(),'rev2').'<br>';
 
-            // actions differ if we update or create a concert, hence two buttons needed
-            if ($editing) {
-                $content.='<p><input type="submit" name="editconcert" value="Edit Concert"></p>';
-            }
-            else {
-                $content.='<p><input type="submit" name="newconcert" value="Create New Concert"></p>';
-            }
-
-            $content.='</form>';
-
-            $content.='<form method="POST" action="" class="venue" ><br>'
-                .'<label for="venue">Venue Name:</label><input type="text" id="venuename" name="venuename"><br>'
+            $content.='<fieldset></div></form></div>';
+            $content.='<div class="venueform"><form method="POST" action="" class="venue" ><strong>VENUE DETAILS</strong><br><br>'
+                .'<fieldset><label for="venue">Venue Name:</label><input type="text" id="venuename" name="venuename"><br>'
                 .'<label for="eventurl">Venue City:</label><input type="text" id="venuecity" name="venuecity"><br>'
                 .'<p><input type="submit" name="newvenue" value="Create New Venue"></p>'
-            .'</form>';
+                .'<fieldset></form></div>';
+            $content.='</div>';
             return $content;
         }
 
