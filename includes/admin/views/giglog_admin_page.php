@@ -422,22 +422,19 @@ if ( !class_exists( 'GiglogAdmin_AdminPage' ) ) {
 
             if (!empty($c))
             {
+                $sql =  "select * from wpg_concertlogs where wpgcl_concertid=".$c;
+                $crow = $wpdb->get_results($sql);
+                $array = array('photo1' => $crow[0]->wpgcl_photo1, 'photo2'=> $crow[0]->wpgcl_photo2, 'rev1' => $crow[0]->wpgcl_rev1, 'rev2'=> $crow[0]->wpgcl_rev2);
 
-                $vquery0 = "select wpgcl_".$p1." as assigneduser from wpg_concertlogs where wpgcl_concertid=".$c ;
-                $results = $wpdb->get_results($vquery0);
-
-                foreach ( $results AS $row ) {
-                $x= $row -> assigneduser;
-                if ($x !='' and $x!=$hf_username)   return ('<span class="takenby">Taken</span><div class="takenby">Taken by '.$x.'</div>');
-                else
-                    if  ($x==$hf_username)  //if current user
-                        return ('<form class="unassignit" method="POST" action=""> <input type="hidden" name="cid" value="' . $c. '" /><input type="hidden" name="pid" value="' . $p1. '" /><input type="submit" name="unassignitem" value=""/>
-                        </form>');
-                    else  //not taken by anyone
-                        return ('<form method="POST" action=""> <input type="hidden" name="cid" value="' . $c. '" /><input type="hidden" name="pid" value="' . $p1. '" /><input  type="submit" name="assignitem" value=""/>
-                        </form>');
-
-                }
+                //first check if current slot is taken by current user
+                if ($array[$p1] == $hf_username) return ('<form class="unassignit" method="POST" action=""> <input type="hidden" name="cid" value="' . $c. '" /><input type="hidden" name="pid" value="' . $p1. '" /><input type="submit" name="unassignitem" value="Your"/></form>');
+                else  //check if slot is taken by another user
+                    if (!empty($array[$p1])) return ('<span class="takenby">Taken</span><div class="takenby">Taken by '.$array[$p1].'</div>');
+                else  //check if other slots for this concert are taken by user
+                    if (in_array($hf_username,$array)) return ('<span class="taken_by_self">-</span>');
+                else  //not taken by anyone
+                    return ('<form method="POST" action=""> <input type="hidden" name="cid" value="' . $c. '" /><input type="hidden" name="pid" value="' . $p1. '" /><input  type="submit" name="assignitem" value=""/>
+                    </form>');
             }
 
             else return ('no concert selected');
