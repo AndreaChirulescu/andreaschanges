@@ -3,6 +3,11 @@
  * PHPUnit bootstrap file
  *
  * @package Sample_Plugin
+ *
+ * SPDX-FileCopyrightText: 2021 Andrea Chirulescu <andrea.chirulescu@gmail.com>
+ * SPDX-FileCopyrightText: 2021 Harald Eilertsen <haraldei@anduin.net>
+ *
+ * SPDX-License-Identifier: AGPL-3.0-or-later
  */
 
 //$_tests_dir = getenv( 'WP_TESTS_DIR' );
