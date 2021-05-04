@@ -78,6 +78,7 @@ if ( !class_exists( 'GiglogAdmin_AdminPage' ) ) {
         static function get_filters()
         {
             $cities = array_merge(["ALL"], GiglogAdmin_Venue::all_cities());
+            $cty = filter_input( INPUT_POST, 'selectcity', FILTER_SANITIZE_SPECIAL_CHARS );
             $selected_city =
                 filter_input(INPUT_POST, "selectcity", FILTER_SANITIZE_SPECIAL_CHARS)
                 || $cities[0];
@@ -85,34 +86,34 @@ if ( !class_exists( 'GiglogAdmin_AdminPage' ) ) {
             $select = '<form method="POST" action="">FILTER DATA: <select name="selectcity">';
 
             foreach ( $cities AS $city ) {
-                $select .= '<option value="' . $city . '"' . selected($city, $selected_city) . '>';
+                $select .= '<option value="' . $city . '"' . selected($city,$cty ) . '>';
                 $select .= $city . '</option>';
             }
 
             $select .= '</select>';
 
-            if ( $selected_city != "ALL" ) {
-                //second drop down for venue
 
-                $venues = GiglogAdmin_Venue::venues_in_city($selected_city);
+            if ( $cty && $cty!= "ALL" ) {
+                //second drop down for venue
+                $venues = GiglogAdmin_Venue::venues_in_city($cty);
+
                 $venue_list = array_merge(
                     [0, "ALL"],
                     array_map(
                         function($v) { return [$v->id(), $v->name()]; },
                         $venues));
 
-                $selected_venue =
-                    filter_input(INPUT_POST, "selectvenue", FILTER_SANITIZE_SPECIAL_CHARS)
-                    || $venues[0];
+                $selected_venue = filter_input(INPUT_POST, "selectvenue", FILTER_SANITIZE_SPECIAL_CHARS)
+                    || $venue_list[0];
 
                 $select .= '<select name="selectvenue">';
-
-                foreach ( $venues AS $venue ) {
-                    $select .= '<option value="' . $venue[0] . '"' . selected($venue, $selected_venue) . '>';
+                foreach ( $venue_list AS $venue ) {
+                    //below line returns an erorr which I haven't really figured out yet But filtering works. It doesn't keep the venue selected in the dropdown
+                    $select .= '<option value="' . $venue[0] . '"' . selected($venue[0], $selected_venue) . '>';
                     $select .= $venue[1] . '</option>';
                 }
-
                 $select .= '</select>';
+
             }
             //option to select own concerts only
             $select .= '<input  class="ownconc" type="checkbox" value="1"';
