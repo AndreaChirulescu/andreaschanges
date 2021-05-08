@@ -1,0 +1,28 @@
+<?xml version="1.0"?>
+<!--
+SPDX-FileCopyrightText: 2021 Andrea Chirulescu <andrea.chirulescu@gmail.com>
+SPDX-FileCopyrightText: 2021 Harald Eilertsen <haraldei@anduin.net>
+
+SPDX-License-Identifier: CC0-1.0
+-->
+<psalm
+    errorLevel="4"
+    resolveFromConfigFile="true"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns="https://getpsalm.org/schema/config"
+    xsi:schemaLocation="https://getpsalm.org/schema/config vendor/vimeo/psalm/config.xsd"
+>
+    <projectFiles>
+        <file name="generate-sample-gig-data.php"/>
+        <file name="giglogadmin.php"/>
+        <directory name="includes"/>
+        <ignoreFiles>
+            <directory name="vendor"/>
+            <directory name="includes/public/shortcodes" />
+        </ignoreFiles>
+    </projectFiles>
+
+    <issueHandlers>
+        <InvalidGlobal errorLevel="suppress" />
+    </issueHandlers>
+<plugins><pluginClass class="PsalmWordPress\Plugin"/></plugins></psalm>
