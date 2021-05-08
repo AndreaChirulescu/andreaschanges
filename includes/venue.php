@@ -43,7 +43,7 @@ if ( !class_exists('GiglogAdmin_Venue') ) {
             return $venue;
         }
 
-        static function find_or_create($name, $city = 'Oslo')
+        static function find_or_create(string $name, string $city = 'Oslo'): self
         {
             global $wpdb;
             $venuesql = 'SELECT * FROM wpg_venues WHERE upper(wpgvenue_name)=upper("' . $name . '")'.' and wpgvenue_city="'.$city.'"';
@@ -89,7 +89,7 @@ if ( !class_exists('GiglogAdmin_Venue') ) {
          *
          * @psalm-return array<array-key, self>
          */
-        static function venues_in_city($city): array
+        static function venues_in_city(bool $city): array
         {
             global $wpdb;
             $q = $wpdb->prepare(

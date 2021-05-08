@@ -25,7 +25,7 @@ if ( !class_exists('GiglogAdmin_Band') ) {
             $this->country = isset($attrs->wpgband_country) ? $attrs->wpgband_country : 'NO';
         }
 
-        static function create($bandname, $country = 'NO')
+        static function create($bandname, $country = 'NO'): self
         {
             $band = GiglogAdmin_Band::find($bandname, $country);
 

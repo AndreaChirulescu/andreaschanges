@@ -54,7 +54,7 @@ if ( !class_exists('GiglogAdmin_Concert') ) {
             }
         }
 
-        public static function create($name, $venue, $date, $ticketlink, $eventlink): ?self
+        public static function create(string $name, $venue, string $date, string $ticketlink, string $eventlink): ?self
         {
             if ( GiglogAdmin_Concert::find($name, $venue, $date) ) {
                 error_log( 'DUPLICATE ROW detected: '

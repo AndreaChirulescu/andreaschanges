@@ -50,8 +50,10 @@ if ( !class_exists( 'GiglogAdmin_ImportGigsPage' ) ) {
          * Empty lines are ignored.
          *
          * @return void
+         *
+         * @param ArrayAccess|array $file
          */
-        static function process_upload($file): void {
+        static function process_upload(array $file): void {
             $newconcert= [];
             $fo = new SplFileObject($file['tmp_name']);
 

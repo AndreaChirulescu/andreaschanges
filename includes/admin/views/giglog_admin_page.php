@@ -36,7 +36,7 @@ if ( !class_exists( 'GiglogAdmin_AdminPage' ) ) {
                 echo(GiglogAdmin_AdminPage::editforms());  //not sure why it doesn't show without the echo?
         }
 
-        static function get_allvenues(int $invenue): string
+        static function get_allvenues( ?int $invenue ): string
         {
             $select = '<select name="selectvenueadmin">';
             $select .= '<option value="">Please Select..</option>';
@@ -50,7 +50,7 @@ if ( !class_exists( 'GiglogAdmin_AdminPage' ) ) {
         }
 
 
-        static function get_user( int $cid, int $ctype): string
+        static function get_user( ?int $cid, string $ctype): string
         {
             $hf_user = wp_get_current_user();
             $hf_username = $hf_user->user_login;
@@ -419,7 +419,7 @@ if ( !class_exists( 'GiglogAdmin_AdminPage' ) ) {
             wp_mail( $to, $subject, $body, $headers );
         }
 
-        static function returnuser($p1, $c): string
+        static function returnuser(string $p1, ?int $c): string
         {
             global $wpdb;
             $hf_user = wp_get_current_user();
