@@ -46,7 +46,7 @@ if ( !class_exists('GiglogAdmin_Band') ) {
             return $band;
         }
 
-        static function find($name, $country)
+        static function find($name, $country): ?self
         {
             global $wpdb;
 
@@ -83,6 +83,11 @@ if ( !class_exists('GiglogAdmin_Band') ) {
             return ($results);
         }
 
+        /**
+         * @return array|string
+         *
+         * @psalm-return array{0: mixed, 1: mixed}|string
+         */
         static function get_band($bid)
         {
             global $wpdb;
@@ -116,7 +121,7 @@ if ( !class_exists('GiglogAdmin_Band') ) {
             return ($wpdb->last_error);
         }
 
-        public function save()
+        public function save(): void
         {
             global $wpdb;
 

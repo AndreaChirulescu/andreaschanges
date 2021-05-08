@@ -28,7 +28,7 @@ if ( !class_exists('GiglogAdmin_Venue') ) {
             $this->webpage = isset($attrs->wpgvenue_webpage) ? $attrs->wpgvenue_webpage : NULL;
         }
 
-        static function create($name, $city = 'Oslo')
+        static function create($name, $city = 'Oslo'): self
         {
             $venue = new GiglogAdmin_Venue((object) [
                 'wpgvenue_name' => $name,
@@ -61,7 +61,7 @@ if ( !class_exists('GiglogAdmin_Venue') ) {
             }
         }
 
-        static function all_cities()
+        static function all_cities(): array
         {
             global $wpdb;
             $results = $wpdb->get_results('select distinct wpgvenue_city from wpg_venues');
@@ -69,7 +69,12 @@ if ( !class_exists('GiglogAdmin_Venue') ) {
             return array_map(function ($r) { return $r->wpgvenue_city; }, $results);
         }
 
-        static function all_venues()
+        /**
+         * @return self[]
+         *
+         * @psalm-return array<array-key, self>
+         */
+        static function all_venues(): array
         {
             global $wpdb;
 
@@ -79,7 +84,12 @@ if ( !class_exists('GiglogAdmin_Venue') ) {
         }
 
 
-        static function venues_in_city($city)
+        /**
+         * @return self[]
+         *
+         * @psalm-return array<array-key, self>
+         */
+        static function venues_in_city($city): array
         {
             global $wpdb;
             $q = $wpdb->prepare(
@@ -89,7 +99,7 @@ if ( !class_exists('GiglogAdmin_Venue') ) {
             return array_map(function ($r) { return new GiglogAdmin_Venue($r); }, $results);
         }
 
-        public function save()
+        public function save(): void
         {
             global $wpdb;
 

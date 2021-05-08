@@ -51,6 +51,9 @@ class BandNameGenerator extends GeneratorBase
         "ed",
     );
 
+    /**
+     * @return string
+     */
     public function get()
     {
         $parts = array(
@@ -91,6 +94,9 @@ class VenueGenerator extends GeneratorBase
         "lighthouse"
     );
 
+    /**
+     * @return string
+     */
     public function get()
     {
         $parts = array(
@@ -104,6 +110,9 @@ class VenueGenerator extends GeneratorBase
 
 class LinkGenerator extends GeneratorBase
 {
+    /**
+     * @return string
+     */
     public function get()
     {
         return 'https://example.com/' . bin2hex(random_bytes(8));

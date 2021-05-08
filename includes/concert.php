@@ -32,6 +32,9 @@ if ( !class_exists('GiglogAdmin_Concert') ) {
         }
 
 
+        /**
+         * @return null|self
+         */
         static function find_cid($id)
         {
             global $wpdb;
@@ -51,7 +54,7 @@ if ( !class_exists('GiglogAdmin_Concert') ) {
             }
         }
 
-        public static function create($name, $venue, $date, $ticketlink, $eventlink)
+        public static function create($name, $venue, $date, $ticketlink, $eventlink): ?self
         {
             if ( GiglogAdmin_Concert::find($name, $venue, $date) ) {
                 error_log( 'DUPLICATE ROW detected: '
@@ -155,7 +158,7 @@ if ( !class_exists('GiglogAdmin_Concert') ) {
             return $wpdb->get_results($sql);
         }
 
-        public function save()
+        public function save(): void
         {
             global $wpdb;
 
