@@ -7,9 +7,9 @@
 
 abstract class GeneratorBase
 {
-    abstract public function get();
+    abstract public function get() : string;
 
-    function pick($arr)
+    function pick(array $arr) : string
     {
         return $arr[array_rand($arr)];
     }
@@ -51,10 +51,7 @@ class BandNameGenerator extends GeneratorBase
         "ed",
     );
 
-    /**
-     * @return string
-     */
-    public function get()
+    public function get() : string
     {
         $parts = array(
             $this->pick($this->prefixes),
@@ -94,10 +91,7 @@ class VenueGenerator extends GeneratorBase
         "lighthouse"
     );
 
-    /**
-     * @return string
-     */
-    public function get()
+    public function get() : string
     {
         $parts = array(
             $this->pick($this->prefix1),
@@ -113,7 +107,7 @@ class LinkGenerator extends GeneratorBase
     /**
      * @return string
      */
-    public function get()
+    public function get() : string
     {
         return 'https://example.com/' . bin2hex(random_bytes(8));
     }
