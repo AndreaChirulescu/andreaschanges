@@ -36,7 +36,7 @@ if ( !class_exists( 'GiglogAdmin_AdminPage' ) ) {
                 echo(GiglogAdmin_AdminPage::editforms());  //not sure why it doesn't show without the echo?
         }
 
-        static function get_allvenues($invenue): string
+        static function get_allvenues(int $invenue): string
         {
             $select = '<select name="selectvenueadmin">';
             $select .= '<option value="">Please Select..</option>';
@@ -50,7 +50,7 @@ if ( !class_exists( 'GiglogAdmin_AdminPage' ) ) {
         }
 
 
-        static function get_user($cid, $ctype): string
+        static function get_user( int $cid, int $ctype): string
         {
             $hf_user = wp_get_current_user();
             $hf_username = $hf_user->user_login;
@@ -107,7 +107,7 @@ if ( !class_exists( 'GiglogAdmin_AdminPage' ) ) {
 
                 $select .= '<select name="selectvenue">';
 
-                foreach ( $venues AS $venue ) {
+                foreach ( $venue_list as $venue ) {
                     $select .= '<option value="' . $venue[0] . '"' . selected($venue, $selected_venue) . '>';
                     $select .= $venue[1] . '</option>';
                 }
@@ -167,7 +167,7 @@ if ( !class_exists( 'GiglogAdmin_AdminPage' ) ) {
             return $content;
         }
 
-        static function adminactions($concert_id): string
+        static function adminactions( int $concert_id ) : string
         {
             global $wpdb;
             $query = "SELECT id,wpgs_name from wpg_pressstatus" ;
@@ -195,7 +195,7 @@ if ( !class_exists( 'GiglogAdmin_AdminPage' ) ) {
         /**
          * @return null|string
          */
-        static function getpublishstatus($concert_id)
+        static function getpublishstatus(int $concert_id)
         {
             global $wpdb;
             $date1 = new DateTime("now");
@@ -216,7 +216,7 @@ if ( !class_exists( 'GiglogAdmin_AdminPage' ) ) {
         {
             $hf_user = wp_get_current_user();
             $hf_username = $hf_user->user_login;
-            $roles = ( array ) $hf_user->roles;
+            $roles = $hf_user->roles;
             global $wpdb;
 
             $content = '<table class="assignit">';

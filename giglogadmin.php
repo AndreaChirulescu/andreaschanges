@@ -82,7 +82,11 @@ if ( !class_exists( 'GiglogAdmin_Plugin' ) ) {
                 "giglog_import",            // menu slug
                 array( 'GiglogAdmin_ImportGigsPage', 'render_html' ));   // callable
 
-            add_action( 'load-' . $import_hook, array( 'GiglogAdmin_ImportGigsPage', 'submit_form' ) );
+            if ($import_hook !== false) {
+                add_action(
+                    'load-' . $import_hook,
+                    array( 'GiglogAdmin_ImportGigsPage', 'submit_form' ) );
+            }
 
             wp_register_style( 'css_style', plugins_url( '/includes/css/main.css', __FILE__ ) );
             wp_enqueue_style('css_style');
@@ -121,7 +125,7 @@ if ( !class_exists( 'GiglogAdmin_Plugin' ) ) {
          * Giglog admin pages should only be visible for logged in users/can eventually
          * be customized by role if needed
          */
-        static function nav_menu_args( $args = '' ) {
+        static function nav_menu_args( array $args = [] ) : array {
             if ( is_user_logged_in() ) {
                 $args['menu'] = 'Loggedusers';
             } else {
