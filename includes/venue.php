@@ -89,7 +89,7 @@ if ( !class_exists('GiglogAdmin_Venue') ) {
          *
          * @psalm-return array<array-key, self>
          */
-        static function venues_in_city(bool $city): array
+        static function venues_in_city(string $city): array
         {
             global $wpdb;
             $q = $wpdb->prepare(
