@@ -9,7 +9,7 @@ if ( !class_exists( 'GiglogAdmin_AdminPage' ) ) {
     require_once __DIR__ . '/../../venue.php';
 
     class GiglogAdmin_AdminPage {
-        static function render_html() {
+        static function render_html(): void {
             ?>
             <div class="wrap">
                 <h1>Giglog Admin</h1>
@@ -36,7 +36,7 @@ if ( !class_exists( 'GiglogAdmin_AdminPage' ) ) {
                 echo(GiglogAdmin_AdminPage::editforms());  //not sure why it doesn't show without the echo?
         }
 
-        static function get_allvenues($invenue)
+        static function get_allvenues( ?int $invenue ): string
         {
             $select = '<select name="selectvenueadmin">';
             $select .= '<option value="">Please Select..</option>';
@@ -50,7 +50,7 @@ if ( !class_exists( 'GiglogAdmin_AdminPage' ) ) {
         }
 
 
-        static function get_user($cid, $ctype)
+        static function get_user( ?int $cid, string $ctype): string
         {
             $hf_user = wp_get_current_user();
             $hf_username = $hf_user->user_login;
@@ -75,7 +75,7 @@ if ( !class_exists( 'GiglogAdmin_AdminPage' ) ) {
         }
 
 
-        static function get_filters()
+        static function get_filters(): string
         {
             $cities = array_merge(["ALL"], GiglogAdmin_Venue::all_cities());
             $selected_city =
@@ -107,7 +107,7 @@ if ( !class_exists( 'GiglogAdmin_AdminPage' ) ) {
 
                 $select .= '<select name="selectvenue">';
 
-                foreach ( $venues AS $venue ) {
+                foreach ( $venue_list as $venue ) {
                     $select .= '<option value="' . $venue[0] . '"' . selected($venue, $selected_venue) . '>';
                     $select .= $venue[1] . '</option>';
                 }
@@ -124,7 +124,7 @@ if ( !class_exists( 'GiglogAdmin_AdminPage' ) ) {
             return $select;
         }
 
-        static function editforms()
+        static function editforms(): string
         {
             $cid = filter_input(INPUT_POST, "cid");
             $editing = filter_input(INPUT_POST, "edit") == "EDIT";
@@ -167,7 +167,7 @@ if ( !class_exists( 'GiglogAdmin_AdminPage' ) ) {
             return $content;
         }
 
-        static function adminactions($concert_id)
+        static function adminactions( int $concert_id ) : string
         {
             global $wpdb;
             $query = "SELECT id,wpgs_name from wpg_pressstatus" ;
@@ -192,7 +192,10 @@ if ( !class_exists( 'GiglogAdmin_AdminPage' ) ) {
         }
 
         //function to calculate if the concert has been added in the past 10 days or before that and show a green NEW for the newest rows
-        static function getpublishstatus($concert_id)
+        /**
+         * @return null|string
+         */
+        static function getpublishstatus(int $concert_id)
         {
             global $wpdb;
             $date1 = new DateTime("now");
@@ -209,11 +212,11 @@ if ( !class_exists( 'GiglogAdmin_AdminPage' ) ) {
         }
 
 
-        static function get_concerts()
+        static function get_concerts(): string
         {
             $hf_user = wp_get_current_user();
             $hf_username = $hf_user->user_login;
-            $roles = ( array ) $hf_user->roles;
+            $roles = $hf_user->roles;
             global $wpdb;
 
             $content = '<table class="assignit">';
@@ -292,6 +295,9 @@ if ( !class_exists( 'GiglogAdmin_AdminPage' ) ) {
         }
 
 
+        /**
+         * @return void
+         */
         static function update()
         {
             global $wpdb;
@@ -371,7 +377,7 @@ if ( !class_exists( 'GiglogAdmin_AdminPage' ) ) {
             }
         }
 
-        static function assignconcert($p1, $c)
+        static function assignconcert($p1, $c): void
         {
             global $wpdb;
 
@@ -392,7 +398,7 @@ if ( !class_exists( 'GiglogAdmin_AdminPage' ) ) {
             wp_mail( $to, $subject, $body, $headers );
         }
 
-        static function unassignconcert($p1, $c)
+        static function unassignconcert($p1, $c): void
         {
             global $wpdb;
 
@@ -413,7 +419,7 @@ if ( !class_exists( 'GiglogAdmin_AdminPage' ) ) {
             wp_mail( $to, $subject, $body, $headers );
         }
 
-        static function returnuser($p1, $c)
+        static function returnuser(string $p1, ?int $c): string
         {
             global $wpdb;
             $hf_user = wp_get_current_user();

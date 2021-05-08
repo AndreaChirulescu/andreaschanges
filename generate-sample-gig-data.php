@@ -7,9 +7,9 @@
 
 abstract class GeneratorBase
 {
-    abstract public function get();
+    abstract public function get() : string;
 
-    function pick($arr)
+    function pick(array $arr) : string
     {
         return $arr[array_rand($arr)];
     }
@@ -17,13 +17,23 @@ abstract class GeneratorBase
 
 class BandNameGenerator extends GeneratorBase
 {
-    private $prefixes = array(
+    /**
+     * @var string[]
+     *
+     * @psalm-var array{0: string, 1: string, 2: string}
+     */
+    private array $prefixes = array(
         "",
         "a",
         "the",
     );
 
-    private $adverbs = array(
+    /**
+     * @var string[]
+     *
+     * @psalm-var array{0: string, 1: string, 2: string, 3: string, 4: string, 5: string, 6: string, 7: string}
+     */
+    private array $adverbs = array(
         "bestial",
         "dead",
         "incongruent",
@@ -34,7 +44,12 @@ class BandNameGenerator extends GeneratorBase
         "flamboyant",
     );
 
-    private $verbs = array(
+    /**
+     * @var string[]
+     *
+     * @psalm-var array{0: string, 1: string, 2: string, 3: string, 4: string, 5: string, 6: string}
+     */
+    private array $verbs = array(
         "kill",
         "regurgitat",
         "destroy",
@@ -44,14 +59,19 @@ class BandNameGenerator extends GeneratorBase
         "mutilat",
     );
 
-    private $endings = array(
+    /**
+     * @var string[]
+     *
+     * @psalm-var array{0: string, 1: string, 2: string, 3: string}
+     */
+    private array $endings = array(
         "er",
         "ers",
         "ing",
         "ed",
     );
 
-    public function get()
+    public function get() : string
     {
         $parts = array(
             $this->pick($this->prefixes),
@@ -64,7 +84,12 @@ class BandNameGenerator extends GeneratorBase
 
 class VenueGenerator extends GeneratorBase
 {
-    private $prefix1 = array(
+    /**
+     * @var string[]
+     *
+     * @psalm-var array{0: string, 1: string, 2: string, 3: string, 4: string}
+     */
+    private array $prefix1 = array(
         "",
         "royal",
         "shabby",
@@ -72,7 +97,12 @@ class VenueGenerator extends GeneratorBase
         "drunken",
     );
 
-    private $prefix2 = array(
+    /**
+     * @var string[]
+     *
+     * @psalm-var array{0: string, 1: string, 2: string, 3: string, 4: string, 5: string}
+     */
+    private array $prefix2 = array(
         "",
         "music",
         "fiddler",
@@ -81,7 +111,12 @@ class VenueGenerator extends GeneratorBase
         "mental",
     );
 
-    private $type = array(
+    /**
+     * @var string[]
+     *
+     * @psalm-var array{0: string, 1: string, 2: string, 3: string, 4: string, 5: string, 6: string}
+     */
+    private array $type = array(
         "hall",
         "museum",
         "asylum",
@@ -91,7 +126,7 @@ class VenueGenerator extends GeneratorBase
         "lighthouse"
     );
 
-    public function get()
+    public function get() : string
     {
         $parts = array(
             $this->pick($this->prefix1),
@@ -104,7 +139,10 @@ class VenueGenerator extends GeneratorBase
 
 class LinkGenerator extends GeneratorBase
 {
-    public function get()
+    /**
+     * @return string
+     */
+    public function get() : string
     {
         return 'https://example.com/' . bin2hex(random_bytes(8));
     }

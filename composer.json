@@ -14,7 +14,9 @@
         }
     ],
     "require-dev": {
-        "wp-phpunit/wp-phpunit": "^5.7"
+        "wp-phpunit/wp-phpunit": "^5.7",
+        "vimeo/psalm": "^4.7",
+        "humanmade/psalm-plugin-wordpress": "^2.0"
     },
     "scripts": {
         "test": "npm run wp-env run phpunit 'phpunit -c /var/www/html/wp-content/plugins/giglogadmin/phpunit.xml'"

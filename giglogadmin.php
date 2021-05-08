@@ -36,7 +36,7 @@ if ( !class_exists( 'GiglogAdmin_Plugin' ) ) {
 
     class GiglogAdmin_Plugin
     {
-        static public function init() {
+        static public function init(): void {
             add_shortcode('giglog_cities', 'giglogadmin_getfilters');
             add_shortcode('giglog_bands', 'giglogadmin_getconcerts');
             add_shortcode('giglog_unprocessed', 'giglogadmin_display_unprocessed');
@@ -49,18 +49,20 @@ if ( !class_exists( 'GiglogAdmin_Plugin' ) ) {
             add_filter( 'wp_nav_menu_args', array( 'GiglogAdmin_Plugin', 'nav_menu_args' ));
         }
 
-        static function activate() {
+        static function activate(): void {
             require_once __DIR__ . '/includes/admin/register_db_tables.php';
         }
 
-        static function deactivate() {
+        static function deactivate(): void {
         }
 
         /**
          * Adds the 'Giglog' top level menu to the left side WordPress admin
          * menu. Other subpages will come later.
+         *
+         * @return void
          */
-        static function add_admin_pages() {
+        static function add_admin_pages(): void {
             $top = add_menu_page(
                 "Giglog admin",             // Page title
                 "Giglog",                   // Menu title
@@ -80,13 +82,17 @@ if ( !class_exists( 'GiglogAdmin_Plugin' ) ) {
                 "giglog_import",            // menu slug
                 array( 'GiglogAdmin_ImportGigsPage', 'render_html' ));   // callable
 
-            add_action( 'load-' . $import_hook, array( 'GiglogAdmin_ImportGigsPage', 'submit_form' ) );
+            if ($import_hook !== false) {
+                add_action(
+                    'load-' . $import_hook,
+                    array( 'GiglogAdmin_ImportGigsPage', 'submit_form' ) );
+            }
 
             wp_register_style( 'css_style', plugins_url( '/includes/css/main.css', __FILE__ ) );
             wp_enqueue_style('css_style');
         }
 
-        static function add_help_pages() {
+        static function add_help_pages(): void {
             add_menu_page(
                 "Help for ET users",        // Page title
                 "Help for ET users",        // Menu title
@@ -119,7 +125,7 @@ if ( !class_exists( 'GiglogAdmin_Plugin' ) ) {
          * Giglog admin pages should only be visible for logged in users/can eventually
          * be customized by role if needed
          */
-        static function nav_menu_args( $args = '' ) {
+        static function nav_menu_args( array $args = [] ) : array {
             if ( is_user_logged_in() ) {
                 $args['menu'] = 'Loggedusers';
             } else {

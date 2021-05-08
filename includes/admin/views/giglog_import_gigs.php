@@ -12,7 +12,7 @@ if ( !class_exists( 'GiglogAdmin_ImportGigsPage' ) ) {
     require_once __DIR__ . '/../../venue.php';
 
     class GiglogAdmin_ImportGigsPage {
-        static function render_html() {
+        static function render_html(): void {
             ?>
             <div class="wrap">
                 <h1>Import gigs</h1>
@@ -27,7 +27,7 @@ if ( !class_exists( 'GiglogAdmin_ImportGigsPage' ) ) {
             <?php
         }
 
-        static function submit_form() {
+        static function submit_form(): void {
             if ('POST' === $_SERVER['REQUEST_METHOD'] && current_user_can('upload_files') && !empty($_FILES['giglog_import_file']['tmp_name'])) {
                 $nonce = $_POST['giglog_import_nonce'];
                 $valid_nonce = isset($nonce) && wp_verify_nonce($nonce);
@@ -48,8 +48,12 @@ if ( !class_exists( 'GiglogAdmin_ImportGigsPage' ) ) {
          *   5. Event info link
          *
          * Empty lines are ignored.
+         *
+         * @return void
+         *
+         * @param ArrayAccess|array $file
          */
-        static function process_upload($file) {
+        static function process_upload(array $file): void {
             $newconcert= [];
             $fo = new SplFileObject($file['tmp_name']);
 

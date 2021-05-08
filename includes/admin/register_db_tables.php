@@ -5,7 +5,7 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 
 if (!function_exists('giglogadmin_populate_countries')) {
-    function giglogadmin_populate_countries()
+    function giglogadmin_populate_countries(): void
     {
         global $wpdb;
         $wpdb->query(
@@ -254,6 +254,9 @@ if (!function_exists('giglogadmin_populate_countries')) {
 
 if ( !function_exists( "giglog_register_db_tables") )
 {
+    /**
+     * @return void
+     */
     function giglog_register_db_tables()
     {
         $db_version = get_option('giglogadmin_db_version');

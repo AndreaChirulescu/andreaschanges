@@ -10,7 +10,7 @@
  * Admin users also control concert statuses here
  */
 
-function giglogadmin_assignconcert($p1, $c)
+function giglogadmin_assignconcert($p1, $c): void
 {
     global $wpdb;
 
@@ -40,7 +40,7 @@ function giglogadmin_assignconcert($p1, $c)
 
 }
 
-function giglogadmin_unassignconcert($p1, $c)
+function giglogadmin_unassignconcert($p1, $c): void
 {
     global $wpdb;
 
@@ -71,6 +71,9 @@ function giglogadmin_unassignconcert($p1, $c)
 
 }
 
+/**
+ * @return null|string
+ */
 function giglogadmin_getpublishstatus ($c)
 {
     global $wpdb;
@@ -88,6 +91,9 @@ function giglogadmin_getpublishstatus ($c)
 }
 
 
+/**
+ * @return null|string
+ */
 function giglogadmin_returnuser($p1, $c)
 {
     global $wpdb;
@@ -164,7 +170,7 @@ function giglogadmin_returnuser($p1, $c)
 }
 
 
-function giglogadmin_getfiltersphotog() {
+function giglogadmin_getfiltersphotog(): string {
     global $wpdb;
 
     //echo (var_dump($_POST["selectvenue"]));
@@ -211,7 +217,7 @@ function giglogadmin_getfiltersphotog() {
 }
 
 
-function giglogadmin_getconcertsphotog ( ) {
+function giglogadmin_getconcertsphotog ( ): string {
     $hf_user = wp_get_current_user();
     $hf_username = $hf_user->user_login;
     $roles = ( array ) $hf_user->roles;
@@ -370,7 +376,7 @@ function giglogadmin_getconcertsphotog ( ) {
     return $content;
 }
 
-function giglogadmin_photographers()
+function giglogadmin_photographers(): string
 {
     $output = giglogadmin_getfiltersphotog();
     $output .= giglogadmin_getconcertsphotog();
