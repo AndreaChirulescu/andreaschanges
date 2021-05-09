@@ -19,7 +19,7 @@ final class ConcertTest extends WP_UnitTestCase
             "https://example.com/events/93");
 
         $this->assertEquals("a concert", $concert->cname());
-        $this->assertEquals($venue->id(), $concert->venue());
+        $this->assertEquals($venue->id(), $concert->venue()->id());
         $this->assertEquals($today, $concert->cdate());
         $this->assertEquals("https://example.com/tickets/42", $concert->tickets());
         $this->assertEquals("https://example.com/events/93", $concert->eventlink());
@@ -67,5 +67,24 @@ final class ConcertTest extends WP_UnitTestCase
             "https://example.com/events/93");
 
         $this->assertNull($new);
+    }
+
+    public function testGetConcertByIdReturnsFullConcertObject() : void
+    {
+        $venue = GiglogAdmin_Venue::create("a venue");
+        $today = date("Y-m-d");
+
+        $gig = GiglogAdmin_Concert::create(
+            "a concert123",
+            $venue->id(),
+            $today,
+            "https://example.com/tickets/42",
+            "https://example.com/events/93");
+
+        $fetched_gig = GiglogAdmin_Concert::get($gig->id());
+
+        $this->assertEquals($gig->id(), $fetched_gig->id());
+        $this->assertEquals($gig->cname(), $fetched_gig->cname());
+        $this->assertEquals($venue->id(), $fetched_gig->venue()->id());
     }
 }

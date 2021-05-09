@@ -4,7 +4,11 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
+<<<<<<< HEAD
     "content-hash": "d330d5838bd28a6e9b15fe464962953a",
+=======
+    "content-hash": "da8593c79fc71116e3079512611bb8ec",
+>>>>>>> 142ff436282844677b8b4e7d8ececd44440ec96d
     "packages": [],
     "packages-dev": [
         {
@@ -329,6 +333,7 @@
         },
         {
             "name": "composer/xdebug-handler",
+<<<<<<< HEAD
             "version": "2.0.1",
             "source": {
                 "type": "git",
@@ -339,6 +344,18 @@
                 "type": "zip",
                 "url": "https://api.github.com/repos/composer/xdebug-handler/zipball/964adcdd3a28bf9ed5d9ac6450064e0d71ed7496",
                 "reference": "964adcdd3a28bf9ed5d9ac6450064e0d71ed7496",
+=======
+            "version": "2.0.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/composer/xdebug-handler.git",
+                "reference": "31d57697eb1971712a08031cfaff5a846d10bdf5"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/composer/xdebug-handler/zipball/31d57697eb1971712a08031cfaff5a846d10bdf5",
+                "reference": "31d57697eb1971712a08031cfaff5a846d10bdf5",
+>>>>>>> 142ff436282844677b8b4e7d8ececd44440ec96d
                 "shasum": ""
             },
             "require": {
@@ -373,7 +390,11 @@
             "support": {
                 "irc": "irc://irc.freenode.org/composer",
                 "issues": "https://github.com/composer/xdebug-handler/issues",
+<<<<<<< HEAD
                 "source": "https://github.com/composer/xdebug-handler/tree/2.0.1"
+=======
+                "source": "https://github.com/composer/xdebug-handler/tree/2.0.0"
+>>>>>>> 142ff436282844677b8b4e7d8ececd44440ec96d
             },
             "funding": [
                 {
@@ -389,7 +410,11 @@
                     "type": "tidelift"
                 }
             ],
+<<<<<<< HEAD
             "time": "2021-05-05T19:37:51+00:00"
+=======
+            "time": "2021-04-09T19:40:06+00:00"
+>>>>>>> 142ff436282844677b8b4e7d8ececd44440ec96d
         },
         {
             "name": "dnoegel/php-xdg-base-dir",
@@ -530,6 +555,128 @@
             "time": "2021-02-22T14:02:09+00:00"
         },
         {
+<<<<<<< HEAD
+=======
+            "name": "humanmade/psalm-plugin-wordpress",
+            "version": "2.0.4",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/humanmade/psalm-plugin-wordpress.git",
+                "reference": "c15b5d5159ef879f0707c33cc9a3fe993618edd1"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/humanmade/psalm-plugin-wordpress/zipball/c15b5d5159ef879f0707c33cc9a3fe993618edd1",
+                "reference": "c15b5d5159ef879f0707c33cc9a3fe993618edd1",
+                "shasum": ""
+            },
+            "require": {
+                "johnbillion/wp-hooks": "^0.4.4",
+                "php-stubs/wordpress-stubs": "^5.5",
+                "vimeo/psalm": "^4"
+            },
+            "require-dev": {
+                "phpunit/phpunit": "^9.0"
+            },
+            "type": "psalm-plugin",
+            "extra": {
+                "psalm": {
+                    "pluginClass": "PsalmWordPress\\Plugin"
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "PsalmWordPress\\": [
+                        "."
+                    ]
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Joe Hoyle",
+                    "email": "joehoyle@gmail.com"
+                }
+            ],
+            "description": "WordPress stubs and plugin for Psalm.",
+            "support": {
+                "issues": "https://github.com/humanmade/psalm-plugin-wordpress/issues",
+                "source": "https://github.com/humanmade/psalm-plugin-wordpress/tree/2.0.4"
+            },
+            "time": "2021-03-10T12:17:03+00:00"
+        },
+        {
+            "name": "johnbillion/wp-hooks",
+            "version": "0.4.4",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/johnbillion/wp-hooks.git",
+                "reference": "eb9d32917bb5a0a10a3fc9bedbb3f509f885b769"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/johnbillion/wp-hooks/zipball/eb9d32917bb5a0a10a3fc9bedbb3f509f885b769",
+                "reference": "eb9d32917bb5a0a10a3fc9bedbb3f509f885b769",
+                "shasum": ""
+            },
+            "require-dev": {
+                "johnbillion/wp-hooks-generator": "~0.5.0",
+                "oomphinc/composer-installers-extender": "^1.1",
+                "roots/wordpress": "dev-nightly"
+            },
+            "type": "library",
+            "extra": {
+                "wordpress-install-dir": "vendor/wordpress/wordpress",
+                "wp-hooks": {
+                    "ignore-files": [
+                        "wp-admin/includes/deprecated.php",
+                        "wp-admin/includes/ms-deprecated.php",
+                        "wp-content/",
+                        "wp-includes/deprecated.php",
+                        "wp-includes/ID3/",
+                        "wp-includes/IXR/",
+                        "wp-includes/ms-deprecated.php",
+                        "wp-includes/pomo/",
+                        "wp-includes/random_compat/",
+                        "wp-includes/Requests/",
+                        "wp-includes/SimplePie/",
+                        "wp-includes/sodium_compat/",
+                        "wp-includes/Text/"
+                    ],
+                    "ignore-hooks": [
+                        "load-categories.php",
+                        "load-edit-link-categories.php",
+                        "load-edit-tags.php",
+                        "load-page-new.php",
+                        "load-page.php",
+                        "option_enable_xmlrpc",
+                        "pre_option_enable_xmlrpc",
+                        "{$tag}"
+                    ]
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "GPL-3.0-or-later"
+            ],
+            "authors": [
+                {
+                    "name": "John Blackbourn",
+                    "homepage": "https://johnblackbourn.com/"
+                }
+            ],
+            "description": "All the actions and filters from WordPress core in machine-readable JSON format.",
+            "support": {
+                "issues": "https://github.com/johnbillion/wp-hooks/issues",
+                "source": "https://github.com/johnbillion/wp-hooks/tree/0.4.4"
+            },
+            "time": "2020-08-29T20:58:28+00:00"
+        },
+        {
+>>>>>>> 142ff436282844677b8b4e7d8ececd44440ec96d
             "name": "netresearch/jsonmapper",
             "version": "v2.1.0",
             "source": {
@@ -690,6 +837,53 @@
             "time": "2019-03-29T20:06:56+00:00"
         },
         {
+<<<<<<< HEAD
+=======
+            "name": "php-stubs/wordpress-stubs",
+            "version": "v5.7.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/php-stubs/wordpress-stubs.git",
+                "reference": "69baf30e7c92f149526da950a68222af05f7bc67"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/php-stubs/wordpress-stubs/zipball/69baf30e7c92f149526da950a68222af05f7bc67",
+                "reference": "69baf30e7c92f149526da950a68222af05f7bc67",
+                "shasum": ""
+            },
+            "replace": {
+                "giacocorsiglia/wordpress-stubs": "*"
+            },
+            "require-dev": {
+                "giacocorsiglia/stubs-generator": "^0.5.0",
+                "php": "~7.1"
+            },
+            "suggest": {
+                "paragonie/sodium_compat": "Pure PHP implementation of libsodium",
+                "symfony/polyfill-php73": "Symfony polyfill backporting some PHP 7.3+ features to lower PHP versions",
+                "szepeviktor/phpstan-wordpress": "WordPress extensions for PHPStan"
+            },
+            "type": "library",
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "description": "WordPress function and class declaration stubs for static analysis.",
+            "homepage": "https://github.com/php-stubs/wordpress-stubs",
+            "keywords": [
+                "PHPStan",
+                "static analysis",
+                "wordpress"
+            ],
+            "support": {
+                "issues": "https://github.com/php-stubs/wordpress-stubs/issues",
+                "source": "https://github.com/php-stubs/wordpress-stubs/tree/v5.7.0"
+            },
+            "time": "2021-03-10T10:29:23+00:00"
+        },
+        {
+>>>>>>> 142ff436282844677b8b4e7d8ececd44440ec96d
             "name": "phpdocumentor/reflection-common",
             "version": "2.2.0",
             "source": {

@@ -12,8 +12,10 @@ if ( !class_exists( 'GiglogAdmin_Concertlogs' ) )
         /**
          * Adds a default entry for the given concert id in the
          * concert logs table.
+         *
+         * @return void
          */
-        public static function add($concert_id)
+        public static function add($concert_id): void
         {
             global $wpdb;
 

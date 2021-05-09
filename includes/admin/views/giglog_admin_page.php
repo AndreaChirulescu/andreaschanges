@@ -9,7 +9,7 @@ if ( !class_exists( 'GiglogAdmin_AdminPage' ) ) {
     require_once __DIR__ . '/../../venue.php';
 
     class GiglogAdmin_AdminPage {
-        static function render_html() {
+        static function render_html(): void {
             ?>
             <div class="wrap">
                 <h1>Giglog Admin</h1>
@@ -36,13 +36,17 @@ if ( !class_exists( 'GiglogAdmin_AdminPage' ) ) {
                 echo(GiglogAdmin_AdminPage::editforms());  //not sure why it doesn't show without the echo?
         }
 
-        static function get_allvenues($invenue)
+        static function get_venue_selector( ?GiglogAdmin_Venue $invenue ): string
         {
             $select = '<select name="selectvenueadmin">';
             $select .= '<option value="">Please Select..</option>';
             foreach ( GiglogAdmin_Venue::all_venues() AS $venue ) {
-                if($invenue==$venue ->id() ) $select .= '<option value="' . $venue -> id(). '" selected="selected">'.$venue->name();
-                else $select .= '<option value="' . $venue->id() . '">'. $venue->name();
+                if($invenue && $invenue->id() == $venue->id() ) {
+                    $select .= '<option value="' . $venue->id(). '" selected="selected">'.$venue->name();
+                }
+                else {
+                    $select .= '<option value="' . $venue->id() . '">'. $venue->name();
+                }
                 $select .='</option>';
             }
             $select .= '</select>';
@@ -50,7 +54,7 @@ if ( !class_exists( 'GiglogAdmin_AdminPage' ) ) {
         }
 
 
-        static function get_user($cid, $ctype)
+        static function get_user( ?int $cid, string $ctype): string
         {
             $hf_user = wp_get_current_user();
             $hf_username = $hf_user->user_login;
@@ -75,7 +79,7 @@ if ( !class_exists( 'GiglogAdmin_AdminPage' ) ) {
         }
 
 
-        static function get_filters()
+        static function get_filters(): string
         {
             $cities = array_merge(["ALL"], GiglogAdmin_Venue::all_cities());
             $cty = filter_input( INPUT_POST, 'selectcity', FILTER_SANITIZE_SPECIAL_CHARS );
@@ -107,9 +111,9 @@ if ( !class_exists( 'GiglogAdmin_AdminPage' ) ) {
                     || $venue_list[0];
 
                 $select .= '<select name="selectvenue">';
-                foreach ( $venue_list AS $venue ) {
-                    //below line returns an erorr which I haven't really figured out yet But filtering works. It doesn't keep the venue selected in the dropdown
-                    $select .= '<option value="' . $venue[0] . '"' . selected($venue[0], $selected_venue) . '>';
+
+                foreach ( $venue_list as $venue ) {
+                    $select .= '<option value="' . $venue[0] . '"' . selected($venue, $selected_venue) . '>';
                     $select .= $venue[1] . '</option>';
                 }
                 $select .= '</select>';
@@ -125,13 +129,13 @@ if ( !class_exists( 'GiglogAdmin_AdminPage' ) ) {
             return $select;
         }
 
-        static function editforms()
+        static function editforms(): string
         {
             $cid = filter_input(INPUT_POST, "cid");
             $editing = filter_input(INPUT_POST, "edit") == "EDIT";
 
             if ($editing && !empty($cid))   //A bit overdoing with the checks if concert ID is empty both here and in find_cid. But based on that, things are NULL or not. Better ideas?
-                $c = GiglogAdmin_Concert::find_cid($cid);
+                $c = GiglogAdmin_Concert::get($cid);
             else
                 $c = new GiglogAdmin_Concert();
 
@@ -140,7 +144,7 @@ if ( !class_exists( 'GiglogAdmin_AdminPage' ) ) {
                 .'<div class="concertitems"><strong>CONCERT DETAILS</strong><br><br><fieldset>'
                 .'<input type="hidden" name="pid" value="' .$c->id(). '" />'
                 .'<label for="cname">Concert Name:</label><textarea id="cname" name="cname" value="'.$c->cname().'">'.$c->cname().'</textarea><br>'
-                .'<label for="venue">Venue:</label>'.GiglogAdmin_AdminPage::get_allvenues($c->venue()).'<br>'
+                .'<label for="venue">Venue:</label>' . GiglogAdmin_AdminPage::get_venue_selector($c->venue()) . '<br>'
                 .'<label for="cdate">Date:</label><input type="date" id="cdate" name="cdate" value="'.$c->cdate().'"><br>'
                 .'<label for="ticket">Tickets:</label><input type="text" id="ticket" name="ticket" value="'.$c->tickets().'"><br>'
                 .'<label for="eventurl">Event link:</label><input type="text" id="eventurl" name="eventurl" value="'.$c->eventlink().'"><br>'
@@ -168,7 +172,7 @@ if ( !class_exists( 'GiglogAdmin_AdminPage' ) ) {
             return $content;
         }
 
-        static function adminactions($concert_id)
+        static function adminactions( int $concert_id ) : string
         {
             global $wpdb;
             $query = "SELECT id,wpgs_name from wpg_pressstatus" ;
@@ -193,7 +197,10 @@ if ( !class_exists( 'GiglogAdmin_AdminPage' ) ) {
         }
 
         //function to calculate if the concert has been added in the past 10 days or before that and show a green NEW for the newest rows
-        static function getpublishstatus($concert_id)
+        /**
+         * @return null|string
+         */
+        static function getpublishstatus(int $concert_id)
         {
             global $wpdb;
             $date1 = new DateTime("now");
@@ -210,11 +217,11 @@ if ( !class_exists( 'GiglogAdmin_AdminPage' ) ) {
         }
 
 
-        static function get_concerts()
+        static function get_concerts(): string
         {
             $hf_user = wp_get_current_user();
             $hf_username = $hf_user->user_login;
-            $roles = ( array ) $hf_user->roles;
+            $roles = $hf_user->roles;
             global $wpdb;
 
             $content = '<table class="assignit">';
@@ -293,6 +300,9 @@ if ( !class_exists( 'GiglogAdmin_AdminPage' ) ) {
         }
 
 
+        /**
+         * @return void
+         */
         static function update()
         {
             global $wpdb;
@@ -372,7 +382,7 @@ if ( !class_exists( 'GiglogAdmin_AdminPage' ) ) {
             }
         }
 
-        static function assignconcert($p1, $c)
+        static function assignconcert($p1, $c): void
         {
             global $wpdb;
 
@@ -393,7 +403,7 @@ if ( !class_exists( 'GiglogAdmin_AdminPage' ) ) {
             wp_mail( $to, $subject, $body, $headers );
         }
 
-        static function unassignconcert($p1, $c)
+        static function unassignconcert($p1, $c): void
         {
             global $wpdb;
 
@@ -414,7 +424,7 @@ if ( !class_exists( 'GiglogAdmin_AdminPage' ) ) {
             wp_mail( $to, $subject, $body, $headers );
         }
 
-        static function returnuser($p1, $c)
+        static function returnuser(string $p1, ?int $c): string
         {
             global $wpdb;
             $hf_user = wp_get_current_user();

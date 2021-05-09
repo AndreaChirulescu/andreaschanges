@@ -25,33 +25,49 @@ if ( !class_exists('GiglogAdmin_Concert') ) {
         {
             $this->id = isset($attrs->id) ? $attrs->id : NULL;
             $this->cname = isset($attrs->wpgconcert_name) ? $attrs->wpgconcert_name : NULL;
-            $this->venue = isset($attrs->venue) ? $attrs->venue : NULL;
             $this->cdate = isset($attrs->wpgconcert_date) ? $attrs->wpgconcert_date : NULL;
             $this->tickets = isset($attrs->wpgconcert_tickets) ? $attrs->wpgconcert_tickets : NULL;
             $this->eventlink = isset($attrs->wpgconcert_event) ? $attrs->wpgconcert_event : NULL;
+
+
+            if ( isset( $attrs->venue ) ) {
+                if (isset($attrs->wpgvenue_name) && isset($attrs->wpgvenue_city)) {
+                    $venue_attrs = (object) [
+                        "id" => $attrs->venue,
+                        "wpgvenue_name" => $attrs->wpgvenue_name,
+                        "wpgvenue_city" => $attrs->wpgvenue_city,
+                    ];
+
+                    $this->venue = new GiglogAdmin_Venue($venue_attrs);
+                }
+                else {
+                    $this->venue = GiglogAdmin_Venue::get($attrs->venue);
+                }
+            }
         }
 
 
-        static function find_cid($id)
+        /**
+         * Get concert with given id.
+         *
+         * @param int $id.
+         * @return null|self.
+         */
+        static function get( int $id ) : ?self
         {
             global $wpdb;
 
-            if(!empty($id))
-            {
-                $csql = 'SELECT * FROM wpg_concerts WHERE id="' . $id . '"';
-                $results  = $wpdb->get_results($csql);
-                if ($results)
-                {
-                    return new GiglogAdmin_Concert($results[0]);
-                }
-            }
-            else
-            {
-                return new GiglogAdmin_Concert();
-            }
+            $query = 'SELECT wpg_concerts.*, wpg_venues.wpgvenue_name, wpg_venues.wpgvenue_city '
+                . 'FROM wpg_concerts '
+                . 'LEFT JOIN wpg_venues ON wpg_concerts.venue = wpg_venues.id '
+                . 'WHERE ' . $wpdb->prepare('wpg_concerts.id = %d', $id);
+
+            $results  = $wpdb->get_results($query);
+
+            return $results ? new GiglogAdmin_Concert($results[0]) : NULL;
         }
 
-        public static function create($name, $venue, $date, $ticketlink, $eventlink)
+        public static function create(string $name, $venue, string $date, string $ticketlink, string $eventlink): ?self
         {
             if ( GiglogAdmin_Concert::find($name, $venue, $date) ) {
                 error_log( 'DUPLICATE ROW detected: '
@@ -151,18 +167,17 @@ if ( !class_exists('GiglogAdmin_Concert') ) {
                 . ' and venue = ' . $venue
                 . ' and wpgconcert_date ="' . $date . '"';
 
-            error_log(__CLASS__ . '::' . __FUNCTION__ . ": {$sql}");
             return $wpdb->get_results($sql);
         }
 
-        public function save()
+        public function save(): void
         {
             global $wpdb;
 
             $wpdb->insert('wpg_concerts', array(
                 'id' => '',
                 'wpgconcert_name' => $this->cname,
-                'venue' => $this->venue,
+                'venue' => $this->venue->id(),
                 'wpgconcert_date' => $this->cdate,
                 'wpgconcert_tickets' => $this->tickets,
                 'wpgconcert_event' => $this->eventlink

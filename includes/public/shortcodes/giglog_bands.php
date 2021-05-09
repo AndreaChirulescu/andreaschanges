@@ -10,7 +10,7 @@
  * builds the table with concerts
  */
 
-function giglogadmin_getfilters()
+function giglogadmin_getfilters(): string
 {
     global $wpdb;
 
@@ -59,7 +59,7 @@ function giglogadmin_getfilters()
 }
 
 
-function giglogadmin_getconcerts()
+function giglogadmin_getconcerts(): string
 {
     global $wpdb;
     // Shortcodes RETURN content, so store in a variable to return

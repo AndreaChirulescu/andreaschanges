@@ -9,7 +9,7 @@ if ( !class_exists( 'Instructions_Page' ) ) {
 
     class Instructions_Page {
 
-        static function render_instr_html() {
+        static function render_instr_html(): void {
 
             ?>
 

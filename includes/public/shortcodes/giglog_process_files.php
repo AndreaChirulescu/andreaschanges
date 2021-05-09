@@ -9,7 +9,7 @@
  * Band Venue Date TicketLink Eventlink. The form is at the end of this snippet
  */
 
-function giglogadmin_upload_files() {
+function giglogadmin_upload_files(): string {
     global $wpdb;
     $output = "";
     $dir   = wp_upload_dir()['basedir'].'/concertlists/';  //the basedir is from file uploader plugin, namely the uploads folder in which I created a concertlist folder

@@ -9,7 +9,7 @@ if ( !class_exists( 'Instructions_Reviewers' ) ) {
 
     class Instructions_Reviewers {
 
-        static function render_instr_rev_html() {
+        static function render_instr_rev_html(): void {
 
             ?>
 

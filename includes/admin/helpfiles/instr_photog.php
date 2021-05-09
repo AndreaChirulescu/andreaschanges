@@ -13,7 +13,7 @@ if ( !class_exists( 'Instructions_Photogs' ) ) {
 
 
 
-        static function render_instr_photo_html() {
+        static function render_instr_photo_html(): void {
 
 
 

@@ -16,7 +16,7 @@
  * gone through the processing process - aka fetching each line and
  * transforming it into a concert line
  */
-function giglogadmin_getunprocessed()
+function giglogadmin_getunprocessed(): string
 {
     global $wpdb;
 
@@ -42,7 +42,7 @@ function giglogadmin_getunprocessed()
  * venue exists. If they don't, they get created, if they do, their ID from
  * their table is fetchd and used in concerts table
  */
-function giglogadmin_insertconcerts()
+function giglogadmin_insertconcerts(): string
 {
     global $wpdb;
     $concertlist = '<p>Inserted the following:</p>';
@@ -128,7 +128,7 @@ function giglogadmin_insertconcerts()
     return $concertlist;
 }
 
-function giglogadmin_display_unprocessed() {
+function giglogadmin_display_unprocessed(): string {
     $output = giglogadmin_getunprocessed();
 
     $output .= '<form method="POST" action=""><input type="submit" name="ProcessConcerts" value="ProcessConcerts"/></form>';
