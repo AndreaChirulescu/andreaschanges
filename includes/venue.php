@@ -19,7 +19,7 @@ if ( !class_exists('GiglogAdmin_Venue') ) {
          * so this constructor can be used to construct the object
          * directly from the database row.
          */
-        private function __construct($attrs)
+        public function __construct($attrs)
         {
             $this->id = isset($attrs->id) ? $attrs->id : NULL;
             $this->name = isset($attrs->wpgvenue_name) ? $attrs->wpgvenue_name : NULL;
