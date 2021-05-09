@@ -36,7 +36,7 @@ if ( !class_exists( 'GiglogAdmin_AdminPage' ) ) {
                 echo(GiglogAdmin_AdminPage::editforms());  //not sure why it doesn't show without the echo?
         }
 
-        static function get_allvenues( ?GiglogAdmin_Venue $invenue ): string
+        static function get_venue_selector( ?GiglogAdmin_Venue $invenue ): string
         {
             $select = '<select name="selectvenueadmin">';
             $select .= '<option value="">Please Select..</option>';
@@ -144,7 +144,7 @@ if ( !class_exists( 'GiglogAdmin_AdminPage' ) ) {
                 .'<div class="concertitems"><strong>CONCERT DETAILS</strong><br><br><fieldset>'
                 .'<input type="hidden" name="pid" value="' .$c->id(). '" />'
                 .'<label for="cname">Concert Name:</label><textarea id="cname" name="cname" value="'.$c->cname().'">'.$c->cname().'</textarea><br>'
-                .'<label for="venue">Venue:</label>' . GiglogAdmin_AdminPage::get_allvenues($c->venue()) . '<br>'
+                .'<label for="venue">Venue:</label>' . GiglogAdmin_AdminPage::get_venue_selector($c->venue()) . '<br>'
                 .'<label for="cdate">Date:</label><input type="date" id="cdate" name="cdate" value="'.$c->cdate().'"><br>'
                 .'<label for="ticket">Tickets:</label><input type="text" id="ticket" name="ticket" value="'.$c->tickets().'"><br>'
                 .'<label for="eventurl">Event link:</label><input type="text" id="eventurl" name="eventurl" value="'.$c->eventlink().'"><br>'
