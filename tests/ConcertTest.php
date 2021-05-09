@@ -128,4 +128,44 @@ final class ConcertTest extends WP_UnitTestCase
             $this->assertEquals("Sogndal", $gig->venue()->city());
         }
     }
+
+    public function testOnlyFetchConcertsAtGivenVenue() : void
+    {
+        $venue1 = GiglogAdmin_Venue::create("Sentrum Scene", "Oslo");
+        $venue2 = GiglogAdmin_Venue::create("Rockefeller Music Hall", "Oslo");
+        $venue3 = GiglogAdmin_Venue::create("Revolver", "Oslo");
+
+        for ($i = 0; $i < 4; $i++) {
+            GiglogAdmin_Concert::create('Concert ' . $i, $venue1->id(), '', '', '');
+        }
+
+        for ($i = 4; $i < 6; $i++) {
+            GiglogAdmin_Concert::create('Concert ' . $i, $venue2->id(), '', '', '');
+        }
+
+        for ($i = 6; $i < 11; $i++) {
+            GiglogAdmin_Concert::create('Concert ' . $i, $venue3->id(), '', '', '');
+        }
+
+        $gigs_at_ss = GiglogAdmin_Concert::find_concerts_at($venue1);
+
+        $this->assertEquals(4, count($gigs_at_ss));
+        while ($gig = array_pop($gigs_at_ss)) {
+            $this->assertEquals("Sentrum Scene", $gig->venue()->name());
+        }
+
+        $gigs_at_rmh = GiglogAdmin_Concert::find_concerts_at($venue2);
+
+        $this->assertEquals(2, count($gigs_at_rmh));
+        while ($gig = array_pop($gigs_at_rmh)) {
+            $this->assertEquals("Rockefeller Music Hall", $gig->venue()->name());
+        }
+
+        $gigs_at_r = GiglogAdmin_Concert::find_concerts_at($venue3);
+
+        $this->assertEquals(5, count($gigs_at_r));
+        while ($gig = array_pop($gigs_at_r)) {
+            $this->assertEquals("Revolver", $gig->venue()->name());
+        }
+    }
 }
