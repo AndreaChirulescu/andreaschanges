@@ -28,6 +28,22 @@ if ( !class_exists('GiglogAdmin_Venue') ) {
             $this->webpage = isset($attrs->wpgvenue_webpage) ? $attrs->wpgvenue_webpage : NULL;
         }
 
+        /**
+         * Get venue by given id.
+         *
+         * @param int $id.
+         * @return null|self.
+         */
+        static function get(int $id) : ?self
+        {
+            global $wpdb;
+
+            $query = $wpdb->prepare('SELECT * from wpg_venues WHERE id = %d', $id);
+            $results = $wpdb->get_results($query);
+
+            return $results ? new GiglogAdmin_Venue($results[0]) : NULL;
+        }
+
         static function create($name, $city = 'Oslo'): self
         {
             $venue = new GiglogAdmin_Venue((object) [
