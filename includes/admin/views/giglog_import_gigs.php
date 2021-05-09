@@ -42,7 +42,7 @@ if ( !class_exists( 'GiglogAdmin_ImportGigsPage' ) ) {
          * tab character:
          *
          *   1. Concertname
-         *   2. Venuename
+         *   2. Venuename or numeric venue id
          *   3. Concert date
          *   4. Ticket link
          *   5. Event info link
@@ -65,31 +65,21 @@ if ( !class_exists( 'GiglogAdmin_ImportGigsPage' ) ) {
                 }
 
                 $resultArray = explode("\t", $line);
-                $cname    = trim($resultArray[0]);
+                $cname       = trim($resultArray[0]);
                 $venue       = trim($resultArray[1]);
+
+                if (is_numeric($venue)) {
+                    $venue = GiglogAdmin_Venue::get($venue);
+                }
+                else {
+                    $venue = GiglogAdmin_Venue::find_or_create($venue,'Oslo');
+                }
+
                 $condate     = date('Y-m-d', strtotime($resultArray[2]));
                 $ticketlink  = trim($resultArray[3]);
                 $eventlink   = trim($resultArray[4]);
-                //first item in the row should be concert name $resultArray[0]; second should be venue $resultArray[1]; third should be concert date $resultArray[2];
-                //fourth item is ticketlink $resultArray[3];  fifth item is eventlink $resultArray[4];
 
-
-
-                if (is_numeric($venue))
-                    $newconcert[1] = $venue;
-                else {
-                    $v = GiglogAdmin_Venue::find_or_create($venue,'Oslo');  //phase 666 of the project should maybe consider both city and band country when creating concerts/importing files
-                    $newconcert[1] = $v->id();
-                }
-
-                //not sure how to check dates, hopefully manual verification of files will take care of it
-
-                    GiglogAdmin_Concert::create(
-                        $cname,
-                        $newconcert[1],
-                        $condate,
-                        $ticketlink,
-                        $eventlink);
+                GiglogAdmin_Concert::create($cname, $venue->id(), $condate, $ticketlink, $eventlink);
             }
         }
     }
