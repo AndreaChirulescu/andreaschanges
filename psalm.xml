@@ -1,13 +1,11 @@
 <?xml version="1.0"?>
-<<<<<<< HEAD
-=======
+
 <!--
 SPDX-FileCopyrightText: 2021 Andrea Chirulescu <andrea.chirulescu@gmail.com>
 SPDX-FileCopyrightText: 2021 Harald Eilertsen <haraldei@anduin.net>
 
 SPDX-License-Identifier: CC0-1.0
 -->
->>>>>>> 142ff436282844677b8b4e7d8ececd44440ec96d
 <psalm
     errorLevel="4"
     resolveFromConfigFile="true"
@@ -16,34 +14,6 @@ SPDX-License-Identifier: CC0-1.0
     xsi:schemaLocation="https://getpsalm.org/schema/config vendor/vimeo/psalm/config.xsd"
 >
     <projectFiles>
-<<<<<<< HEAD
-        <file name="generate-sample-gig-data.php" />
-        <file name="giglogadmin.php" />
-        <file name="includes/band.php" />
-        <file name="includes/concert.php" />
-        <file name="includes/concertlogs.php" />
-        <file name="includes/venue.php" />
-        <file name="tests/BandTest.php" />
-        <file name="tests/bootstrap.php" />
-        <file name="tests/ConcertTest.php" />
-        <file name="tests/VenueTest.php" />
-        <file name="vendor/autoload.php" />
-        <file name="includes/admin/register_db_tables.php" />
-        <file name="vendor/composer/autoload_classmap.php" />
-        <file name="vendor/composer/autoload_files.php" />
-        <file name="vendor/composer/autoload_namespaces.php" />
-        <file name="vendor/composer/autoload_psr4.php" />
-        <file name="vendor/composer/autoload_real.php" />
-        <file name="vendor/composer/autoload_static.php" />
-        <file name="vendor/composer/ClassLoader.php" />
-        <file name="vendor/composer/installed.php" />
-        <file name="vendor/composer/InstalledVersions.php" />
-        <ignoreFiles>
-            <directory name="vendor" />
-        </ignoreFiles>
-    </projectFiles>
-</psalm>
-=======
         <file name="generate-sample-gig-data.php"/>
         <file name="giglogadmin.php"/>
         <directory name="includes"/>
@@ -57,4 +27,3 @@ SPDX-License-Identifier: CC0-1.0
         <InvalidGlobal errorLevel="suppress" />
     </issueHandlers>
 <plugins><pluginClass class="PsalmWordPress\Plugin"/></plugins></psalm>
->>>>>>> 142ff436282844677b8b4e7d8ececd44440ec96d

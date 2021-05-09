@@ -4,11 +4,8 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-<<<<<<< HEAD
-    "content-hash": "d330d5838bd28a6e9b15fe464962953a",
-=======
     "content-hash": "da8593c79fc71116e3079512611bb8ec",
->>>>>>> 142ff436282844677b8b4e7d8ececd44440ec96d
+
     "packages": [],
     "packages-dev": [
         {
@@ -333,18 +330,7 @@
         },
         {
             "name": "composer/xdebug-handler",
-<<<<<<< HEAD
-            "version": "2.0.1",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/composer/xdebug-handler.git",
-                "reference": "964adcdd3a28bf9ed5d9ac6450064e0d71ed7496"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/composer/xdebug-handler/zipball/964adcdd3a28bf9ed5d9ac6450064e0d71ed7496",
-                "reference": "964adcdd3a28bf9ed5d9ac6450064e0d71ed7496",
-=======
+
             "version": "2.0.0",
             "source": {
                 "type": "git",
@@ -355,7 +341,6 @@
                 "type": "zip",
                 "url": "https://api.github.com/repos/composer/xdebug-handler/zipball/31d57697eb1971712a08031cfaff5a846d10bdf5",
                 "reference": "31d57697eb1971712a08031cfaff5a846d10bdf5",
->>>>>>> 142ff436282844677b8b4e7d8ececd44440ec96d
                 "shasum": ""
             },
             "require": {
@@ -390,11 +375,9 @@
             "support": {
                 "irc": "irc://irc.freenode.org/composer",
                 "issues": "https://github.com/composer/xdebug-handler/issues",
-<<<<<<< HEAD
-                "source": "https://github.com/composer/xdebug-handler/tree/2.0.1"
-=======
+
                 "source": "https://github.com/composer/xdebug-handler/tree/2.0.0"
->>>>>>> 142ff436282844677b8b4e7d8ececd44440ec96d
+
             },
             "funding": [
                 {
@@ -410,11 +393,9 @@
                     "type": "tidelift"
                 }
             ],
-<<<<<<< HEAD
-            "time": "2021-05-05T19:37:51+00:00"
-=======
+
             "time": "2021-04-09T19:40:06+00:00"
->>>>>>> 142ff436282844677b8b4e7d8ececd44440ec96d
+
         },
         {
             "name": "dnoegel/php-xdg-base-dir",
@@ -555,8 +536,7 @@
             "time": "2021-02-22T14:02:09+00:00"
         },
         {
-<<<<<<< HEAD
-=======
+
             "name": "humanmade/psalm-plugin-wordpress",
             "version": "2.0.4",
             "source": {
@@ -676,7 +656,6 @@
             "time": "2020-08-29T20:58:28+00:00"
         },
         {
->>>>>>> 142ff436282844677b8b4e7d8ececd44440ec96d
             "name": "netresearch/jsonmapper",
             "version": "v2.1.0",
             "source": {
@@ -837,8 +816,7 @@
             "time": "2019-03-29T20:06:56+00:00"
         },
         {
-<<<<<<< HEAD
-=======
+
             "name": "php-stubs/wordpress-stubs",
             "version": "v5.7.0",
             "source": {
@@ -883,7 +861,6 @@
             "time": "2021-03-10T10:29:23+00:00"
         },
         {
->>>>>>> 142ff436282844677b8b4e7d8ececd44440ec96d
             "name": "phpdocumentor/reflection-common",
             "version": "2.2.0",
             "source": {
