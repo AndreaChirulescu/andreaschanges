@@ -31,13 +31,18 @@ if ( !class_exists('GiglogAdmin_Concert') ) {
 
 
             if ( isset( $attrs->venue ) ) {
-                $venue_attrs = (object) [
-                    "id" => $attrs->venue,
-                    "wpgvenue_name" => $attrs->wpgvenue_name,
-                    "wpgvenue_city" => $attrs->wpgvenue_city,
-                ];
+                if (isset($attrs->wpgvenue_name) && isset($attrs->wpgvenue_city)) {
+                    $venue_attrs = (object) [
+                        "id" => $attrs->venue,
+                        "wpgvenue_name" => $attrs->wpgvenue_name,
+                        "wpgvenue_city" => $attrs->wpgvenue_city,
+                    ];
 
-                $this->venue = new GiglogAdmin_Venue($venue_attrs);
+                    $this->venue = new GiglogAdmin_Venue($venue_attrs);
+                }
+                else {
+                    $this->venue = GiglogAdmin_Venue::get($attrs->venue);
+                }
             }
         }
 
