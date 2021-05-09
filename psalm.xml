@@ -1,0 +1,35 @@
+<?xml version="1.0"?>
+<psalm
+    errorLevel="4"
+    resolveFromConfigFile="true"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns="https://getpsalm.org/schema/config"
+    xsi:schemaLocation="https://getpsalm.org/schema/config vendor/vimeo/psalm/config.xsd"
+>
+    <projectFiles>
+        <file name="generate-sample-gig-data.php" />
+        <file name="giglogadmin.php" />
+        <file name="includes/band.php" />
+        <file name="includes/concert.php" />
+        <file name="includes/concertlogs.php" />
+        <file name="includes/venue.php" />
+        <file name="tests/BandTest.php" />
+        <file name="tests/bootstrap.php" />
+        <file name="tests/ConcertTest.php" />
+        <file name="tests/VenueTest.php" />
+        <file name="vendor/autoload.php" />
+        <file name="includes/admin/register_db_tables.php" />
+        <file name="vendor/composer/autoload_classmap.php" />
+        <file name="vendor/composer/autoload_files.php" />
+        <file name="vendor/composer/autoload_namespaces.php" />
+        <file name="vendor/composer/autoload_psr4.php" />
+        <file name="vendor/composer/autoload_real.php" />
+        <file name="vendor/composer/autoload_static.php" />
+        <file name="vendor/composer/ClassLoader.php" />
+        <file name="vendor/composer/installed.php" />
+        <file name="vendor/composer/InstalledVersions.php" />
+        <ignoreFiles>
+            <directory name="vendor" />
+        </ignoreFiles>
+    </projectFiles>
+</psalm>
