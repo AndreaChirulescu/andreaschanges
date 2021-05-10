@@ -168,4 +168,27 @@ final class ConcertTest extends WP_UnitTestCase
             $this->assertEquals("Revolver", $gig->venue()->name());
         }
     }
+
+    public function testFetchAllConcerts() : void
+    {
+        $venue1 = GiglogAdmin_Venue::create("Svene Bedehus", "Svene");
+        $venue2 = GiglogAdmin_Venue::create("Rockefeller Music Hall", "Oslo");
+        $venue3 = GiglogAdmin_Venue::create("Meieriet", "Sogndal");
+
+        for ($i = 0; $i < 4; $i++) {
+            GiglogAdmin_Concert::create('Concert ' . $i, $venue1->id(), '', '', '');
+        }
+
+        for ($i = 4; $i < 6; $i++) {
+            GiglogAdmin_Concert::create('Concert ' . $i, $venue2->id(), '', '', '');
+        }
+
+        for ($i = 6; $i < 11; $i++) {
+            GiglogAdmin_Concert::create('Concert ' . $i, $venue3->id(), '', '', '');
+        }
+
+        $gigs = GiglogAdmin_Concert::find_concerts_in();
+
+        $this->assertEquals(11, count($gigs));
+    }
 }

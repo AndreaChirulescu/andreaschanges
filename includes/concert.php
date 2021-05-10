@@ -171,14 +171,17 @@ if ( !class_exists('GiglogAdmin_Concert') ) {
         }
 
 
-        public static function find_concerts_in(string $city) : array
+        public static function find_concerts_in(?string $city = null) : array
         {
             global $wpdb;
 
             $query = 'SELECT wpg_concerts.*, wpg_venues.wpgvenue_name, wpg_venues.wpgvenue_city '
                 . 'FROM wpg_concerts '
-                . 'INNER JOIN wpg_venues ON wpg_concerts.venue = wpg_venues.id '
-                . 'WHERE wpg_venues.wpgvenue_city = ' . $wpdb->prepare('%s', $city);
+                . 'INNER JOIN wpg_venues ON wpg_concerts.venue = wpg_venues.id ';
+
+            if ( $city ) {
+                $query .= 'WHERE wpg_venues.wpgvenue_city = ' . $wpdb->prepare('%s', $city);
+            }
 
             $results  = $wpdb->get_results($query);
 
