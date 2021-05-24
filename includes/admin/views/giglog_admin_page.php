@@ -38,19 +38,10 @@ if ( !class_exists( 'GiglogAdmin_AdminPage' ) ) {
 
         static function get_venue_selector( ?GiglogAdmin_Venue $invenue ): string
         {
-            $select = '<select name="selectvenueadmin">';
-            $select .= '<option value="">Please Select..</option>';
-            foreach ( GiglogAdmin_Venue::all_venues() AS $venue ) {
-                if($invenue && $invenue->id() == $venue->id() ) {
-                    $select .= '<option value="' . $venue->id(). '" selected="selected">'.$venue->name();
-                }
-                else {
-                    $select .= '<option value="' . $venue->id() . '">'. $venue->name();
-                }
-                $select .='</option>';
-            }
-            $select .= '</select>';
-            return($select);
+            return \EternalTerror\ViewHelpers\select_field(
+                "selectvenueadmin",
+                array_map(fn($venue) => [$venue->id(), $venue->name()], GiglogAdmin_Venue::all_venues()),
+                $invenue ? $invenue->id() : null);
         }
 
 
