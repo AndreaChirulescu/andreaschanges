@@ -13,11 +13,17 @@ namespace EternalTerror\ViewHelpers;
  * @param array     $opts     The options as arrays of [value, label] pairs
  * @param mixed|int $selected The value of the preselected option, or null if no
  *                            option is preselected.
+ * @param string    $blank    Text to use for "no selection", defaults to "Please
+ *                            select..."
  * @return string
  */
-function select_field(string $name, ?array $opts = [], $selected = null) : string
+function select_field(
+    string $name,
+    ?array $opts = [],
+    $selected = null,
+    string $blank = "Please select...") : string
 {
-    $body = '';
+    $body = "<option value=\"\">{$blank}</option>";
     foreach ($opts as $opt) {
         $sel = selected($selected, $opt[0], false);
         $body .= "<option value=\"{$opt[0]}\"{$sel}>{$opt[1]}</option>";

@@ -22,6 +22,7 @@ final class SelectFieldTest extends WP_UnitTestCase
         $res = ViewHelpers\select_field("fooselect", [[42, 'An option']]);
         $this->assertStringStartsWith('<select name="fooselect">', $res);
         $this->assertStringEndsWith('</select>', $res);
+        $this->assertStringContainsString('<option value="">Please select...</option>', $res);
         $this->assertStringContainsString('<option value="42">An option</option>', $res);
     }
 
@@ -33,6 +34,7 @@ final class SelectFieldTest extends WP_UnitTestCase
 
         $this->assertStringStartsWith('<select name="fooselect">', $res);
         $this->assertStringEndsWith('</select>', $res);
+        $this->assertStringContainsString('<option value="">Please select...</option>', $res);
         $this->assertStringContainsString('<option value="42">An option</option>', $res);
         $this->assertStringContainsString('<option value="666">Another option</option>', $res);
         $this->assertStringContainsString('<option value="foo">A foo option</option>', $res);
@@ -46,6 +48,21 @@ final class SelectFieldTest extends WP_UnitTestCase
 
         $this->assertStringStartsWith('<select name="fooselect">', $res);
         $this->assertStringEndsWith('</select>', $res);
+        $this->assertStringContainsString('<option value="">Please select...</option>', $res);
+        $this->assertStringContainsString('<option value="42">An option</option>', $res);
+        $this->assertStringContainsString('<option value="666" selected=\'selected\'>Another option</option>', $res);
+        $this->assertStringContainsString('<option value="foo">A foo option</option>', $res);
+    }
+
+    public function testSelectFieldWithCustomBlankSelectionText()
+    {
+        $opts = [[42, 'An option'], [666, 'Another option'], ["foo", 'A foo option']];
+
+        $res = ViewHelpers\select_field("fooselect", $opts, 666, "None");
+
+        $this->assertStringStartsWith('<select name="fooselect">', $res);
+        $this->assertStringEndsWith('</select>', $res);
+        $this->assertStringContainsString('<option value="">None</option>', $res);
         $this->assertStringContainsString('<option value="42">An option</option>', $res);
         $this->assertStringContainsString('<option value="666" selected=\'selected\'>Another option</option>', $res);
         $this->assertStringContainsString('<option value="foo">A foo option</option>', $res);
