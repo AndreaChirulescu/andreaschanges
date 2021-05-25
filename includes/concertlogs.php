@@ -25,5 +25,17 @@ if ( !class_exists( 'GiglogAdmin_Concertlogs' ) )
 
             $wpdb->query($q);
         }
+
+        public static function get_status(int $concert_id) : ?int
+        {
+            global $wpdb;
+
+            $q = $wpdb->prepare(
+                'select wpgcl_status from wpg_concertlogs where id = %d',
+                $concert_id);
+            $res = $wpdb->get_results($q);
+
+            return $res ? $res[0]->wpgcl_status : null;
+        }
     }
 }

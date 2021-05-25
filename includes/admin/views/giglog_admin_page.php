@@ -152,22 +152,16 @@ if ( !class_exists( 'GiglogAdmin_AdminPage' ) ) {
             $query = "SELECT id,wpgs_name from wpg_pressstatus" ;
             $statuses = $wpdb->get_results($query);
 
-            $select =
+            return
                 '<form method="POST" action="">'
                 . '<input type="hidden" name="cid" value="' . $concert_id .  '" />'
-                . '<select name="selectstatus">';
-
-            foreach ( $statuses AS $sts ) {
-                $select .= '<option value="' . $sts->id . '">' . $sts->wpgs_name . '</option>';
-            }
-
-            $select .=
-                '</select>'
+                . \EternalTerror\ViewHelpers\select_field(
+                    'selectstatus',
+                    array_map(fn($status) => [ $status->id, $status->wpgs_name ], $statuses),
+                    GiglogAdmin_Concertlogs::get_status($concert_id))
                 . '<input type="submit" value="SetStatus">'
                 . '<input type="submit" name ="edit" value="EDIT">'
                 . '</form>';
-
-            return $select;
         }
 
         //function to calculate if the concert has been added in the past 10 days or before that and show a green NEW for the newest rows
