@@ -70,45 +70,28 @@ if ( !class_exists( 'GiglogAdmin_AdminPage' ) ) {
         }
 
 
-        static function get_filters(): string
+        static function get_filters() : string
         {
-            $cities = array_merge(["ALL"], GiglogAdmin_Venue::all_cities());
-            $cty = filter_input( INPUT_POST, 'selectcity', FILTER_SANITIZE_SPECIAL_CHARS );
-            $selected_city =
-                filter_input(INPUT_POST, "selectcity", FILTER_SANITIZE_SPECIAL_CHARS)
-                || $cities[0];
+            $cty = filter_input(INPUT_POST, 'selectcity', FILTER_SANITIZE_SPECIAL_CHARS);
 
-            $select = '<form method="POST" action="">FILTER DATA: <select name="selectcity">';
-
-            foreach ( $cities AS $city ) {
-                $select .= '<option value="' . $city . '"' . selected($city,$cty ) . '>';
-                $select .= $city . '</option>';
-            }
-
-            $select .= '</select>';
+            $select = '<form method="POST" action="">FILTER DATA:';
+            $select .= \EternalTerror\ViewHelpers\select_field(
+                "selectcity",
+                array_map(fn($city) => [$city, $city], GiglogAdmin_Venue::all_cities()),
+                $cty,
+                "Select city...");
 
 
-            if ( $cty && $cty!= "ALL" ) {
+            if ( !empty($cty) ) {
                 //second drop down for venue
-                $venues = GiglogAdmin_Venue::venues_in_city($cty);
-
-                $venue_list = array_merge(
-                    [0, "ALL"],
+                $select .= \EternalTerror\ViewHelpers\select_field(
+                    "selectvenue",
                     array_map(
-                        function($v) { return [$v->id(), $v->name()]; },
-                        $venues));
-
-                $selected_venue = filter_input(INPUT_POST, "selectvenue", FILTER_SANITIZE_SPECIAL_CHARS)
-                    || $venue_list[0];
-
-                $select .= '<select name="selectvenue">';
-
-                foreach ( $venue_list as $venue ) {
-                    $select .= '<option value="' . $venue[0] . '"' . selected($venue, $selected_venue) . '>';
-                    $select .= $venue[1] . '</option>';
-                }
-                $select .= '</select>';
-
+                        fn($venue) => [$venue->id(), $venue->name()],
+                        GiglogAdmin_Venue::venues_in_city($cty)
+                    ),
+                    filter_input(INPUT_POST, 'selectvenue', FILTER_SANITIZE_SPECIAL_CHARS),
+                    "Select venue...");
             }
             //option to select own concerts only
             $select .= '<input  class="ownconc" type="checkbox" value="1"';
