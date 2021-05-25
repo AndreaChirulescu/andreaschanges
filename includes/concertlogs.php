@@ -53,7 +53,6 @@ if ( !class_exists( 'GiglogAdmin_Concertlogs' ) )
                 $concert_id);
 
             $res = $wpdb->get_row($q, ARRAY_A);
-            var_dump($res);
 
             return array_shift( $res );
         }
