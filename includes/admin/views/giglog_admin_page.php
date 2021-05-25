@@ -53,29 +53,20 @@ if ( !class_exists( 'GiglogAdmin_AdminPage' ) ) {
                 fn($usr) => $usr->user_login,
                 get_users( array( 'fields' => array( 'user_login' ) ) ) );
 
-            // This renders a user form, which we don't really use for anything
-            // other than to check which user (if any) the form was made for.
-            // Seems this could be done a bit simpler...
-            $userform = GiglogAdmin_AdminPage::returnuser($ctype, $cid);
+            $current_user = $cid ? GiglogAdmin_Concertlogs::get_assigned_user( $cid, $ctype ) : null;
 
             $select = '<select name="'.$ctype.'">';
             $select .= '<option value="">Please Select..</option>';
 
             foreach ( $users as $user ) {
-                $taken = strpos($userform, $user);      // != false if form contains $user
-                if($taken) {
+                if ( $user == $current_user ) {
                     $select .= '<option value="' .$user. '" selected="selected">'.$user;
                 }
                 else {
-                    $takenbyself = strpos($userform, 'name="unassignitem"'); // != false if form is an unassign form
-                    if($takenbyself && $user == $hf_username) {
-                        $select .= '<option value="' .$user. '" selected="selected">'.$user;
-                    }
-                    else {
-                        $select .= '<option value="'.$user. '">'. $user;
-                    }
-                    $select .='</option>';
+                    $select .= '<option value="'.$user. '">'. $user;
                 }
+
+                $select .='</option>';
             }
             $select .= '</select>';
             return($select);
