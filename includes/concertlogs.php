@@ -37,5 +37,25 @@ if ( !class_exists( 'GiglogAdmin_Concertlogs' ) )
 
             return $res ? $res[0]->wpgcl_status : null;
         }
+
+        public static function get_assigned_user( int $concert_id, string $role ) : ?string
+        {
+            global $wpdb;
+
+            if ( ! in_array( $role, [ 'photo1', 'photo2', 'rev1', 'rev2' ] ) ) {
+                error_log(__METHOD__ . ": invalid \$role ({$role}) given.");
+                return null;
+            }
+
+            $column = "wpgcl_{$role}";
+            $q = $wpdb->prepare(
+                "select {$column} from wpg_concertlogs where id = %d",
+                $concert_id);
+
+            $res = $wpdb->get_row($q, ARRAY_A);
+            var_dump($res);
+
+            return array_shift( $res );
+        }
     }
 }
