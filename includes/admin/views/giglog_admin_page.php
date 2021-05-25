@@ -49,21 +49,33 @@ if ( !class_exists( 'GiglogAdmin_AdminPage' ) ) {
         {
             $hf_user = wp_get_current_user();
             $hf_username = $hf_user->user_login;
+            $users = array_map(
+                fn($usr) => $usr->user_login,
+                get_users( array( 'fields' => array( 'user_login' ) ) ) );
+
+            // This renders a user form, which we don't really use for anything
+            // other than to check which user (if any) the form was made for.
+            // Seems this could be done a bit simpler...
+            $userform = GiglogAdmin_AdminPage::returnuser($ctype, $cid);
+
             $select = '<select name="'.$ctype.'">';
             $select .= '<option value="">Please Select..</option>';
-            $users = get_users( array( 'fields' => array( 'user_login' ) ) );
+
             foreach ( $users as $user ) {
-                $usr = $user->user_login;
-                $taken = strpos(GiglogAdmin_AdminPage::returnuser($ctype, $cid),$usr);
-                if($taken) $select .= '<option value="' .$usr. '" selected="selected">'.$usr;
-               else
-               {
-                   $takenbyself = strpos(GiglogAdmin_AdminPage::returnuser($ctype, $cid),'name="unassignitem"');
-                   if($takenbyself && $usr==$hf_username) $select .= '<option value="' .$usr. '" selected="selected">'.$usr;
-                   else
-                    $select .= '<option value="'.$usr. '">'. $usr;
+                $taken = strpos($userform, $user);      // != false if form contains $user
+                if($taken) {
+                    $select .= '<option value="' .$user. '" selected="selected">'.$user;
+                }
+                else {
+                    $takenbyself = strpos($userform, 'name="unassignitem"'); // != false if form is an unassign form
+                    if($takenbyself && $user == $hf_username) {
+                        $select .= '<option value="' .$user. '" selected="selected">'.$user;
+                    }
+                    else {
+                        $select .= '<option value="'.$user. '">'. $user;
+                    }
                     $select .='</option>';
-               }
+                }
             }
             $select .= '</select>';
             return($select);
