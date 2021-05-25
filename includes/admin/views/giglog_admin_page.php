@@ -55,21 +55,10 @@ if ( !class_exists( 'GiglogAdmin_AdminPage' ) ) {
 
             $current_user = $cid ? GiglogAdmin_Concertlogs::get_assigned_user( $cid, $ctype ) : null;
 
-            $select = '<select name="'.$ctype.'">';
-            $select .= '<option value="">Please Select..</option>';
-
-            foreach ( $users as $user ) {
-                if ( $user == $current_user ) {
-                    $select .= '<option value="' .$user. '" selected="selected">'.$user;
-                }
-                else {
-                    $select .= '<option value="'.$user. '">'. $user;
-                }
-
-                $select .='</option>';
-            }
-            $select .= '</select>';
-            return($select);
+            return \EternalTerror\ViewHelpers\select_field(
+                $ctype,
+                array_map( fn($user) => [ $user, $user ], $users ),
+                $current_user);
         }
 
 
