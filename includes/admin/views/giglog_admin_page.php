@@ -384,31 +384,44 @@ if ( !class_exists( 'GiglogAdmin_AdminPage' ) ) {
             wp_mail( $to, $subject, $body, $headers );
         }
 
-        static function returnuser(string $p1, ?int $c): string
+        static function returnuser(string $p1, ?int $c) : ?string
         {
-            global $wpdb;
             $hf_user = wp_get_current_user();
             $hf_username = $hf_user->user_login;
 
-
-            if (!empty($c))
-            {
-                $sql =  "select * from wpg_concertlogs where wpgcl_concertid=".$c;
-                $crow = $wpdb->get_results($sql);
-                $array = array('photo1' => $crow[0]->wpgcl_photo1, 'photo2'=> $crow[0]->wpgcl_photo2, 'rev1' => $crow[0]->wpgcl_rev1, 'rev2'=> $crow[0]->wpgcl_rev2);
-
-                //first check if current slot is taken by current user
-                if ($array[$p1] == $hf_username) return ('<form class="unassignit" method="POST" action=""> <input type="hidden" name="cid" value="' . $c. '" /><input type="hidden" name="pid" value="' . $p1. '" /><input type="submit" name="unassignitem" value="Your"/></form>');
-                else  //check if slot is taken by another user
-                    if (!empty($array[$p1])) return ('<span class="takenby">Taken</span><div class="takenby">Taken by '.$array[$p1].'</div>');
-                else  //check if other slots for this concert are taken by user
-                    if (in_array($hf_username,$array)) return ('<span class="taken_by_self">-</span>');
-                else  //not taken by anyone
-                    return ('<form method="POST" action=""> <input type="hidden" name="cid" value="' . $c. '" /><input type="hidden" name="pid" value="' . $p1. '" /><input  type="submit" name="assignitem" value=""/>
-                    </form>');
+            if (!$c) {
+                return null;
             }
 
-            else return ('no concert selected');
+            $cl = GiglogAdmin_Concertlogs::get($c);
+            $role = $cl->get_assigned_role( $hf_username );
+            $assigned_user = $cl->assigned_user( $p1 );
+
+            //first check if current slot is taken by current user
+            if ( $role == $p1 ) {
+                $f = '<form class="unassignit" method="POST" action="">'
+                    . '  <input type="hidden" name="cid" value="' . $c. '" />'
+                    . '  <input type="hidden" name="pid" value="' . $p1. '" />'
+                    . '  <input type="submit" name="unassignitem" value="Your"/>'
+                    . '</form>';
+            }
+            elseif ( $assigned_user ) { //check if slot is taken by another user
+                $f = '<span class="takenby">Taken</span>'
+                    . '<div class="takenby">Taken by ' . $assigned_user . '</div>';
+            }
+            elseif ( $role ) {
+                // other slots for this concert are taken by user
+                $f = '<span class="taken_by_self">-</span>';
+            }
+            else { //not taken by anyone
+                $f = '<form method="POST" action="">'
+                    . '  <input type="hidden" name="cid" value="' . $c. '" />'
+                    . '  <input type="hidden" name="pid" value="' . $p1. '" />'
+                    . '  <input  type="submit" name="assignitem" value=""/>'
+                    . '</form>';
+            }
+
+            return $f;
         }
     }
 }
