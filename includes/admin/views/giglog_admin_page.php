@@ -9,7 +9,18 @@ if ( !class_exists( 'GiglogAdmin_AdminPage' ) ) {
     require_once __DIR__ . '/../../venue.php';
 
     class GiglogAdmin_AdminPage {
-        static function render_html(): void {
+        public function __construct()
+        {
+        }
+
+        public static function render_html() : void
+        {
+            $page = new self();
+            $page->render_page();
+        }
+
+        public function render_page() : void
+        {
             ?>
             <div class="wrap">
                 <h1>Giglog Admin</h1>
@@ -28,15 +39,15 @@ if ( !class_exists( 'GiglogAdmin_AdminPage' ) ) {
                 what the accreditation status is. You will get personal message if this
                 is really close to the concert date.</p>
 
-                <p><?php echo GiglogAdmin_AdminPage::get_filters() ?></p>
-                <p><?php echo GiglogAdmin_AdminPage::get_concerts() ?></p>
+                <p><?php echo $this->get_filters() ?></p>
+                <p><?php echo $this->get_concerts() ?></p>
             </div>
             <?php
             if (current_user_can('administrator'))
                 echo(GiglogAdmin_AdminPage::editforms());  //not sure why it doesn't show without the echo?
         }
 
-        static function get_venue_selector( ?GiglogAdmin_Venue $invenue ): string
+        private function get_venue_selector( ?GiglogAdmin_Venue $invenue ): string
         {
             return \EternalTerror\ViewHelpers\select_field(
                 "selectvenueadmin",
@@ -45,7 +56,7 @@ if ( !class_exists( 'GiglogAdmin_AdminPage' ) ) {
         }
 
 
-        static function get_user( ?int $cid, string $ctype): string
+        private function get_user( ?int $cid, string $ctype): string
         {
             $hf_user = wp_get_current_user();
             $hf_username = $hf_user->user_login;
@@ -62,7 +73,7 @@ if ( !class_exists( 'GiglogAdmin_AdminPage' ) ) {
         }
 
 
-        static function get_filters() : string
+        private function get_filters() : string
         {
             $cty = filter_input(INPUT_POST, 'selectcity', FILTER_SANITIZE_SPECIAL_CHARS);
 
@@ -95,7 +106,7 @@ if ( !class_exists( 'GiglogAdmin_AdminPage' ) ) {
             return $select;
         }
 
-        static function editforms(): string
+        private function editforms(): string
         {
             $cid = filter_input(INPUT_POST, "cid");
             $editing = filter_input(INPUT_POST, "edit") == "EDIT";
@@ -110,7 +121,7 @@ if ( !class_exists( 'GiglogAdmin_AdminPage' ) ) {
                 .'<div class="concertitems"><strong>CONCERT DETAILS</strong><br><br><fieldset>'
                 .'<input type="hidden" name="pid" value="' .$c->id(). '" />'
                 .'<label for="cname">Concert Name:</label><textarea id="cname" name="cname" value="'.$c->cname().'">'.$c->cname().'</textarea><br>'
-                .'<label for="venue">Venue:</label>' . GiglogAdmin_AdminPage::get_venue_selector($c->venue()) . '<br>'
+                .'<label for="venue">Venue:</label>' . $this->get_venue_selector($c->venue()) . '<br>'
                 .'<label for="cdate">Date:</label><input type="date" id="cdate" name="cdate" value="'.$c->cdate().'"><br>'
                 .'<label for="ticket">Tickets:</label><input type="text" id="ticket" name="ticket" value="'.$c->tickets().'"><br>'
                 .'<label for="eventurl">Event link:</label><input type="text" id="eventurl" name="eventurl" value="'.$c->eventlink().'"><br>'
@@ -123,10 +134,10 @@ if ( !class_exists( 'GiglogAdmin_AdminPage' ) ) {
 
             $content.='</div>';
             $content.='<div class="useritems"><strong>ASSIGNMENT DETAILS</strong><br><br><fieldset>'
-                .'<label for="photo1">Photo1:</label>'.GiglogAdmin_AdminPage::get_user($c->id(),'photo1').'<br>'
-                .'<label for="photo2">Photo2:</label>'.GiglogAdmin_AdminPage::get_user($c->id(),'photo2').'<br>'
-                .'<label for="rev1">Text1:</label>'.GiglogAdmin_AdminPage::get_user($c->id(),'rev1').'<br>'
-                .'<label for="rev2">Text2:</label>'.GiglogAdmin_AdminPage::get_user($c->id(),'rev2').'<br>';
+                .'<label for="photo1">Photo1:</label>'.$this->get_user($c->id(),'photo1').'<br>'
+                .'<label for="photo2">Photo2:</label>'.$this->get_user($c->id(),'photo2').'<br>'
+                .'<label for="rev1">Text1:</label>'.$this->get_user($c->id(),'rev1').'<br>'
+                .'<label for="rev2">Text2:</label>'.$this->get_user($c->id(),'rev2').'<br>';
 
             $content.='<fieldset></div></form></div>';
             $content.='<div class="venueform"><form method="POST" action="" class="venue" ><strong>VENUE DETAILS</strong><br><br>'
@@ -138,7 +149,7 @@ if ( !class_exists( 'GiglogAdmin_AdminPage' ) ) {
             return $content;
         }
 
-        static function adminactions( int $concert_id ) : string
+        private function adminactions( int $concert_id ) : string
         {
             global $wpdb;
             $query = "SELECT id,wpgs_name from wpg_pressstatus" ;
@@ -160,7 +171,7 @@ if ( !class_exists( 'GiglogAdmin_AdminPage' ) ) {
         /**
          * @return null|string
          */
-        static function getpublishstatus(int $concert_id)
+        private function getpublishstatus(int $concert_id)
         {
             global $wpdb;
             $date1 = new DateTime("now");
@@ -177,7 +188,7 @@ if ( !class_exists( 'GiglogAdmin_AdminPage' ) ) {
         }
 
 
-        static function get_concerts(): string
+        private function get_concerts(): string
         {
             $hf_user = wp_get_current_user();
             $hf_username = $hf_user->user_login;
@@ -237,17 +248,17 @@ if ( !class_exists( 'GiglogAdmin_AdminPage' ) ) {
 
                 //$content .= DATE_FORMAT($fdate,'%d.%b.%Y');
                 $content .= '<td>' .$newformat. '</td>';
-                $content .= '<td>'.GiglogAdmin_AdminPage::getpublishstatus($row->id ).'</td>';
-                $content .= '<td>'.GiglogAdmin_AdminPage::returnuser('photo1', $row->id ).'</td>';
-                $content .= '<td>'.GiglogAdmin_AdminPage::returnuser('photo2', $row->id ).'</td>';
-                $content .= '<td>'.GiglogAdmin_AdminPage::returnuser('rev1', $row->id ).'</td>';
-                $content .= '<td>'.GiglogAdmin_AdminPage::returnuser('rev2', $row->id ).'</td>';
+                $content .= '<td>'.$this->getpublishstatus($row->id ).'</td>';
+                $content .= '<td>'.$this->returnuser('photo1', $row->id ).'</td>';
+                $content .= '<td>'.$this->returnuser('photo2', $row->id ).'</td>';
+                $content .= '<td>'.$this->returnuser('rev1', $row->id ).'</td>';
+                $content .= '<td>'.$this->returnuser('rev2', $row->id ).'</td>';
                 $content .= '<td>'.$row -> wpgs_name.'</td>';
 
                 if (current_user_can('administrator')) {
                     $content .=
                         '<td  class="adminbuttons">'
-                        . GiglogAdmin_AdminPage::adminactions($row->id)
+                        . $this->adminactions($row->id)
                         . '</td>';
                 }
                 $content .= '</tr>';
@@ -294,7 +305,7 @@ if ( !class_exists( 'GiglogAdmin_AdminPage' ) ) {
             }
 
             //handling the admin drop down menu
-            if(isset($_POST['selectstatus']) && $_POST['edit']!="EDIT" && !empty($_POST['cid']))
+            if(isset($_POST['selectstatus']) && (isset($_POST['edit']) && $_POST['edit']!="EDIT") && !empty($_POST['cid']))
             {
                $usql = "UPDATE wpg_concertlogs  SET wpgcl_status=".$_POST['selectstatus']." WHERE wpgcl_concertid=".$_POST['cid'];
                $uresults = $wpdb->get_results($usql);
@@ -384,7 +395,7 @@ if ( !class_exists( 'GiglogAdmin_AdminPage' ) ) {
             wp_mail( $to, $subject, $body, $headers );
         }
 
-        static function returnuser(string $p1, ?int $c) : ?string
+        private function returnuser(string $p1, ?int $c) : ?string
         {
             $hf_user = wp_get_current_user();
             $hf_username = $hf_user->user_login;
