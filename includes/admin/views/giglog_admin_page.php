@@ -11,6 +11,7 @@ if ( !class_exists( 'GiglogAdmin_AdminPage' ) ) {
     class GiglogAdmin_AdminPage {
         public function __construct()
         {
+            $this->username = wp_get_current_user()->user_login;
         }
 
         public static function render_html() : void
@@ -58,8 +59,6 @@ if ( !class_exists( 'GiglogAdmin_AdminPage' ) ) {
 
         private function get_user( ?int $cid, string $ctype): string
         {
-            $hf_user = wp_get_current_user();
-            $hf_username = $hf_user->user_login;
             $users = array_map(
                 fn($usr) => $usr->user_login,
                 get_users( array( 'fields' => array( 'user_login' ) ) ) );
@@ -190,8 +189,6 @@ if ( !class_exists( 'GiglogAdmin_AdminPage' ) ) {
 
         private function get_concerts(): string
         {
-            $hf_user = wp_get_current_user();
-            $hf_username = $hf_user->user_login;
             $roles = $hf_user->roles;
             global $wpdb;
 
@@ -202,7 +199,7 @@ if ( !class_exists( 'GiglogAdmin_AdminPage' ) ) {
                 <th>CITY</th><th>NAME</th><th>VENUE</th><th>DATE</th><th> </th>
                 <th>PHOTO1</th><th>PHOTO2</th><th>TEXT1</th><th>TEXT2</th>
                 <th>STATUS</th>';
-                if (current_user_can('administrator')) //($hf_username == 'etadmin')
+                if (current_user_can('administrator'))
                 $content .=  '<th>AdminOptions</th>';
                 $content .= '</tr>';
 
@@ -223,7 +220,7 @@ if ( !class_exists( 'GiglogAdmin_AdminPage' ) ) {
 
             $query .= ($cty == "ALL") ? "" : "  and wpgv.wpgvenue_city='" .$cty ."'";
             $query .= ($venue == "0") ? "" : "  and wpgv.id='" .$venue ."'";
-            $query.= (empty($_POST['my_checkbox'])) ? "": " and (wpgcl_photo1 ='".$hf_username."' or wpgcl_photo2 ='".$hf_username."' or wpgcl_rev1 ='".$hf_username."' or wpgcl_rev2 ='".$hf_username."')";
+            $query.= (empty($_POST['my_checkbox'])) ? "": " and (wpgcl_photo1 ='".$this->username."' or wpgcl_photo2 ='".$this->username."' or wpgcl_rev1 ='".$this->username."' or wpgcl_rev2 ='".$this->username."')";
             $query .=" order by wpgv.wpgvenue_city, wpgconcert_date, wpgc.id" ;
             $results = $wpdb->get_results($query);
             $lastType = '';
@@ -357,17 +354,15 @@ if ( !class_exists( 'GiglogAdmin_AdminPage' ) ) {
         {
             global $wpdb;
 
-            $hf_user = wp_get_current_user();
-            $hf_username = $hf_user->user_login;
             $to = 'live@eternal-terror.com';
-            $subject = $hf_username.' has taken '.$p1. 'for a concert with id '.$c;
+            $subject = $this->username.' has taken '.$p1. 'for a concert with id '.$c;
             $body = 'The email body content';
             $headers = array('Content-Type: text/html; charset=UTF-8');
-            $usql = "UPDATE wpg_concertlogs  SET wpgcl_".$p1."='".$hf_username."'  WHERE wpgcl_concertid=".$c;
+            $usql = "UPDATE wpg_concertlogs  SET wpgcl_".$p1."='".$this->username."'  WHERE wpgcl_concertid=".$c;
             $uresults = $wpdb->get_results($usql);
             $wpdb->insert( 'wpg_logchanges', array (
                 'id' => '',
-                'userid' => $hf_username,
+                'userid' => $this->username,
                 'action' => 'assigned '.$p1,
                 'concertid' => $c));
             echo ($wpdb->last_error );
@@ -378,17 +373,15 @@ if ( !class_exists( 'GiglogAdmin_AdminPage' ) ) {
         {
             global $wpdb;
 
-            $hf_user = wp_get_current_user();
-            $hf_username = $hf_user->user_login;
             $to = 'live@eternal-terror.com';
-            $subject = $hf_username.' has UNASSINED  '.$p1. 'for a concert with id '.$c;
+            $subject = $this->username.' has UNASSINED  '.$p1. 'for a concert with id '.$c;
             $body = 'The email body content';
             $headers = array('Content-Type: text/html; charset=UTF-8');
             $usql = "UPDATE wpg_concertlogs  SET wpgcl_".$p1."=''  WHERE wpgcl_concertid=".$c;
             $uresults = $wpdb->get_results($usql);
             $wpdb->insert( 'wpg_logchanges', array (
                 'id' => '',
-                'userid' => $hf_username,
+                'userid' => $this->username,
                 'action' => 'unassigned '.$p1,
                 'concertid' => $c));
             echo ($wpdb->last_error );
@@ -397,15 +390,12 @@ if ( !class_exists( 'GiglogAdmin_AdminPage' ) ) {
 
         private function returnuser(string $p1, ?int $c) : ?string
         {
-            $hf_user = wp_get_current_user();
-            $hf_username = $hf_user->user_login;
-
             if (!$c) {
                 return null;
             }
 
             $cl = GiglogAdmin_Concertlogs::get($c);
-            $role = $cl->get_assigned_role( $hf_username );
+            $role = $cl->get_assigned_role( $this->username );
             $assigned_user = $cl->assigned_user( $p1 );
 
             //first check if current slot is taken by current user
