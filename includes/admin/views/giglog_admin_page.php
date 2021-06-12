@@ -189,7 +189,6 @@ if ( !class_exists( 'GiglogAdmin_AdminPage' ) ) {
 
         private function get_concerts(): string
         {
-            $roles = $hf_user->roles;
             global $wpdb;
 
             $content = '<table class="assignit">';
