@@ -9,6 +9,8 @@ if ( !class_exists( 'GiglogAdmin_AdminPage' ) ) {
     require_once __DIR__ . '/../../venue.php';
 
     class GiglogAdmin_AdminPage {
+        private string $username;
+
         public function __construct()
         {
             $this->username = wp_get_current_user()->user_login;

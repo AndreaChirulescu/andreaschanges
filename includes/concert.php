@@ -6,6 +6,8 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 
 if ( !class_exists('GiglogAdmin_Concert') ) {
+    require_once __DIR__ . '/venue.php';
+
     class GiglogAdmin_Concert
     {
         private $id;

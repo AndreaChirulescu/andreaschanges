@@ -51,7 +51,7 @@ if ( !class_exists( 'GiglogAdmin_ImportGigsPage' ) ) {
          *
          * @return void
          *
-         * @param ArrayAccess|array $file
+         * @param array<int, mixed>
          */
         static function process_upload(array $file): void {
             $newconcert= [];

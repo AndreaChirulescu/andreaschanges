@@ -82,7 +82,7 @@ if ( !class_exists( 'GiglogAdmin_Concertlogs' ) )
 
         public function get_assigned_role(string $username) : ?string
         {
-            return array_search( $username, $this->roles );
+            return array_search( $username, $this->roles ) || NULL;
         }
 
         public function assigned_user(string $role) : ?string

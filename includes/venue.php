@@ -31,8 +31,8 @@ if ( !class_exists('GiglogAdmin_Venue') ) {
         /**
          * Get venue by given id.
          *
-         * @param int $id.
-         * @return null|self.
+         * @param int $id
+         * @return null|self
          */
         static function get(int $id) : ?self
         {
