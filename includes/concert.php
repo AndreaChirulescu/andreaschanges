@@ -173,7 +173,18 @@ if ( !class_exists('GiglogAdmin_Concert') ) {
         }
 
 
-        public static function find_concerts_in(?string $city = null) : array
+        /**
+         * Return an array of concert objects optionally limited by a specified
+         * filter.
+         *
+         * Valid filters are:
+         *   - 'venue_id' => int : only include concerts at the given venue
+         *   - 'city' => string  : only include concerts in the given city
+         *
+         * @param array<string, mixed> $filter
+         * @return array<GiglogAdmin_Concert>
+         */
+        public static function find_concerts(array $filter = []) : array
         {
             global $wpdb;
 
@@ -181,23 +192,19 @@ if ( !class_exists('GiglogAdmin_Concert') ) {
                 . 'FROM wpg_concerts '
                 . 'INNER JOIN wpg_venues ON wpg_concerts.venue = wpg_venues.id ';
 
-            if ( $city ) {
-                $query .= 'WHERE wpg_venues.wpgvenue_city = ' . $wpdb->prepare('%s', $city);
+            $where = [];
+
+            if ( isset( $filter["city"] ) ) {
+                array_push($where, 'wpg_venues.wpgvenue_city = ' . $wpdb->prepare('%s', $filter["city"]));
             }
 
-            $results  = $wpdb->get_results($query);
+            if ( isset( $filter["venue_id"] ) ) {
+                array_push($where, 'wpg_venues.id = ' . $wpdb->prepare('%s', $filter["venue_id"]));
+            }
 
-            return array_map(function($c) { return new GiglogAdmin_Concert($c); }, $results);
-        }
-
-        public static function find_concerts_at(GiglogAdmin_Venue $venue) : array
-        {
-            global $wpdb;
-
-            $query = 'SELECT wpg_concerts.*, wpg_venues.wpgvenue_name, wpg_venues.wpgvenue_city '
-                . 'FROM wpg_concerts '
-                . 'INNER JOIN wpg_venues ON wpg_concerts.venue = wpg_venues.id '
-                . 'WHERE wpg_concerts.venue = ' . $wpdb->prepare('%d', $venue->id());
+            if ( ! empty( $where ) ) {
+                $query .= 'WHERE ' . implode(' and ', $where);
+            }
 
             $results  = $wpdb->get_results($query);
 

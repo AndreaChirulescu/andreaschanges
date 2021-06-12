@@ -106,7 +106,7 @@ final class ConcertTest extends WP_UnitTestCase
             GiglogAdmin_Concert::create('Concert ' . $i, $venue3->id(), '', '', '');
         }
 
-        $gigs_in_svene = GiglogAdmin_Concert::find_concerts_in("Svene");
+        $gigs_in_svene = GiglogAdmin_Concert::find_concerts([ "city" => "Svene"]);
 
         $this->assertEquals(4, count($gigs_in_svene));
         while ($gig = array_pop($gigs_in_svene)) {
@@ -114,14 +114,14 @@ final class ConcertTest extends WP_UnitTestCase
         }
 
 
-        $gigs_in_oslo = GiglogAdmin_Concert::find_concerts_in("Oslo");
+        $gigs_in_oslo = GiglogAdmin_Concert::find_concerts(["city" => "Oslo"]);
 
         $this->assertEquals(2, count($gigs_in_oslo));
         while ($gig = array_pop($gigs_in_oslo)) {
             $this->assertEquals("Oslo", $gig->venue()->city());
         }
 
-        $gigs_in_sogndal = GiglogAdmin_Concert::find_concerts_in("Sogndal");
+        $gigs_in_sogndal = GiglogAdmin_Concert::find_concerts(["city" => "Sogndal"]);
 
         $this->assertEquals(5, count($gigs_in_sogndal));
         while ($gig = array_pop($gigs_in_sogndal)) {
@@ -147,21 +147,21 @@ final class ConcertTest extends WP_UnitTestCase
             GiglogAdmin_Concert::create('Concert ' . $i, $venue3->id(), '', '', '');
         }
 
-        $gigs_at_ss = GiglogAdmin_Concert::find_concerts_at($venue1);
+        $gigs_at_ss = GiglogAdmin_Concert::find_concerts(["venue_id" => $venue1->id()]);
 
         $this->assertEquals(4, count($gigs_at_ss));
         while ($gig = array_pop($gigs_at_ss)) {
             $this->assertEquals("Sentrum Scene", $gig->venue()->name());
         }
 
-        $gigs_at_rmh = GiglogAdmin_Concert::find_concerts_at($venue2);
+        $gigs_at_rmh = GiglogAdmin_Concert::find_concerts(["venue_id" => $venue2->id()]);
 
         $this->assertEquals(2, count($gigs_at_rmh));
         while ($gig = array_pop($gigs_at_rmh)) {
             $this->assertEquals("Rockefeller Music Hall", $gig->venue()->name());
         }
 
-        $gigs_at_r = GiglogAdmin_Concert::find_concerts_at($venue3);
+        $gigs_at_r = GiglogAdmin_Concert::find_concerts(["venue_id" => $venue3->id()]);
 
         $this->assertEquals(5, count($gigs_at_r));
         while ($gig = array_pop($gigs_at_r)) {
@@ -187,7 +187,7 @@ final class ConcertTest extends WP_UnitTestCase
             GiglogAdmin_Concert::create('Concert ' . $i, $venue3->id(), '', '', '');
         }
 
-        $gigs = GiglogAdmin_Concert::find_concerts_in();
+        $gigs = GiglogAdmin_Concert::find_concerts();
 
         $this->assertEquals(11, count($gigs));
     }
