@@ -137,29 +137,6 @@ if ( !class_exists('GiglogAdmin_Concert') ) {
             return ($wpdb->last_error);
         }
 
-        static function update_concertlog($cid, $ph1, $ph2, $rev1, $rev2)
-        {
-            global $wpdb;
-
-            $res = $wpdb->update('wpg_concertlogs', array(
-                'wpgcl_photo1' => $ph1,
-                'wpgcl_photo2' => $ph2,
-                'wpgcl_rev1' => $rev1,
-                'wpgcl_rev2' => $rev2
-            ),
-                array('wpgcl_concertid' => $cid)
-            );
-
-            if ( !$res ) {
-             //   exit( var_dump( $wpdb->last_query ) ); //for onscreen debugging when needed
-                error_log( __CLASS__ . '::' . __FUNCTION__ . ": {$wpdb->last_error}");
-                die;
-            }
-
-            return ($wpdb->last_error);
-
-        }
-
         public static function find($cname, $venue, $date)
         {
             global $wpdb;

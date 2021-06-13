@@ -332,7 +332,7 @@ if ( !class_exists( 'GiglogAdmin_AdminPage' ) ) {
             else
                 {
                 GiglogAdmin_Concert::update_concert($_POST['pid'],$_POST['cname'], $_POST['selectvenueadmin'], $_POST['cdate'], $_POST['ticket'], $_POST['eventurl']);
-                GiglogAdmin_Concert::update_concertlog($_POST['pid'],$_POST['photo1'], $_POST['photo2'], $_POST['rev1'], $_POST['rev2']);
+                GiglogAdmin_Concertlogs::update($_POST['pid'],$_POST['photo1'], $_POST['photo2'], $_POST['rev1'], $_POST['rev2']);
                 echo '<script language="javascript">alert("Yay, concert updated"); </script>';
                 }
 
