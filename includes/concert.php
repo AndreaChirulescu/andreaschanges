@@ -128,7 +128,7 @@ if ( !class_exists('GiglogAdmin_Concert') ) {
                 array('id' => $id)
             );
 
-            if ( !$res ) {
+            if ( $res === false ) {
              //   exit( var_dump( $wpdb->last_query ) ); //for onscreen debugging when needed
                 error_log( __CLASS__ . '::' . __FUNCTION__ . ": {$wpdb->last_error}");
                 die;
