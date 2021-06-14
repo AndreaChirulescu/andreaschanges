@@ -86,6 +86,30 @@ final class ConcertTest extends WP_UnitTestCase
         $this->assertEquals($gig->id(), $fetched_gig->id());
         $this->assertEquals($gig->cname(), $fetched_gig->cname());
         $this->assertEquals($venue->id(), $fetched_gig->venue()->id());
+        $this->assertEquals(GiglogAdmin_Concert::STATUS_NONE, $fetched_gig->status());
+        $this->assertEquals([], $fetched_gig->roles());
+    }
+
+    public function testSetConcertStatus() : void
+    {
+        $venue = GiglogAdmin_Venue::create("a venue");
+        $today = date("Y-m-d");
+
+        $gig = GiglogAdmin_Concert::create(
+            "a concert123",
+            $venue->id(),
+            $today,
+            "https://example.com/tickets/42",
+            "https://example.com/events/93");
+
+        $fetched_gig = GiglogAdmin_Concert::get($gig->id());
+        $fetched_gig->set_status( GiglogAdmin_Concert::STATUS_ACCRED_REQ );
+        $this->assertEquals( GiglogAdmin_Concert::STATUS_ACCRED_REQ, $fetched_gig->status() );
+
+        $fetched_gig->save();
+
+        $fetched_gig_2 = GiglogAdmin_Concert::get($gig->id());
+        $this->assertEquals( GiglogAdmin_Concert::STATUS_ACCRED_REQ, $fetched_gig_2->status() );
     }
 
     public function testOnlyFetchConcertsFromGivenCity() : void

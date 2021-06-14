@@ -16,6 +16,15 @@ if ( !class_exists('GiglogAdmin_Concert') ) {
         private $cdate;
         private $tickets;
         private $eventlink;
+        private int $status;
+        private array $roles;
+
+        public const STATUS_NONE = 1;
+        public const STATUS_ACCRED_REQ = 2;
+        public const STATUS_PHOTO_APPROVED = 3;
+        public const STATUS_TEXT_APPROVED = 4;
+        public const STATUS_ALL_APPROVED = 5;
+        public const STATUS_REJECTED = 6;
 
         /*
          * Constructs a new concert object from an array of attributes.
@@ -30,7 +39,8 @@ if ( !class_exists('GiglogAdmin_Concert') ) {
             $this->cdate = isset($attrs->wpgconcert_date) ? $attrs->wpgconcert_date : NULL;
             $this->tickets = isset($attrs->wpgconcert_tickets) ? $attrs->wpgconcert_tickets : NULL;
             $this->eventlink = isset($attrs->wpgconcert_event) ? $attrs->wpgconcert_event : NULL;
-
+            $this->status = isset($attrs->wpgconcert_status) ? $attrs->wpgconcert_status : 1;
+            $this->roles = isset($attrs->wpgconcert_roles) ? json_decode($attrs->wpgconcert_roles, true) : [];
 
             if ( isset( $attrs->venue ) ) {
                 if (isset($attrs->wpgvenue_name) && isset($attrs->wpgvenue_city)) {
@@ -65,6 +75,7 @@ if ( !class_exists('GiglogAdmin_Concert') ) {
                 . 'WHERE ' . $wpdb->prepare('wpg_concerts.id = %d', $id);
 
             $results  = $wpdb->get_results($query);
+            var_dump($results);
 
             return $results ? new GiglogAdmin_Concert($results[0]) : NULL;
         }
@@ -188,20 +199,40 @@ if ( !class_exists('GiglogAdmin_Concert') ) {
             return array_map(function($c) { return new GiglogAdmin_Concert($c); }, $results);
         }
 
-        public function save(): void
+        public function save() : void
         {
             global $wpdb;
 
-            $wpdb->insert('wpg_concerts', array(
-                'id' => '',
-                'wpgconcert_name' => $this->cname,
-                'venue' => $this->venue->id(),
-                'wpgconcert_date' => $this->cdate,
-                'wpgconcert_tickets' => $this->tickets,
-                'wpgconcert_event' => $this->eventlink
-            ));
+            if ( $this->id !== NULL ) {
+                $res = $wpdb->update('wpg_concerts', array(
+                    'id' => $this->id,
+                    'wpgconcert_name' => $this->cname,
+                    'venue' => $this->venue->id(),
+                    'wpgconcert_date' => $this->cdate,
+                    'wpgconcert_tickets' => $this->tickets,
+                    'wpgconcert_event' => $this->eventlink,
+                    'wpgconcert_status' => $this->status,
+                ),
+                array( 'id' => $this->id ) );
 
-            $this->id = $wpdb->insert_id;
+            }
+            else {
+                $res = $wpdb->insert('wpg_concerts', array(
+                    'wpgconcert_name' => $this->cname,
+                    'venue' => $this->venue->id(),
+                    'wpgconcert_date' => $this->cdate,
+                    'wpgconcert_tickets' => $this->tickets,
+                    'wpgconcert_event' => $this->eventlink,
+                    'wpgconcert_status' => $this->status,
+                ));
+            }
+
+            if ( $res === false ) {
+                $wpdb->print_error( __METHOD__ );
+            }
+            else {
+                $this->id = $wpdb->insert_id;
+            }
         }
 
         public function id()
@@ -228,6 +259,21 @@ if ( !class_exists('GiglogAdmin_Concert') ) {
         public function eventlink()
         {
             return $this->eventlink;
+        }
+
+        public function status()
+        {
+            return $this->status;
+        }
+
+        public function set_status( int $new_status )
+        {
+            $this->status = $new_status;
+        }
+
+        public function roles()
+        {
+            return $this->roles;
         }
     }
 }
