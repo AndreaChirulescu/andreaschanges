@@ -260,7 +260,7 @@ if ( !function_exists( "giglog_register_db_tables") )
     function giglog_register_db_tables()
     {
         $db_version = get_option('giglogadmin_db_version');
-        if ($db_version == 5) {
+        if ($db_version == 6) {
             return;
         }
 
@@ -445,7 +445,21 @@ if ( !function_exists( "giglog_register_db_tables") )
                 "ALTER TABLE `wpg_concerts` DROP FOREIGN KEY `wpgconcert_band`;");
         }
 
-        update_option("giglogadmin_db_version", 5);
+        if ($db_version == NULL || $db_version < 6)
+        {
+            /*
+             * Move status and roles from concertlogs to main concerts table
+             * Don't really see the value in a separate table for these items
+             * Also make the roles fiels a JSON field instead of separate
+             * fields for each role.
+             */
+            $wpdb->query(
+                "ALTER TABLE `wpg_concerts` ADD COLUMN IF NOT EXISTS (
+                    wpgconcert_status INT DEFAULT 1,
+                    wpgconcert_roles JSON CHECK (JSON_VALID(wpgconcert_roles)))");
+        }
+
+        update_option("giglogadmin_db_version", 6);
     }
 
     giglog_register_db_tables();
