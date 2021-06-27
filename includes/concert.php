@@ -75,7 +75,6 @@ if ( !class_exists('GiglogAdmin_Concert') ) {
                 . 'WHERE ' . $wpdb->prepare('wpg_concerts.id = %d', $id);
 
             $results  = $wpdb->get_results($query);
-            var_dump($results);
 
             return $results ? new GiglogAdmin_Concert($results[0]) : NULL;
         }
