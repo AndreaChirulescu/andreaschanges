@@ -274,6 +274,11 @@ if ( !class_exists('GiglogAdmin_Concert') ) {
         {
             return $this->roles;
         }
+
+        public function assign_role( int $role, string $username ) : void
+        {
+            $this->roles[$role] = $username;
+        }
     }
 }
 ?>
