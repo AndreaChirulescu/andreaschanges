@@ -6,36 +6,69 @@
 
 final class ConcertTest extends WP_UnitTestCase
 {
-    public function testCreateConcert() : void
+    const VENUES = [
+        [ "a venue", "Somewhere" ],
+        [ "Svene Bedehus", "Svene" ],
+        [ "Rockefeller Music Hall", "Oslo" ],
+        [ "Sentrum Scene", "Oslo" ],
+        [ "Revolver", "Oslo" ],
+        [ "Meieriet", "Sogndal" ],
+    ];
+
+    const CONCERTS = [
+        [ "a concert", 0 ],
+    ];
+
+    private static $concerts = [];
+
+    /* This function runs _once_ before all the test cases.
+     *
+     * Use it to set up a common state that all test cases can
+     * use
+     */
+    static function wpSetUpBeforeClass() : void
     {
-        $venue = GiglogAdmin_Venue::create("a venue");
+        $created_venues = [];
+        foreach (self::VENUES as $venue) {
+            $created_venues[] = GiglogAdmin_Venue::find_or_create($venue[0], $venue[1]);
+        }
+
         $today = date("Y-m-d");
 
-        $concert = GiglogAdmin_Concert::create(
-            "a concert",
-            $venue->id(),
-            $today,
-            "https://example.com/tickets/42",
-            "https://example.com/events/93");
-
-        $this->assertEquals("a concert", $concert->cname());
-        $this->assertEquals($venue->id(), $concert->venue()->id());
-        $this->assertEquals($today, $concert->cdate());
-        $this->assertEquals("https://example.com/tickets/42", $concert->tickets());
-        $this->assertEquals("https://example.com/events/93", $concert->eventlink());
+        foreach (self::CONCERTS as $concert) {
+            self::$concerts[] = GiglogAdmin_Concert::create(
+                $concert[0],
+                $created_venues[$concert[1]]->id(),
+                $today,
+                "https://example.com/tickets/42",
+                "https://example.com/events/93");
+        }
     }
 
-    public function testCreateExistingConcert() : void
+    /* This function runs _once_ after all the test cases in this class.
+     *
+     * It is needed to clean up changes in the database that we don't want
+     * to disturb any other tests.
+     */
+    static function wpTearDownAfterClass() : void
     {
-        $venue = GiglogAdmin_Venue::create("a venue");
-        $today = date("Y-m-d");
+        global $wpdb;
 
-        GiglogAdmin_Concert::create(
-            "a concert",
-            $venue->id(),
-            $today,
-            "https://example.com/tickets/42",
-            "https://example.com/events/93");
+        $tables = [
+            "wpg_concerts",
+            "wpg_venues",
+            "wpg_concertlogs",
+        ];
+
+        foreach( $tables as $table ) {
+            $wpdb->query("DELETE FROM {$table}");
+        }
+    }
+
+    public function testCreateExistingConcertShouldFail() : void
+    {
+        $venue = GiglogAdmin_Venue::find_or_create("a venue", "Somewhere");
+        $today = date("Y-m-d");
 
         $new = GiglogAdmin_Concert::create(
             "a concert",
@@ -49,18 +82,11 @@ final class ConcertTest extends WP_UnitTestCase
 
     public function testCreateExistingConcertVariableCase() : void
     {
-        $venue = GiglogAdmin_Venue::create("a venue");
+        $venue = GiglogAdmin_Venue::find_or_create("a venue", "Somewhere");
         $today = date("Y-m-d");
 
-        GiglogAdmin_Concert::create(
-            "a concert123",
-            $venue->id(),
-            $today,
-            "https://example.com/tickets/42",
-            "https://example.com/events/93");
-
         $new = GiglogAdmin_Concert::create(
-            "a CoNceRt123",
+            "a CoNceRt",
             $venue->id(),
             $today,
             "https://example.com/tickets/42",
@@ -71,52 +97,33 @@ final class ConcertTest extends WP_UnitTestCase
 
     public function testGetConcertByIdReturnsFullConcertObject() : void
     {
-        $venue = GiglogAdmin_Venue::create("a venue");
-        $today = date("Y-m-d");
+        $id = self::$concerts[0]->id();
+        $fetched_gig = GiglogAdmin_Concert::get($id);
 
-        $gig = GiglogAdmin_Concert::create(
-            "a concert123",
-            $venue->id(),
-            $today,
-            "https://example.com/tickets/42",
-            "https://example.com/events/93");
-
-        $fetched_gig = GiglogAdmin_Concert::get($gig->id());
-
-        $this->assertEquals($gig->id(), $fetched_gig->id());
-        $this->assertEquals($gig->cname(), $fetched_gig->cname());
-        $this->assertEquals($venue->id(), $fetched_gig->venue()->id());
+        $this->assertEquals($id, $fetched_gig->id());
+        $this->assertEquals("a concert", $fetched_gig->cname());
+        $this->assertEquals("a venue", $fetched_gig->venue()->name());
         $this->assertEquals(GiglogAdmin_Concert::STATUS_NONE, $fetched_gig->status());
         $this->assertEquals([], $fetched_gig->roles());
     }
 
     public function testSetConcertStatus() : void
     {
-        $venue = GiglogAdmin_Venue::create("a venue");
-        $today = date("Y-m-d");
+        $id = self::$concerts[0]->id();
+        $fetched_gig = GiglogAdmin_Concert::get($id);
 
-        $gig = GiglogAdmin_Concert::create(
-            "a concert123",
-            $venue->id(),
-            $today,
-            "https://example.com/tickets/42",
-            "https://example.com/events/93");
-
-        $fetched_gig = GiglogAdmin_Concert::get($gig->id());
         $fetched_gig->set_status( GiglogAdmin_Concert::STATUS_ACCRED_REQ );
-        $this->assertEquals( GiglogAdmin_Concert::STATUS_ACCRED_REQ, $fetched_gig->status() );
-
         $fetched_gig->save();
 
-        $fetched_gig_2 = GiglogAdmin_Concert::get($gig->id());
+        $fetched_gig_2 = GiglogAdmin_Concert::get($id);
         $this->assertEquals( GiglogAdmin_Concert::STATUS_ACCRED_REQ, $fetched_gig_2->status() );
     }
 
     public function testOnlyFetchConcertsFromGivenCity() : void
     {
-        $venue1 = GiglogAdmin_Venue::create("Svene Bedehus", "Svene");
-        $venue2 = GiglogAdmin_Venue::create("Rockefeller Music Hall", "Oslo");
-        $venue3 = GiglogAdmin_Venue::create("Meieriet", "Sogndal");
+        $venue1 = GiglogAdmin_Venue::find_or_create("Svene Bedehus", "Svene");
+        $venue2 = GiglogAdmin_Venue::find_or_create("Rockefeller Music Hall", "Oslo");
+        $venue3 = GiglogAdmin_Venue::find_or_create("Meieriet", "Sogndal");
 
         for ($i = 0; $i < 4; $i++) {
             GiglogAdmin_Concert::create('Concert ' . $i, $venue1->id(), '', '', '');
@@ -155,9 +162,9 @@ final class ConcertTest extends WP_UnitTestCase
 
     public function testOnlyFetchConcertsAtGivenVenue() : void
     {
-        $venue1 = GiglogAdmin_Venue::create("Sentrum Scene", "Oslo");
-        $venue2 = GiglogAdmin_Venue::create("Rockefeller Music Hall", "Oslo");
-        $venue3 = GiglogAdmin_Venue::create("Revolver", "Oslo");
+        $venue1 = GiglogAdmin_Venue::find_or_create("Sentrum Scene", "Oslo");
+        $venue2 = GiglogAdmin_Venue::find_or_create("Rockefeller Music Hall", "Oslo");
+        $venue3 = GiglogAdmin_Venue::find_or_create("Revolver", "Oslo");
 
         for ($i = 0; $i < 4; $i++) {
             GiglogAdmin_Concert::create('Concert ' . $i, $venue1->id(), '', '', '');
@@ -195,9 +202,9 @@ final class ConcertTest extends WP_UnitTestCase
 
     public function testFetchAllConcerts() : void
     {
-        $venue1 = GiglogAdmin_Venue::create("Svene Bedehus", "Svene");
-        $venue2 = GiglogAdmin_Venue::create("Rockefeller Music Hall", "Oslo");
-        $venue3 = GiglogAdmin_Venue::create("Meieriet", "Sogndal");
+        $venue1 = GiglogAdmin_Venue::find_or_create("Svene Bedehus", "Svene");
+        $venue2 = GiglogAdmin_Venue::find_or_create("Rockefeller Music Hall", "Oslo");
+        $venue3 = GiglogAdmin_Venue::find_or_create("Meieriet", "Sogndal");
 
         for ($i = 0; $i < 4; $i++) {
             GiglogAdmin_Concert::create('Concert ' . $i, $venue1->id(), '', '', '');
@@ -213,6 +220,6 @@ final class ConcertTest extends WP_UnitTestCase
 
         $gigs = GiglogAdmin_Concert::find_concerts();
 
-        $this->assertEquals(11, count($gigs));
+        $this->assertEquals(count(self::$concerts) + 11, count($gigs));
     }
 }
