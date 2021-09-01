@@ -76,7 +76,12 @@ if ( !class_exists('GiglogAdmin_Concert') ) {
 
             $results  = $wpdb->get_results($query);
 
-            return $results ? new GiglogAdmin_Concert($results[0]) : NULL;
+            if ( !$results ) {
+                $wpdb->print_error( __METHOD__ );
+                return null;
+            }
+
+            return new GiglogAdmin_Concert($results[0]);
         }
 
         public static function create(string $name, $venue, string $date, string $ticketlink, string $eventlink): ?self
@@ -202,34 +207,27 @@ if ( !class_exists('GiglogAdmin_Concert') ) {
         {
             global $wpdb;
 
-            if ( $this->id !== NULL ) {
-                $res = $wpdb->update('wpg_concerts', array(
-                    'id' => $this->id,
-                    'wpgconcert_name' => $this->cname,
-                    'venue' => $this->venue->id(),
-                    'wpgconcert_date' => $this->cdate,
-                    'wpgconcert_tickets' => $this->tickets,
-                    'wpgconcert_event' => $this->eventlink,
-                    'wpgconcert_status' => $this->status,
-                ),
-                array( 'id' => $this->id ) );
+            $columns = [
+                'wpgconcert_name' => $this->cname,
+                'venue' => $this->venue->id(),
+                'wpgconcert_date' => $this->cdate,
+                'wpgconcert_tickets' => $this->tickets,
+                'wpgconcert_event' => $this->eventlink,
+                'wpgconcert_status' => $this->status,
+                'wpgconcert_roles' => wp_json_encode( $this->roles ),
+            ];
 
+            if ( $this->id !== NULL ) {
+                $res = $wpdb->update( 'wpg_concerts', $columns, [ 'id' => $this->id ] );
             }
             else {
-                $res = $wpdb->insert('wpg_concerts', array(
-                    'wpgconcert_name' => $this->cname,
-                    'venue' => $this->venue->id(),
-                    'wpgconcert_date' => $this->cdate,
-                    'wpgconcert_tickets' => $this->tickets,
-                    'wpgconcert_event' => $this->eventlink,
-                    'wpgconcert_status' => $this->status,
-                ));
+                $res = $wpdb->insert('wpg_concerts', $columns);
             }
 
             if ( $res === false ) {
                 $wpdb->print_error( __METHOD__ );
             }
-            else {
+            elseif ( $this->id === NULL ) {
                 $this->id = $wpdb->insert_id;
             }
         }
@@ -275,7 +273,7 @@ if ( !class_exists('GiglogAdmin_Concert') ) {
             return $this->roles;
         }
 
-        public function assign_role( int $role, string $username ) : void
+        public function assign_role( string $role, string $username ) : void
         {
             $this->roles[$role] = $username;
         }

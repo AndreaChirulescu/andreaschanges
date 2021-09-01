@@ -135,27 +135,12 @@ final class ConcertTest extends WP_UnitTestCase
 
     public function testAssignConcertRoles() : void
     {
-        $venue = GiglogAdmin_Venue::create("a venue");
-        $today = date("Y-m-d");
-
-        $gig = GiglogAdmin_Concert::create(
-            "a concert123",
-            $venue->id(),
-            $today,
-            "https://example.com/tickets/42",
-            "https://example.com/events/93");
-
-        $gig->assign_role( GiglogAdmin_Roles::PHOTO1, 'user1' );
-        $this->assertEquals( [ GiglogAdmin_Roles::PHOTO1 => 'user1' ], $gig->roles() );
-
+        $gig = GiglogAdmin_Concert::get(self::$concerts[0]->id());
+        $gig->assign_role( 'photo1' , 'user1' );
         $gig->save();
 
-        var_dump($gig);
-
-        $fetched_gig = GiglogAdmin_Concert::get( $gig->id() );
-        global $wpdb;
-        $wpdb->print_error();
-        $this->assertEquals( [ GiglogAdmin_Roles::PHOTO1 => 'user1' ], $fetched_gig->roles() );
+        $fetched_gig = GiglogAdmin_Concert::get( self::$concerts[0]->id() );
+        $this->assertEquals( [ 'photo1' => 'user1' ], $fetched_gig->roles() );
     }
 
     public function testOnlyFetchConcertsFromGivenCity() : void
