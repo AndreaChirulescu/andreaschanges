@@ -5,17 +5,19 @@
 //
 // SPDX-License-Identifier: AGPL-3.0-or-later
 
+require_once __DIR__ . '/venue.php';
+
 if ( !class_exists('GiglogAdmin_Concert') ) {
     require_once __DIR__ . '/venue.php';
 
     class GiglogAdmin_Concert
     {
-        private $id;
-        private $cname;
-        private $venue;
-        private $cdate;
-        private $tickets;
-        private $eventlink;
+        private int $id;
+        private string $cname;
+        private ?GiglogAdmin_Venue $venue;
+        private string $cdate;
+        private string $tickets;
+        private string $eventlink;
         private int $status;
         private array $roles;
 
@@ -32,7 +34,7 @@ if ( !class_exists('GiglogAdmin_Concert') ) {
          * so this constructor can be used to construct the object
          * directly from the database row.
          */
-        public function __construct($attrs = [])
+        public function __construct(object $attrs)
         {
             $this->id = isset($attrs->id) ? $attrs->id : NULL;
             $this->cname = isset($attrs->wpgconcert_name) ? $attrs->wpgconcert_name : NULL;
@@ -55,6 +57,9 @@ if ( !class_exists('GiglogAdmin_Concert') ) {
                 else {
                     $this->venue = GiglogAdmin_Venue::get($attrs->venue);
                 }
+            }
+            else {
+                $this->venue = NULL;
             }
         }
 
@@ -268,7 +273,12 @@ if ( !class_exists('GiglogAdmin_Concert') ) {
             $this->status = $new_status;
         }
 
-        public function roles()
+        /**
+         * Return the roles defined for this concert.
+         *
+         * @return array<string, string>
+         */
+        public function roles() : array
         {
             return $this->roles;
         }
