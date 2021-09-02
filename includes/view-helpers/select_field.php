@@ -19,7 +19,7 @@ namespace EternalTerror\ViewHelpers;
  */
 function select_field(
     string $name,
-    ?array $opts = [],
+    array $opts = [],
     $selected = null,
     string $blank = "Please select...") : string
 {
