@@ -8,8 +8,16 @@ if ( !class_exists('GiglogAdmin_Venue') ) {
     class GiglogAdmin_Venue
     {
         private ?int $id;
-        private ?string $name;
-        private ?string $city;
+
+        /**
+         * @psalm-suppress PropertyNotSetInConstructor
+         */
+        private string $name;
+
+        /**
+         * @psalm-suppress PropertyNotSetInConstructor
+         */
+        private string $city;
         private ?string $address;
         private ?string $webpage;
 
@@ -22,8 +30,16 @@ if ( !class_exists('GiglogAdmin_Venue') ) {
         public function __construct(object $attrs)
         {
             $this->id = isset($attrs->id) ? $attrs->id : NULL;
-            $this->name = isset($attrs->wpgvenue_name) ? $attrs->wpgvenue_name : NULL;
-            $this->city = isset($attrs->wpgvenue_city) ? $attrs->wpgvenue_city : NULL;
+
+            if (isset($attrs->wpgvenue_name, $attrs->wpgvenue_city)) {
+                $this->name = $attrs->wpgvenue_name;
+                $this->city = $attrs->wpgvenue_city;
+            }
+            else {
+                error_log('Trying to construct a Venue without a name or a city');
+                wp_die();
+            }
+
             $this->address = isset($attrs->wpgvenue_address) ? $attrs->wpgvenue_address : NULL;
             $this->webpage = isset($attrs->wpgvenue_webpage) ? $attrs->wpgvenue_webpage : NULL;
         }
@@ -108,8 +124,7 @@ if ( !class_exists('GiglogAdmin_Venue') ) {
         static function venues_in_city(string $city): array
         {
             global $wpdb;
-            $q = $wpdb->prepare(
-                "select id, wpgvenue_name from wpg_venues where wpgvenue_city=%s", $city);
+            $q = $wpdb->prepare("select * from wpg_venues where wpgvenue_city=%s", $city);
             $results = $wpdb->get_results($q);
 
             return array_map(function ($r) { return new GiglogAdmin_Venue($r); }, $results);
