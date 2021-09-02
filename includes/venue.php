@@ -7,11 +7,11 @@
 if ( !class_exists('GiglogAdmin_Venue') ) {
     class GiglogAdmin_Venue
     {
-        private $id;
-        private $name;
-        private $city;
-        private $address;
-        private $webpage;
+        private int $id;
+        private string $name;
+        private string $city;
+        private string $address;
+        private string $webpage;
 
         /*
          * Constructs a new venue object from an array of attributes.
@@ -19,7 +19,7 @@ if ( !class_exists('GiglogAdmin_Venue') ) {
          * so this constructor can be used to construct the object
          * directly from the database row.
          */
-        public function __construct($attrs)
+        public function __construct(object $attrs)
         {
             $this->id = isset($attrs->id) ? $attrs->id : NULL;
             $this->name = isset($attrs->wpgvenue_name) ? $attrs->wpgvenue_name : NULL;
