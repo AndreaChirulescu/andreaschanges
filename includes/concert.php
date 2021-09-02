@@ -12,7 +12,7 @@ if ( !class_exists('GiglogAdmin_Concert') ) {
 
     class GiglogAdmin_Concert
     {
-        private int $id;
+        private ?int $id;
         private string $cname;
         private ?GiglogAdmin_Venue $venue;
         private string $cdate;

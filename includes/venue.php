@@ -7,11 +7,11 @@
 if ( !class_exists('GiglogAdmin_Venue') ) {
     class GiglogAdmin_Venue
     {
-        private int $id;
-        private string $name;
-        private string $city;
-        private string $address;
-        private string $webpage;
+        private ?int $id;
+        private ?string $name;
+        private ?string $city;
+        private ?string $address;
+        private ?string $webpage;
 
         /*
          * Constructs a new venue object from an array of attributes.
