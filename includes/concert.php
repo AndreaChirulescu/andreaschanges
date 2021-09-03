@@ -123,27 +123,50 @@ if ( !class_exists('GiglogAdmin_Concert') ) {
         }
 
 
-        public static function update_concert($id, $cname, $venue, $cdate, $ticketlink, $eventlink)
+        public function update(object $attrs) : bool
         {
-            global $wpdb;
+            $need_update = false;
 
-            $res = $wpdb->update('wpg_concerts', array(
-                'wpgconcert_name' => $cname,
-                'venue' => $venue,
-                'wpgconcert_date' => $cdate,
-                'wpgconcert_tickets' => $ticketlink,
-                'wpgconcert_event' => $eventlink
-            ),
-                array('id' => $id)
-            );
-
-            if ( $res === false ) {
-             //   exit( var_dump( $wpdb->last_query ) ); //for onscreen debugging when needed
-                error_log( __CLASS__ . '::' . __FUNCTION__ . ": {$wpdb->last_error}");
-                die;
+            if (isset($attrs->wpgconcert_name) && $attrs->wpgconcert_name != $this->cname) {
+                $this->cname = $attrs->wpgconcert_name;
+                $need_update = true;
             }
 
-            return ($wpdb->last_error);
+            if (isset($attrs->wpgconcert_date) && $attrs->wpgconcert_date != $this->cdate) {
+                $this->cdate = $attrs->wpgconcert_date;
+                $need_update = true;
+            }
+
+            if (isset($attrs->wpgconcert_tickets) && $attrs->wpgconcert_tickets != $this->tickets) {
+                $this->tickets = $attrs->wpgconcert_tickets;
+                $need_update = true;
+            }
+
+            if (isset($attrs->wpgconcert_event) && $attrs->wpgconcert_event != $this->eventlink) {
+                $this->eventling = $attrs->wpgconcert_eventlink;
+                $need_update = true;
+            }
+
+            if (isset($attrs->wpgconcert_status) && $attrs->wpgconcert_status != $this->status) {
+                $this->status = $attrs->wpgconcert_status;
+                $need_update = true;
+            }
+
+            if (isset($attrs->wpgconcert_roles) && $attrs->wpgconcert_roles != $this->roles) {
+                $this->roles = $attrs->wpgconcert_roles;
+                $need_update = true;
+            }
+
+            if (isset($attrs->venue) && $attrs->venue != $this->venue()->id()) {
+                $this->venue = GiglogAdmin_Venue::get($attrs->venue);
+                $need_update = true;
+            }
+
+            if ($need_update) {
+                $this->save();
+            }
+
+            return $need_update;
         }
 
         public static function find($cname, $venue, $date)

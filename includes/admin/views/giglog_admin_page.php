@@ -331,15 +331,31 @@ if ( !class_exists( 'GiglogAdmin_AdminPage' ) ) {
 
             if(isset($_POST['editconcert']))
             {
-            IF (empty($_POST['cname'])  || empty($_POST['selectvenueadmin']) || empty($_POST['cdate']) || empty($_POST['ticket']) || empty($_POST['eventurl']))
-                    echo '<script language="javascript">alert("You are missing a value, concert was not updated"); </script>';
-            else
-                {
-                GiglogAdmin_Concert::update_concert($_POST['pid'],$_POST['cname'], $_POST['selectvenueadmin'], $_POST['cdate'], $_POST['ticket'], $_POST['eventurl']);
-                GiglogAdmin_Concertlogs::update($_POST['pid'],$_POST['photo1'], $_POST['photo2'], $_POST['rev1'], $_POST['rev2']);
-                echo '<script language="javascript">alert("Yay, concert updated"); </script>';
-                }
+                $roles = array_reduce(
+                    ['photo1', 'photo1', 'rev1', 'rev2'],
+                    function($roles, $r) {
+                        if (isset($_POST[$r])) {
+                            $roles[$r] = sanitize_user($_POST[$r]);
+                        }
+                        return $roles;
+                    },
+                    []
+                );
 
+                $attributes = [
+                    'wpgconcert_name' => sanitize_text_field($_POST['cname']),
+                    'venue' => intval($_POST['selectvenueadmin']),
+                    'wpgconcert_date' => sanitize_text_field($_POST['cdate']),
+                    'wpgconcert_ticket' => esc_url_raw($_POST['ticket']),
+                    'wpgconcert_event' => esc_url_raw($_POST['eventurl']),
+                    'wpgconcert_roles' => $roles,
+                ];
+
+                $concert = GiglogAdmin_Concert::get(intval($_POST['pid']));
+                if ($concert->update((object) $attributes)) {
+                    // let user know the concert was updated.
+                    // Look into admin_notices
+                }
             }
 
 
