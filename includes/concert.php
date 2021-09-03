@@ -118,17 +118,6 @@ if ( !class_exists('GiglogAdmin_Concert') ) {
                     . ', Ticket LINK ' . $ticketlink
                     . ', Event LINK ' . $eventlink);
 
-                GiglogAdmin_Concertlogs::add( $concert->id() );
-                    /*the last line can be replaced by a trigger
-                    CREATE TRIGGER `insertIntoPhotoLogs` AFTER INSERT ON `wpg_concerts`
-                    FOR EACH ROW INSERT INTO wpg_concertlogs (
-                    wpg_concertlogs.id,
-                    wpg_concertlogs.wpgcl_concertid,
-                    wpg_concertlogs.wpgcl_status)
-
-                    VALUES
-                    (null, new.id, 1)
-                    */
                 return $concert;
             }
         }

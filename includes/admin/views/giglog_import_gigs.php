@@ -6,9 +6,7 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 
 if ( !class_exists( 'GiglogAdmin_ImportGigsPage' ) ) {
- //   require_once __DIR__ . '/../../band.php';
     require_once __DIR__ . '/../../concert.php';
-    require_once __DIR__ . '/../../concertlogs.php';
     require_once __DIR__ . '/../../venue.php';
 
     class GiglogAdmin_ImportGigsPage {
