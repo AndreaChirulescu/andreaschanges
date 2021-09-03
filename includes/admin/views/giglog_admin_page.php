@@ -11,6 +11,15 @@ if ( !class_exists( 'GiglogAdmin_AdminPage' ) ) {
     class GiglogAdmin_AdminPage {
         private string $username;
 
+        const STATUS_LABELS = [
+            '',
+            'Accred Requested',
+            'Photo Approved',
+            'Text Approved',
+            'Photo and Text Approved',
+            'Rejected'
+        ];
+
         public function __construct()
         {
             $this->username = wp_get_current_user()->user_login;
@@ -152,16 +161,12 @@ if ( !class_exists( 'GiglogAdmin_AdminPage' ) ) {
 
         private function adminactions( GiglogAdmin_Concert $concert ) : string
         {
-            global $wpdb;
-            $query = "SELECT id,wpgs_name from wpg_pressstatus" ;
-            $statuses = $wpdb->get_results($query);
-
             return
                 '<form method="POST" action="">'
                 . '<input type="hidden" name="cid" value="' . $concert->id() .  '" />'
                 . \EternalTerror\ViewHelpers\select_field(
                     'selectstatus',
-                    array_map(fn($status) => [ $status->id, $status->wpgs_name ], $statuses),
+                    array_map(fn($i) => [ $i, self::STATUS_LABELS[$i] ], range(1, count(self::STATUS_LABELS) - 1)),
                     $concert->status())
                 . '<input type="submit" value="SetStatus">'
                 . '<input type="submit" name ="edit" value="EDIT">'
@@ -246,7 +251,7 @@ if ( !class_exists( 'GiglogAdmin_AdminPage' ) ) {
                 $content .= '<td>' . (array_key_exists('rev1', $roles) ? $roles['rev1'] : '') . '</td>';
                 $content .= '<td>' . (array_key_exists('rev2', $roles) ? $roles['rev2'] : '') . '</td>';
 
-                $content .= '<td>' . $concert->status() . '</td>';
+                $content .= '<td>' . self::STATUS_LABELS[$concert->status()] . '</td>';
 
                 if (current_user_can('administrator')) {
                     $content .=
