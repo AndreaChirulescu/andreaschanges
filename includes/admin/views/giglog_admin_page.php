@@ -68,7 +68,7 @@ if ( !class_exists( 'GiglogAdmin_AdminPage' ) ) {
         }
 
 
-        private function get_user( GiglogAdmin_Concert $concert, string $role): string
+        private function user_dropdown_for_role( GiglogAdmin_Concert $concert, string $role): string
         {
             $users = array_map(
                 fn($usr) => $usr->user_login,
@@ -147,10 +147,10 @@ if ( !class_exists( 'GiglogAdmin_AdminPage' ) ) {
             $content.='</div>';
 
             $content.='<div class="useritems"><strong>ASSIGNMENT DETAILS</strong><br><br><fieldset>'
-                .'<label for="photo1">Photo1:</label>'.$this->get_user($c,'photo1').'<br>'
-                .'<label for="photo2">Photo2:</label>'.$this->get_user($c,'photo2').'<br>'
-                .'<label for="rev1">Text1:</label>'.$this->get_user($c,'rev1').'<br>'
-                .'<label for="rev2">Text2:</label>'.$this->get_user($c,'rev2').'<br>';
+                .'<label for="photo1">Photo1:</label>'.$this->user_dropdown_for_role($c,'photo1').'<br>'
+                .'<label for="photo2">Photo2:</label>'.$this->user_dropdown_for_role($c,'photo2').'<br>'
+                .'<label for="rev1">Text1:</label>'.$this->user_dropdown_for_role($c,'rev1').'<br>'
+                .'<label for="rev2">Text2:</label>'.$this->user_dropdown_for_role($c,'rev2').'<br>';
 
             $content.='<fieldset></div></form></div>';
             $content.='<div class="venueform"><form method="POST" action="" class="venue" ><strong>VENUE DETAILS</strong><br><br>'
