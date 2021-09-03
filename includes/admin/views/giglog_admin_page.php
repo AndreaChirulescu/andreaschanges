@@ -68,16 +68,18 @@ if ( !class_exists( 'GiglogAdmin_AdminPage' ) ) {
         }
 
 
-        private function get_user( ?int $cid, string $ctype): string
+        private function get_user( GiglogAdmin_Concert $concert, string $role): string
         {
             $users = array_map(
                 fn($usr) => $usr->user_login,
                 get_users( array( 'fields' => array( 'user_login' ) ) ) );
 
-            $current_user = $cid ? GiglogAdmin_Concertlogs::get_assigned_user( $cid, $ctype ) : null;
+            $roles = $concert->roles();
+
+            $current_user = array_key_exists($role, $roles) ? $roles[$role] : NULL;
 
             return \EternalTerror\ViewHelpers\select_field(
-                $ctype,
+                $role,
                 array_map( fn($user) => [ $user, $user ], $users ),
                 $current_user);
         }
@@ -143,11 +145,12 @@ if ( !class_exists( 'GiglogAdmin_AdminPage' ) ) {
                 $content.='<p><input type="submit" name="newconcert" value="Create New Concert"></p>';
 
             $content.='</div>';
+
             $content.='<div class="useritems"><strong>ASSIGNMENT DETAILS</strong><br><br><fieldset>'
-                .'<label for="photo1">Photo1:</label>'.$this->get_user($c->id(),'photo1').'<br>'
-                .'<label for="photo2">Photo2:</label>'.$this->get_user($c->id(),'photo2').'<br>'
-                .'<label for="rev1">Text1:</label>'.$this->get_user($c->id(),'rev1').'<br>'
-                .'<label for="rev2">Text2:</label>'.$this->get_user($c->id(),'rev2').'<br>';
+                .'<label for="photo1">Photo1:</label>'.$this->get_user($c,'photo1').'<br>'
+                .'<label for="photo2">Photo2:</label>'.$this->get_user($c,'photo2').'<br>'
+                .'<label for="rev1">Text1:</label>'.$this->get_user($c,'rev1').'<br>'
+                .'<label for="rev2">Text2:</label>'.$this->get_user($c,'rev2').'<br>';
 
             $content.='<fieldset></div></form></div>';
             $content.='<div class="venueform"><form method="POST" action="" class="venue" ><strong>VENUE DETAILS</strong><br><br>'
