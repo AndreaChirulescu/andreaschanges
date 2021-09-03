@@ -150,7 +150,7 @@ if ( !class_exists( 'GiglogAdmin_AdminPage' ) ) {
             return $content;
         }
 
-        private function adminactions( int $concert_id ) : string
+        private function adminactions( GiglogAdmin_Concert $concert ) : string
         {
             global $wpdb;
             $query = "SELECT id,wpgs_name from wpg_pressstatus" ;
@@ -158,11 +158,11 @@ if ( !class_exists( 'GiglogAdmin_AdminPage' ) ) {
 
             return
                 '<form method="POST" action="">'
-                . '<input type="hidden" name="cid" value="' . $concert_id .  '" />'
+                . '<input type="hidden" name="cid" value="' . $concert->id() .  '" />'
                 . \EternalTerror\ViewHelpers\select_field(
                     'selectstatus',
                     array_map(fn($status) => [ $status->id, $status->wpgs_name ], $statuses),
-                    GiglogAdmin_Concertlogs::get_status($concert_id))
+                    $concert->status())
                 . '<input type="submit" value="SetStatus">'
                 . '<input type="submit" name ="edit" value="EDIT">'
                 . '</form>';
@@ -248,12 +248,12 @@ if ( !class_exists( 'GiglogAdmin_AdminPage' ) ) {
 
                 $content .= '<td>' . $concert->status() . '</td>';
 
-                // if (current_user_can('administrator')) {
-                //     $content .=
-                //         '<td  class="adminbuttons">'
-                //         . $this->adminactions($row->id)
-                //         . '</td>';
-                // }
+                if (current_user_can('administrator')) {
+                    $content .=
+                        '<td  class="adminbuttons">'
+                        . $this->adminactions($concert)
+                        . '</td>';
+                }
                 $content .= '</tr>';
                 $lastType = $concert->venue()->city();
             }
