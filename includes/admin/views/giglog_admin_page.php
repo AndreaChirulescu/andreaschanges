@@ -305,13 +305,14 @@ if ( !class_exists( 'GiglogAdmin_AdminPage' ) ) {
                 header("Refresh: 1; URL=$url3");  //reload page
             }
 
-            //handling the admin drop down menu
-            if(isset($_POST['selectstatus']) && (isset($_POST['edit']) && $_POST['edit']!="EDIT") && !empty($_POST['cid']))
+            // handle the status drop down
+            if (isset($_POST['selectstatus']) && !empty($_POST['selectstatus']) && !empty($_POST['cid']))
             {
-               $usql = "UPDATE wpg_concertlogs  SET wpgcl_status=".$_POST['selectstatus']." WHERE wpgcl_concertid=".$_POST['cid'];
-               $uresults = $wpdb->get_results($usql);
-               //$url2=$_SERVER['REQUEST_URI'];  //doesn't seem to be needed actually, leaving here just in case
-               //header("Refresh: 1; URL=$url2");  //reload page
+                if ($_POST['selectstatus'] > 0 && $_POST['selectstatus'] < count(self::STATUS_LABELS)) {
+                    $concert = GiglogAdmin_Concert::get(intval($_POST['cid']));
+                    $concert->set_status(intval($_POST['selectstatus']));
+                    $concert->save();
+                }
             }
 
             if(isset($_POST['newconcert'])) {
