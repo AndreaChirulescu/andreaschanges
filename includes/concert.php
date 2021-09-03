@@ -13,12 +13,12 @@ if ( !class_exists('GiglogAdmin_Concert') ) {
     class GiglogAdmin_Concert
     {
         private ?int $id;
-        private string $cname;
+        private ?string $cname;
         private ?GiglogAdmin_Venue $venue;
-        private string $cdate;
-        private string $tickets;
-        private string $eventlink;
-        private int $status;
+        private ?string $cdate;
+        private ?string $tickets;
+        private ?string $eventlink;
+        private ?int $status;
         private array $roles;
 
         public const STATUS_NONE = 1;
