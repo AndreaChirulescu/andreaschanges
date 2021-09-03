@@ -21,12 +21,12 @@ if ( !class_exists('GiglogAdmin_Concert') ) {
         private ?int $status;
         private array $roles;
 
-        public const STATUS_NONE = 1;
-        public const STATUS_ACCRED_REQ = 2;
-        public const STATUS_PHOTO_APPROVED = 3;
-        public const STATUS_TEXT_APPROVED = 4;
-        public const STATUS_ALL_APPROVED = 5;
-        public const STATUS_REJECTED = 6;
+        public const STATUS_NONE = 0;
+        public const STATUS_ACCRED_REQ = 1;
+        public const STATUS_PHOTO_APPROVED = 2;
+        public const STATUS_TEXT_APPROVED = 3;
+        public const STATUS_ALL_APPROVED = 4;
+        public const STATUS_REJECTED = 5;
 
         /*
          * Constructs a new concert object from an array of attributes.
@@ -41,7 +41,7 @@ if ( !class_exists('GiglogAdmin_Concert') ) {
             $this->cdate = isset($attrs->wpgconcert_date) ? $attrs->wpgconcert_date : NULL;
             $this->tickets = isset($attrs->wpgconcert_tickets) ? $attrs->wpgconcert_tickets : NULL;
             $this->eventlink = isset($attrs->wpgconcert_event) ? $attrs->wpgconcert_event : NULL;
-            $this->status = isset($attrs->wpgconcert_status) ? $attrs->wpgconcert_status : 1;
+            $this->status = isset($attrs->wpgconcert_status) ? $attrs->wpgconcert_status : 0;
             $this->roles = isset($attrs->wpgconcert_roles) ? json_decode($attrs->wpgconcert_roles, true) : [];
 
             if ( isset( $attrs->venue ) ) {
