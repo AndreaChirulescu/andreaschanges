@@ -115,7 +115,7 @@ if ( !class_exists( 'GiglogAdmin_AdminPage' ) ) {
             if ($editing && !empty($cid))   //A bit overdoing with the checks if concert ID is empty both here and in find_cid. But based on that, things are NULL or not. Better ideas?
                 $c = GiglogAdmin_Concert::get($cid);
             else
-                $c = new GiglogAdmin_Concert();
+                $c = new GiglogAdmin_Concert((object)[]);
 
             $content='<div><h3>Form to create/edit concerts and venues</h3><br></div><div class="editform"><div class="concertform">';
             $content.='<form method="POST" action="" class="concert" >'
@@ -204,63 +204,58 @@ if ( !class_exists( 'GiglogAdmin_AdminPage' ) ) {
                 $content .=  '<th>AdminOptions</th>';
                 $content .= '</tr>';
 
+            $filter = [];
+
             // Use the submitted "city" if any. Otherwise, use the default/static value.
             $cty = filter_input( INPUT_POST, 'selectcity', FILTER_SANITIZE_SPECIAL_CHARS );
-            $cty = $cty ? $cty: 'ALL';
+            if ($cty) $filter['city'] = $cty;
 
             $venue = filter_input( INPUT_POST, 'selectvenue', FILTER_SANITIZE_SPECIAL_CHARS );
-            $venue = $venue ? $venue : '0';
+            if ($venue) $filter['venue_id'] = $venue;
 
+            $concerts = GiglogAdmin_Concert::find_concerts($filter);
 
-            $query =  "SELECT wpgc.id, wpgconcert_name, wpgv.wpgvenue_name as venue, wpgc.wpgconcert_date, wpgc.wpgconcert_tickets, wpgc.wpgconcert_event, wpgv.wpgvenue_city, wpgv.wpgvenue_webpage, wpgps.wpgs_name
-                FROM wpg_concerts wpgc,  wpg_venues wpgv, wpg_pressstatus wpgps, wpg_concertlogs wpgcl
-                where wpgc.venue = wpgv.id
-                and wpgconcert_date >= CURDATE()
-                and wpgps.id = wpgcl.wpgcl_status
-                and wpgcl.wpgcl_concertid=wpgc.id";
-
-            $query .= ($cty == "ALL") ? "" : "  and wpgv.wpgvenue_city='" .$cty ."'";
-            $query .= ($venue == "0") ? "" : "  and wpgv.id='" .$venue ."'";
-            $query.= (empty($_POST['my_checkbox'])) ? "": " and (wpgcl_photo1 ='".$this->username."' or wpgcl_photo2 ='".$this->username."' or wpgcl_rev1 ='".$this->username."' or wpgcl_rev2 ='".$this->username."')";
-            $query .=" order by wpgv.wpgvenue_city, wpgconcert_date, wpgc.id" ;
-            $results = $wpdb->get_results($query);
             $lastType = '';
 
-            foreach ( $results AS $row ) {
+            foreach ( $concerts AS $concert ) {
                 $content .= '<tr class="assignitr">';
 
-                if($lastType != '' && $lastType !=  $row->wpgvenue_city) {
-                    $content .= '<td>'.$row->wpgvenue_city.'</td></tr><tr>';
+                if ($lastType != '' && $lastType !=  $concert->venue()->city()) {
+                    $content .= '<td>' . $concert->city() . '</td></tr><tr>';
                 }
 
                 if  ($lastType == '' ) {
-                    $content .= '<td>'.$row->wpgvenue_city.'</td></tr><tr>';
+                    $content .= '<td>' . $concert->venue()->city() . '</td></tr><tr>';
                 }
                 // Modify these to match the database structure
                 //     $content .= '<td>' . $row->id. '</td>';
                 $content .= '<td></td>';
-                $content .= '<td>' . $row->wpgconcert_name. '</td>';
-                $content .= '<td>' . $row->venue. '</td>';
-                $fdate =  strtotime($row->wpgconcert_date);
+                $content .= '<td>' . $concert->cname() . '</td>';
+                $content .= '<td>' . $concert->venue()->name() . '</td>';
+                $fdate =  strtotime($concert->cdate());
                 $newformat = date('d.M.Y',$fdate);
 
                 //$content .= DATE_FORMAT($fdate,'%d.%b.%Y');
-                $content .= '<td>' .$newformat. '</td>';
-                $content .= '<td>'.$this->getpublishstatus($row->id ).'</td>';
-                $content .= '<td>'.$this->returnuser('photo1', $row->id ).'</td>';
-                $content .= '<td>'.$this->returnuser('photo2', $row->id ).'</td>';
-                $content .= '<td>'.$this->returnuser('rev1', $row->id ).'</td>';
-                $content .= '<td>'.$this->returnuser('rev2', $row->id ).'</td>';
-                $content .= '<td>'.$row -> wpgs_name.'</td>';
+                $content .= '<td>' . $newformat . '</td>';
+                $content .= '<td>' . /* $concert->isnew() */ '' . '</td>';
 
-                if (current_user_can('administrator')) {
-                    $content .=
-                        '<td  class="adminbuttons">'
-                        . $this->adminactions($row->id)
-                        . '</td>';
-                }
+                $roles = $concert->roles();
+
+                $content .= '<td>' . (array_key_exists('photo1', $roles) ? $roles['photo1'] : '') . '</td>';
+                $content .= '<td>' . (array_key_exists('photo1', $roles) ? $roles['photo2'] : '') . '</td>';
+                $content .= '<td>' . (array_key_exists('rev1', $roles) ? $roles['rev1'] : '') . '</td>';
+                $content .= '<td>' . (array_key_exists('rev2', $roles) ? $roles['rev2'] : '') . '</td>';
+
+                $content .= '<td>' . $concert->status() . '</td>';
+
+                // if (current_user_can('administrator')) {
+                //     $content .=
+                //         '<td  class="adminbuttons">'
+                //         . $this->adminactions($row->id)
+                //         . '</td>';
+                // }
                 $content .= '</tr>';
-                $lastType = $row->wpgvenue_city;
+                $lastType = $concert->venue()->city();
             }
             $content .= '</table>';
 
@@ -395,7 +390,6 @@ if ( !class_exists( 'GiglogAdmin_AdminPage' ) ) {
                 return null;
             }
 
-            $cl = GiglogAdmin_Concertlogs::get($c);
             $role = $cl->get_assigned_role( $this->username );
             $assigned_user = $cl->assigned_user( $p1 );
 
