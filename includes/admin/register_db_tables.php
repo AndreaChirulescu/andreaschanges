@@ -260,7 +260,7 @@ if ( !function_exists( "giglog_register_db_tables") )
     function giglog_register_db_tables()
     {
         $db_version = get_option('giglogadmin_db_version');
-        if ($db_version == 6) {
+        if ($db_version == 8) {
             return;
         }
 
@@ -459,7 +459,22 @@ if ( !function_exists( "giglog_register_db_tables") )
                     wpgconcert_roles JSON CHECK (JSON_VALID(wpgconcert_roles)))");
         }
 
-        update_option("giglogadmin_db_version", 6);
+        if ($db_version == NULL || $db_version < 8)
+        {
+            // Add automatically updated `created` and `updated` colomns to keep
+            // track of creation time and modification times for a record.
+            $wpdb->query(
+                "ALTER TABLE `wpg_concerts` ADD COLUMN IF NOT ExISTS (
+                    created TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                    updated TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP)");
+
+            $wpdb->query(
+                "ALTER TABLE `wpg_venues` ADD COLUMN IF NOT ExISTS (
+                    created TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                    updated TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP)");
+        }
+
+        update_option("giglogadmin_db_version", 8);
     }
 
     giglog_register_db_tables();
