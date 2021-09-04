@@ -259,34 +259,16 @@ if ( !function_exists( "giglog_register_db_tables") )
      */
     function giglog_register_db_tables()
     {
+        global $wpdb;
+
+        // Clean out obsolete tables if they exist.
+        $wpdb->query("DROP TABLE IF EXISTS "
+            . "wpg_bands, wpg_concertlogs, wpg_files, wpg_logchanges, wpg_pressstatus");
+
         $db_version = get_option('giglogadmin_db_version');
-        if ($db_version == 6) {
+        if ($db_version == 8) {
             return;
         }
-
-        $bands_table =
-            "CREATE TABLE IF NOT EXISTS `wpg_bands` (
-                `id` int(11) NOT NULL AUTO_INCREMENT,
-                `wpgband_name` varchar(500) NOT NULL,
-                `wpgband_country` varchar(4) DEFAULT 'NO',
-                PRIMARY KEY (`id`),
-                KEY `wpgband_country` (`wpgband_country`)
-             ) ENGINE=InnoDB DEFAULT CHARSET=utf8;";
-
-        $concertlogs_table =
-            "CREATE TABLE IF NOT EXISTS `wpg_concertlogs` (
-                `id` int(11) NOT NULL AUTO_INCREMENT,
-                `wpgcl_concertid` int(11) NOT NULL,
-                `wpgcl_photo1` varchar(200) DEFAULT NULL,
-                `wpgcl_photo2` varchar(200) DEFAULT NULL,
-                `wpgcl_rev1` varchar(200) DEFAULT NULL,
-                `wpgcl_rev2` varchar(200) DEFAULT NULL,
-                `wpgcl_int` varchar(200) DEFAULT NULL,
-                `wpgcl_status` int(11) DEFAULT 1,
-                PRIMARY KEY (`id`),
-                KEY `wpglog_status` (`wpgcl_status`),
-                KEY `wpglog_concerts` (`wpgcl_concertid`)
-             ) ENGINE=InnoDB DEFAULT CHARSET=utf8;";
 
         $concerts_table =
             "CREATE TABLE IF NOT EXISTS `wpg_concerts` (
@@ -311,35 +293,6 @@ if ( !function_exists( "giglog_register_db_tables") )
                 PRIMARY KEY (`id`)
              ) ENGINE=InnoDB DEFAULT CHARSET=utf8;";
 
-        $files_table =
-            "CREATE TABLE IF NOT EXISTS `wpg_files` (
-                `id` int(11) NOT NULL AUTO_INCREMENT,
-                `filename` varchar(2000) NOT NULL,
-                `filedate` datetime NOT NULL DEFAULT current_timestamp(),
-                `rowid` int(11) NOT NULL,
-                `rowcontent` text NOT NULL,
-                `processed` char(1) NOT NULL DEFAULT 'N',
-                `wpgc_id` int(11) NOT NULL,
-                PRIMARY KEY (`id`)
-             ) ENGINE=InnoDB DEFAULT CHARSET=utf8;";
-
-        $logchanges_table =
-            "CREATE TABLE IF NOT EXISTS `wpg_logchanges` (
-                `id` int(11) NOT NULL AUTO_INCREMENT,
-                `userid` varchar(500) NOT NULL,
-                `action` varchar(500) NOT NULL,
-                `actiondate` date NOT NULL DEFAULT current_timestamp(),
-                `concertid` int(11) NOT NULL,
-                PRIMARY KEY (`id`)
-             ) ENGINE=InnoDB DEFAULT CHARSET=utf8;";
-
-        $pressstatus_table =
-            "CREATE TABLE IF NOT EXISTS `wpg_pressstatus` (
-                `id` int(11) NOT NULL AUTO_INCREMENT,
-                `wpgs_name` varchar(50) NOT NULL,
-                PRIMARY KEY (`id`)
-             ) ENGINE=InnoDB DEFAULT CHARSET=utf8;";
-
         $venues_table =
             "CREATE TABLE IF NOT EXISTS `wpg_venues` (
                 `id` int(11) NOT NULL AUTO_INCREMENT,
@@ -350,15 +303,9 @@ if ( !function_exists( "giglog_register_db_tables") )
                 PRIMARY KEY (`id`)
              ) ENGINE=InnoDB DEFAULT CHARSET=utf8;";
 
-        global $wpdb;
         $tables = array(
-            $bands_table,
-            $concertlogs_table,
             $concerts_table,
             $countries_table,
-            $files_table,
-            $logchanges_table,
-            $pressstatus_table,
             $venues_table);
 
         foreach($tables as $tabledef) {
@@ -378,48 +325,10 @@ if ( !function_exists( "giglog_register_db_tables") )
                     (`id`,`wpgc_fullname`,`wpgcountry_name`,`wpgc_iso3`,`wpgc_numcode`);");
 
             $wpdb->query(
-                "ALTER TABLE `wpg_bands`
-                    ADD CONSTRAINT `wpgband_country`
-                        FOREIGN KEY (`wpgband_country`)
-                        REFERENCES `wpg_countries` (`id`) ON DELETE NO ACTION;");
-
-            $wpdb->query(
-                "ALTER TABLE `wpg_concertlogs`
-                    ADD CONSTRAINT `wpglog_concerts`
-                        FOREIGN KEY (`wpgcl_concertid`)
-                        REFERENCES `wpg_concerts` (`id`) ON DELETE CASCADE ON UPDATE NO ACTION,
-                    ADD CONSTRAINT `wpglog_status`
-                        FOREIGN KEY (`wpgcl_status`)
-                        REFERENCES `wpg_pressstatus` (`id`) ON DELETE NO ACTION ON UPDATE NO ACTION;");
-
-            $wpdb->query(
                 "ALTER TABLE `wpg_concerts`
-                    ADD CONSTRAINT `wpgconcert_band`
-                        FOREIGN KEY (`band`)
-                        REFERENCES `wpg_bands` (`id`) ON DELETE NO ACTION,
                     ADD CONSTRAINT `wpgconcert_venue`
                         FOREIGN KEY (`venue`)
                         REFERENCES `wpg_venues` (`id`) ON DELETE NO ACTION;");
-        }
-
-        if ($db_version == NULL || $db_version < 2)
-        {
-            $wpdb->query(
-                "INSERT INTO `wpg_pressstatus` (`id`, `wpgs_name`) VALUES
-                    (1, ' '),
-                    (2, 'Accred Requested'),
-                    (3, 'Photo Approved'),
-                    (4, 'Text Approved'),
-                    (5, 'Photo and Text approved'),
-                    (6, 'Rejected');");
-        }
-
-        if ($db_version == NULL || $db_version < 3)
-        {
-            $wpdb->query(
-                "ALTER TABLE `wpg_concertlogs`
-                    ADD COLUMN IF NOT EXISTS
-                        `wpgcl_createddate` date NOT NULL DEFAULT current_timestamp();");
         }
 
         if ($db_version == NULL || $db_version < 4)
@@ -459,7 +368,22 @@ if ( !function_exists( "giglog_register_db_tables") )
                     wpgconcert_roles JSON CHECK (JSON_VALID(wpgconcert_roles)))");
         }
 
-        update_option("giglogadmin_db_version", 6);
+        if ($db_version == NULL || $db_version < 8)
+        {
+            // Add automatically updated `created` and `updated` colomns to keep
+            // track of creation time and modification times for a record.
+            $wpdb->query(
+                "ALTER TABLE `wpg_concerts` ADD COLUMN IF NOT ExISTS (
+                    created TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                    updated TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP)");
+
+            $wpdb->query(
+                "ALTER TABLE `wpg_venues` ADD COLUMN IF NOT ExISTS (
+                    created TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                    updated TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP)");
+        }
+
+        update_option("giglogadmin_db_version", 8);
     }
 
     giglog_register_db_tables();

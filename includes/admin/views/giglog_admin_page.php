@@ -11,6 +11,15 @@ if ( !class_exists( 'GiglogAdmin_AdminPage' ) ) {
     class GiglogAdmin_AdminPage {
         private string $username;
 
+        const STATUS_LABELS = [
+            '',
+            'Accred Requested',
+            'Photo Approved',
+            'Text Approved',
+            'Photo and Text Approved',
+            'Rejected'
+        ];
+
         public function __construct()
         {
             $this->username = wp_get_current_user()->user_login;
@@ -59,16 +68,18 @@ if ( !class_exists( 'GiglogAdmin_AdminPage' ) ) {
         }
 
 
-        private function get_user( ?int $cid, string $ctype): string
+        private function user_dropdown_for_role( GiglogAdmin_Concert $concert, string $role): string
         {
             $users = array_map(
                 fn($usr) => $usr->user_login,
                 get_users( array( 'fields' => array( 'user_login' ) ) ) );
 
-            $current_user = $cid ? GiglogAdmin_Concertlogs::get_assigned_user( $cid, $ctype ) : null;
+            $roles = $concert->roles();
+
+            $current_user = array_key_exists($role, $roles) ? $roles[$role] : NULL;
 
             return \EternalTerror\ViewHelpers\select_field(
-                $ctype,
+                $role,
                 array_map( fn($user) => [ $user, $user ], $users ),
                 $current_user);
         }
@@ -115,7 +126,7 @@ if ( !class_exists( 'GiglogAdmin_AdminPage' ) ) {
             if ($editing && !empty($cid))   //A bit overdoing with the checks if concert ID is empty both here and in find_cid. But based on that, things are NULL or not. Better ideas?
                 $c = GiglogAdmin_Concert::get($cid);
             else
-                $c = new GiglogAdmin_Concert();
+                $c = new GiglogAdmin_Concert((object)[]);
 
             $content='<div><h3>Form to create/edit concerts and venues</h3><br></div><div class="editform"><div class="concertform">';
             $content.='<form method="POST" action="" class="concert" >'
@@ -125,7 +136,7 @@ if ( !class_exists( 'GiglogAdmin_AdminPage' ) ) {
                 .'<label for="venue">Venue:</label>' . $this->get_venue_selector($c->venue()) . '<br>'
                 .'<label for="cdate">Date:</label><input type="date" id="cdate" name="cdate" value="'.$c->cdate().'"><br>'
                 .'<label for="ticket">Tickets:</label><input type="text" id="ticket" name="ticket" value="'.$c->tickets().'"><br>'
-                .'<label for="eventurl">Event link:</label><input type="text" id="eventurl" name="eventurl" value="'.$c->eventlink().'"><br>'
+                    .'<label for="eventurl">Event link:</label><input type="text" id="eventurl" name="eventurl" value="'.$c->eventlink().'"><br>'
                 .'</fieldset>';
             // actions differ if we update or create a concert, hence two buttons needed
             if ($editing)
@@ -134,11 +145,12 @@ if ( !class_exists( 'GiglogAdmin_AdminPage' ) ) {
                 $content.='<p><input type="submit" name="newconcert" value="Create New Concert"></p>';
 
             $content.='</div>';
+
             $content.='<div class="useritems"><strong>ASSIGNMENT DETAILS</strong><br><br><fieldset>'
-                .'<label for="photo1">Photo1:</label>'.$this->get_user($c->id(),'photo1').'<br>'
-                .'<label for="photo2">Photo2:</label>'.$this->get_user($c->id(),'photo2').'<br>'
-                .'<label for="rev1">Text1:</label>'.$this->get_user($c->id(),'rev1').'<br>'
-                .'<label for="rev2">Text2:</label>'.$this->get_user($c->id(),'rev2').'<br>';
+                .'<label for="photo1">Photo1:</label>'.$this->user_dropdown_for_role($c,'photo1').'<br>'
+                .'<label for="photo2">Photo2:</label>'.$this->user_dropdown_for_role($c,'photo2').'<br>'
+                .'<label for="rev1">Text1:</label>'.$this->user_dropdown_for_role($c,'rev1').'<br>'
+                .'<label for="rev2">Text2:</label>'.$this->user_dropdown_for_role($c,'rev2').'<br>';
 
             $content.='<fieldset></div></form></div>';
             $content.='<div class="venueform"><form method="POST" action="" class="venue" ><strong>VENUE DETAILS</strong><br><br>'
@@ -150,19 +162,15 @@ if ( !class_exists( 'GiglogAdmin_AdminPage' ) ) {
             return $content;
         }
 
-        private function adminactions( int $concert_id ) : string
+        private function adminactions( GiglogAdmin_Concert $concert ) : string
         {
-            global $wpdb;
-            $query = "SELECT id,wpgs_name from wpg_pressstatus" ;
-            $statuses = $wpdb->get_results($query);
-
             return
                 '<form method="POST" action="">'
-                . '<input type="hidden" name="cid" value="' . $concert_id .  '" />'
+                . '<input type="hidden" name="cid" value="' . $concert->id() .  '" />'
                 . \EternalTerror\ViewHelpers\select_field(
                     'selectstatus',
-                    array_map(fn($status) => [ $status->id, $status->wpgs_name ], $statuses),
-                    GiglogAdmin_Concertlogs::get_status($concert_id))
+                    array_map(fn($i) => [ $i, self::STATUS_LABELS[$i] ], range(1, count(self::STATUS_LABELS) - 1)),
+                    $concert->status())
                 . '<input type="submit" value="SetStatus">'
                 . '<input type="submit" name ="edit" value="EDIT">'
                 . '</form>';
@@ -172,27 +180,21 @@ if ( !class_exists( 'GiglogAdmin_AdminPage' ) ) {
         /**
          * @return null|string
          */
-        private function getpublishstatus(int $concert_id)
+        private function getpublishstatus(GiglogAdmin_Concert $concert) : string
         {
-            global $wpdb;
-            $date1 = new DateTime("now");
-            $dsql = "select wpgcl_createddate from wpg_concertlogs where wpgcl_concertid=".$concert_id;
-            $results = $wpdb->get_results($dsql);
-            foreach ( $results AS $row ) {
-                //$x = strtotime($row -> filedate);
-                $x= date('Y-m-d H:i:s', strtotime($row -> wpgcl_createddate));
-                $date2 = new DateTime($x, new DateTimeZone('Europe/London'));
-                $dd = $date2 -> diff($date1) ->format("%a");
+            $now = new DateTime();
+            $new_entry = $now->diff($concert->created())->days <= 10;
+            if ($new_entry) {
+                return '<span style="color:green">NEW</span>';
             }
-
-            if ($dd <= 10) return ('<span style="color:green">NEW</span>');
+            else {
+                return '';
+            }
         }
 
 
         private function get_concerts(): string
         {
-            global $wpdb;
-
             $content = '<table class="assignit">';
             //    $content .= '</tr><th>CITY</th><th>ID</th><th>BAND</th><th>VENUE</th><th>DATE</th></tr>';
 
@@ -204,63 +206,56 @@ if ( !class_exists( 'GiglogAdmin_AdminPage' ) ) {
                 $content .=  '<th>AdminOptions</th>';
                 $content .= '</tr>';
 
+            $filter = [];
+
             // Use the submitted "city" if any. Otherwise, use the default/static value.
             $cty = filter_input( INPUT_POST, 'selectcity', FILTER_SANITIZE_SPECIAL_CHARS );
-            $cty = $cty ? $cty: 'ALL';
+            if ($cty) $filter['city'] = $cty;
 
             $venue = filter_input( INPUT_POST, 'selectvenue', FILTER_SANITIZE_SPECIAL_CHARS );
-            $venue = $venue ? $venue : '0';
+            if ($venue) $filter['venue_id'] = $venue;
 
+            $concerts = GiglogAdmin_Concert::find_concerts($filter);
 
-            $query =  "SELECT wpgc.id, wpgconcert_name, wpgv.wpgvenue_name as venue, wpgc.wpgconcert_date, wpgc.wpgconcert_tickets, wpgc.wpgconcert_event, wpgv.wpgvenue_city, wpgv.wpgvenue_webpage, wpgps.wpgs_name
-                FROM wpg_concerts wpgc,  wpg_venues wpgv, wpg_pressstatus wpgps, wpg_concertlogs wpgcl
-                where wpgc.venue = wpgv.id
-                and wpgconcert_date >= CURDATE()
-                and wpgps.id = wpgcl.wpgcl_status
-                and wpgcl.wpgcl_concertid=wpgc.id";
-
-            $query .= ($cty == "ALL") ? "" : "  and wpgv.wpgvenue_city='" .$cty ."'";
-            $query .= ($venue == "0") ? "" : "  and wpgv.id='" .$venue ."'";
-            $query.= (empty($_POST['my_checkbox'])) ? "": " and (wpgcl_photo1 ='".$this->username."' or wpgcl_photo2 ='".$this->username."' or wpgcl_rev1 ='".$this->username."' or wpgcl_rev2 ='".$this->username."')";
-            $query .=" order by wpgv.wpgvenue_city, wpgconcert_date, wpgc.id" ;
-            $results = $wpdb->get_results($query);
             $lastType = '';
 
-            foreach ( $results AS $row ) {
+            foreach ( $concerts AS $concert ) {
                 $content .= '<tr class="assignitr">';
 
-                if($lastType != '' && $lastType !=  $row->wpgvenue_city) {
-                    $content .= '<td>'.$row->wpgvenue_city.'</td></tr><tr>';
+                if ($lastType != '' && $lastType !=  $concert->venue()->city()) {
+                    $content .= '<td>' . $concert->city() . '</td></tr><tr>';
                 }
 
                 if  ($lastType == '' ) {
-                    $content .= '<td>'.$row->wpgvenue_city.'</td></tr><tr>';
+                    $content .= '<td>' . $concert->venue()->city() . '</td></tr><tr>';
                 }
                 // Modify these to match the database structure
                 //     $content .= '<td>' . $row->id. '</td>';
                 $content .= '<td></td>';
-                $content .= '<td>' . $row->wpgconcert_name. '</td>';
-                $content .= '<td>' . $row->venue. '</td>';
-                $fdate =  strtotime($row->wpgconcert_date);
+                $content .= '<td>' . $concert->cname() . '</td>';
+                $content .= '<td>' . $concert->venue()->name() . '</td>';
+                $fdate =  strtotime($concert->cdate());
                 $newformat = date('d.M.Y',$fdate);
 
                 //$content .= DATE_FORMAT($fdate,'%d.%b.%Y');
-                $content .= '<td>' .$newformat. '</td>';
-                $content .= '<td>'.$this->getpublishstatus($row->id ).'</td>';
-                $content .= '<td>'.$this->returnuser('photo1', $row->id ).'</td>';
-                $content .= '<td>'.$this->returnuser('photo2', $row->id ).'</td>';
-                $content .= '<td>'.$this->returnuser('rev1', $row->id ).'</td>';
-                $content .= '<td>'.$this->returnuser('rev2', $row->id ).'</td>';
-                $content .= '<td>'.$row -> wpgs_name.'</td>';
+                $content .= '<td>' . $newformat . '</td>';
+                $content .= '<td>' . $this->getpublishstatus($concert) . '</td>';
+
+                $content .= '<td>' . $this->assign_role_for_user_form('photo1', $concert) . '</td>';
+                $content .= '<td>' . $this->assign_role_for_user_form('photo2', $concert) . '</td>';
+                $content .= '<td>' . $this->assign_role_for_user_form('rev1', $concert) . '</td>';
+                $content .= '<td>' . $this->assign_role_for_user_form('rev2', $concert) . '</td>';
+
+                $content .= '<td>' . self::STATUS_LABELS[$concert->status()] . '</td>';
 
                 if (current_user_can('administrator')) {
                     $content .=
                         '<td  class="adminbuttons">'
-                        . $this->adminactions($row->id)
+                        . $this->adminactions($concert)
                         . '</td>';
                 }
                 $content .= '</tr>';
-                $lastType = $row->wpgvenue_city;
+                $lastType = $concert->venue()->city();
             }
             $content .= '</table>';
 
@@ -274,8 +269,6 @@ if ( !class_exists( 'GiglogAdmin_AdminPage' ) ) {
          */
         static function update()
         {
-            global $wpdb;
-
             if ('POST' !== $_SERVER['REQUEST_METHOD'])
                 return;
 
@@ -288,7 +281,12 @@ if ( !class_exists( 'GiglogAdmin_AdminPage' ) ) {
 
             if(isset($_POST['assignitem']))
             {
-                GiglogAdmin_AdminPage::assignconcert($_POST['pid'],$_POST['cid']);
+                $concert = GiglogAdmin_Concert::get(intval($_POST['cid']));
+                $role = sanitize_text_field($_POST['pid']);
+
+                if ($concert) {
+                    GiglogAdmin_AdminPage::assignconcert($role, $concert);
+                }
 
                 $url2=$_SERVER['REQUEST_URI'];
                 header("Refresh: 1; URL=$url2");  //reload page
@@ -296,19 +294,23 @@ if ( !class_exists( 'GiglogAdmin_AdminPage' ) ) {
 
             if(isset($_POST['unassignitem']))
             {
-                GiglogAdmin_AdminPage::unassignconcert($_POST['pid'],$_POST['cid']);
+                $concert = GiglogAdmin_Concert::get(intval($_POST['cid']));
+                $role = sanitize_text_field($_POST['pid']);
+
+                GiglogAdmin_AdminPage::unassignconcert($role, $concert);
 
                 $url3=$_SERVER['REQUEST_URI'];
                 header("Refresh: 1; URL=$url3");  //reload page
             }
 
-            //handling the admin drop down menu
-            if(isset($_POST['selectstatus']) && (isset($_POST['edit']) && $_POST['edit']!="EDIT") && !empty($_POST['cid']))
+            // handle the status drop down
+            if (isset($_POST['selectstatus']) && !empty($_POST['selectstatus']) && !empty($_POST['cid']))
             {
-               $usql = "UPDATE wpg_concertlogs  SET wpgcl_status=".$_POST['selectstatus']." WHERE wpgcl_concertid=".$_POST['cid'];
-               $uresults = $wpdb->get_results($usql);
-               //$url2=$_SERVER['REQUEST_URI'];  //doesn't seem to be needed actually, leaving here just in case
-               //header("Refresh: 1; URL=$url2");  //reload page
+                if ($_POST['selectstatus'] > 0 && $_POST['selectstatus'] < count(self::STATUS_LABELS)) {
+                    $concert = GiglogAdmin_Concert::get(intval($_POST['cid']));
+                    $concert->set_status(intval($_POST['selectstatus']));
+                    $concert->save();
+                }
             }
 
             if(isset($_POST['newconcert'])) {
@@ -327,15 +329,31 @@ if ( !class_exists( 'GiglogAdmin_AdminPage' ) ) {
 
             if(isset($_POST['editconcert']))
             {
-            IF (empty($_POST['cname'])  || empty($_POST['selectvenueadmin']) || empty($_POST['cdate']) || empty($_POST['ticket']) || empty($_POST['eventurl']))
-                    echo '<script language="javascript">alert("You are missing a value, concert was not updated"); </script>';
-            else
-                {
-                GiglogAdmin_Concert::update_concert($_POST['pid'],$_POST['cname'], $_POST['selectvenueadmin'], $_POST['cdate'], $_POST['ticket'], $_POST['eventurl']);
-                GiglogAdmin_Concertlogs::update($_POST['pid'],$_POST['photo1'], $_POST['photo2'], $_POST['rev1'], $_POST['rev2']);
-                echo '<script language="javascript">alert("Yay, concert updated"); </script>';
-                }
+                $roles = array_reduce(
+                    ['photo1', 'photo1', 'rev1', 'rev2'],
+                    function($roles, $r) {
+                        if (isset($_POST[$r])) {
+                            $roles[$r] = sanitize_user($_POST[$r]);
+                        }
+                        return $roles;
+                    },
+                    []
+                );
 
+                $attributes = [
+                    'wpgconcert_name' => sanitize_text_field($_POST['cname']),
+                    'venue' => intval($_POST['selectvenueadmin']),
+                    'wpgconcert_date' => sanitize_text_field($_POST['cdate']),
+                    'wpgconcert_ticket' => esc_url_raw($_POST['ticket']),
+                    'wpgconcert_event' => esc_url_raw($_POST['eventurl']),
+                    'wpgconcert_roles' => $roles,
+                ];
+
+                $concert = GiglogAdmin_Concert::get(intval($_POST['pid']));
+                if ($concert->update((object) $attributes)) {
+                    // let user know the concert was updated.
+                    // Look into admin_notices
+                }
             }
 
 
@@ -351,59 +369,44 @@ if ( !class_exists( 'GiglogAdmin_AdminPage' ) ) {
             }
         }
 
-        static function assignconcert($p1, $c): void
+        static function assignconcert($p1, GiglogAdmin_Concert $concert): void
         {
-            global $wpdb;
+            $username = wp_get_current_user()->user_login;
+            $concert->assign_role($p1, $username);
+            $concert->save();
 
             $to = 'live@eternal-terror.com';
-            $subject = $this->username.' has taken '.$p1. 'for a concert with id '.$c;
+            $subject = $username.' has taken '.$p1. 'for a concert with id '.$concert->id();
             $body = 'The email body content';
             $headers = array('Content-Type: text/html; charset=UTF-8');
-            $usql = "UPDATE wpg_concertlogs  SET wpgcl_".$p1."='".$this->username."'  WHERE wpgcl_concertid=".$c;
-            $uresults = $wpdb->get_results($usql);
-            $wpdb->insert( 'wpg_logchanges', array (
-                'id' => '',
-                'userid' => $this->username,
-                'action' => 'assigned '.$p1,
-                'concertid' => $c));
-            echo ($wpdb->last_error );
+
             wp_mail( $to, $subject, $body, $headers );
         }
 
-        static function unassignconcert($p1, $c): void
+        static function unassignconcert($p1, GiglogAdmin_Concert $concert): void
         {
-            global $wpdb;
+            $username = wp_get_current_user()->user_login;
+            $concert->remove_user_from_roles($username);
+            $concert->save();
 
             $to = 'live@eternal-terror.com';
-            $subject = $this->username.' has UNASSINED  '.$p1. 'for a concert with id '.$c;
+            $subject = $username.' has UNASSINED  '.$p1. 'for a concert with id '.$concert->id();
             $body = 'The email body content';
             $headers = array('Content-Type: text/html; charset=UTF-8');
-            $usql = "UPDATE wpg_concertlogs  SET wpgcl_".$p1."=''  WHERE wpgcl_concertid=".$c;
-            $uresults = $wpdb->get_results($usql);
-            $wpdb->insert( 'wpg_logchanges', array (
-                'id' => '',
-                'userid' => $this->username,
-                'action' => 'unassigned '.$p1,
-                'concertid' => $c));
-            echo ($wpdb->last_error );
+
             wp_mail( $to, $subject, $body, $headers );
         }
 
-        private function returnuser(string $p1, ?int $c) : ?string
+        private function assign_role_for_user_form(string $role, GiglogAdmin_Concert $concert) : ?string
         {
-            if (!$c) {
-                return null;
-            }
-
-            $cl = GiglogAdmin_Concertlogs::get($c);
-            $role = $cl->get_assigned_role( $this->username );
-            $assigned_user = $cl->assigned_user( $p1 );
+            $roles = $concert->roles();
+            $assigned_user = array_key_exists($role, $roles) ? $roles[$role] : NULL;
 
             //first check if current slot is taken by current user
-            if ( $role == $p1 ) {
+            if ( $assigned_user == $this->username ) {
                 $f = '<form class="unassignit" method="POST" action="">'
-                    . '  <input type="hidden" name="cid" value="' . $c. '" />'
-                    . '  <input type="hidden" name="pid" value="' . $p1. '" />'
+                    . '  <input type="hidden" name="cid" value="' . $concert->id() . '" />'
+                    . '  <input type="hidden" name="pid" value="' . $role . '" />'
                     . '  <input type="submit" name="unassignitem" value="Your"/>'
                     . '</form>';
             }
@@ -411,14 +414,14 @@ if ( !class_exists( 'GiglogAdmin_AdminPage' ) ) {
                 $f = '<span class="takenby">Taken</span>'
                     . '<div class="takenby">Taken by ' . $assigned_user . '</div>';
             }
-            elseif ( $role ) {
+            elseif ( array_search($this->username, $roles) ) {
                 // other slots for this concert are taken by user
                 $f = '<span class="taken_by_self">-</span>';
             }
             else { //not taken by anyone
                 $f = '<form method="POST" action="">'
-                    . '  <input type="hidden" name="cid" value="' . $c. '" />'
-                    . '  <input type="hidden" name="pid" value="' . $p1. '" />'
+                    . '  <input type="hidden" name="cid" value="' . $concert->id() . '" />'
+                    . '  <input type="hidden" name="pid" value="' . $role. '" />'
                     . '  <input  type="submit" name="assignitem" value=""/>'
                     . '</form>';
             }

@@ -5,26 +5,30 @@
 //
 // SPDX-License-Identifier: AGPL-3.0-or-later
 
+require_once __DIR__ . '/venue.php';
+
 if ( !class_exists('GiglogAdmin_Concert') ) {
     require_once __DIR__ . '/venue.php';
 
     class GiglogAdmin_Concert
     {
-        private $id;
-        private $cname;
-        private $venue;
-        private $cdate;
-        private $tickets;
-        private $eventlink;
-        private int $status;
+        private ?int $id;
+        private ?string $cname;
+        private ?GiglogAdmin_Venue $venue;
+        private ?string $cdate;
+        private ?string $tickets;
+        private ?string $eventlink;
+        private ?int $status;
         private array $roles;
+        private ?DateTimeImmutable $created;
+        private ?DateTimeImmutable $updated;
 
-        public const STATUS_NONE = 1;
-        public const STATUS_ACCRED_REQ = 2;
-        public const STATUS_PHOTO_APPROVED = 3;
-        public const STATUS_TEXT_APPROVED = 4;
-        public const STATUS_ALL_APPROVED = 5;
-        public const STATUS_REJECTED = 6;
+        public const STATUS_NONE = 0;
+        public const STATUS_ACCRED_REQ = 1;
+        public const STATUS_PHOTO_APPROVED = 2;
+        public const STATUS_TEXT_APPROVED = 3;
+        public const STATUS_ALL_APPROVED = 4;
+        public const STATUS_REJECTED = 5;
 
         /*
          * Constructs a new concert object from an array of attributes.
@@ -32,15 +36,17 @@ if ( !class_exists('GiglogAdmin_Concert') ) {
          * so this constructor can be used to construct the object
          * directly from the database row.
          */
-        public function __construct($attrs = [])
+        public function __construct(object $attrs)
         {
             $this->id = isset($attrs->id) ? $attrs->id : NULL;
             $this->cname = isset($attrs->wpgconcert_name) ? $attrs->wpgconcert_name : NULL;
             $this->cdate = isset($attrs->wpgconcert_date) ? $attrs->wpgconcert_date : NULL;
             $this->tickets = isset($attrs->wpgconcert_tickets) ? $attrs->wpgconcert_tickets : NULL;
             $this->eventlink = isset($attrs->wpgconcert_event) ? $attrs->wpgconcert_event : NULL;
-            $this->status = isset($attrs->wpgconcert_status) ? $attrs->wpgconcert_status : 1;
+            $this->status = isset($attrs->wpgconcert_status) ? $attrs->wpgconcert_status : 0;
             $this->roles = isset($attrs->wpgconcert_roles) ? json_decode($attrs->wpgconcert_roles, true) : [];
+            $this->created = isset($attrs->created) ? new DateTimeImmutable($attrs->created) : NULL;
+            $this->updated = isset($attrs->updated) ? new DateTimeImmutable($attrs->updated) : NULL;
 
             if ( isset( $attrs->venue ) ) {
                 if (isset($attrs->wpgvenue_name) && isset($attrs->wpgvenue_city)) {
@@ -56,6 +62,9 @@ if ( !class_exists('GiglogAdmin_Concert') ) {
                     $this->venue = GiglogAdmin_Venue::get($attrs->venue);
                 }
             }
+            else {
+                $this->venue = NULL;
+            }
         }
 
 
@@ -69,15 +78,18 @@ if ( !class_exists('GiglogAdmin_Concert') ) {
         {
             global $wpdb;
 
-            $query = 'SELECT wpg_concerts.*, wpg_venues.wpgvenue_name, wpg_venues.wpgvenue_city '
-                . 'FROM wpg_concerts '
+            $query = 'SELECT * FROM wpg_concerts '
                 . 'LEFT JOIN wpg_venues ON wpg_concerts.venue = wpg_venues.id '
                 . 'WHERE ' . $wpdb->prepare('wpg_concerts.id = %d', $id);
 
             $results  = $wpdb->get_results($query);
-            var_dump($results);
 
-            return $results ? new GiglogAdmin_Concert($results[0]) : NULL;
+            if ( !$results ) {
+                $wpdb->print_error( __METHOD__ );
+                return null;
+            }
+
+            return new GiglogAdmin_Concert($results[0]);
         }
 
         public static function create(string $name, $venue, string $date, string $ticketlink, string $eventlink): ?self
@@ -109,43 +121,55 @@ if ( !class_exists('GiglogAdmin_Concert') ) {
                     . ', Ticket LINK ' . $ticketlink
                     . ', Event LINK ' . $eventlink);
 
-                GiglogAdmin_Concertlogs::add( $concert->id() );
-                    /*the last line can be replaced by a trigger
-                    CREATE TRIGGER `insertIntoPhotoLogs` AFTER INSERT ON `wpg_concerts`
-                    FOR EACH ROW INSERT INTO wpg_concertlogs (
-                    wpg_concertlogs.id,
-                    wpg_concertlogs.wpgcl_concertid,
-                    wpg_concertlogs.wpgcl_status)
-
-                    VALUES
-                    (null, new.id, 1)
-                    */
                 return $concert;
             }
         }
 
 
-        public static function update_concert($id, $cname, $venue, $cdate, $ticketlink, $eventlink)
+        public function update(object $attrs) : bool
         {
-            global $wpdb;
+            $need_update = false;
 
-            $res = $wpdb->update('wpg_concerts', array(
-                'wpgconcert_name' => $cname,
-                'venue' => $venue,
-                'wpgconcert_date' => $cdate,
-                'wpgconcert_tickets' => $ticketlink,
-                'wpgconcert_event' => $eventlink
-            ),
-                array('id' => $id)
-            );
-
-            if ( $res === false ) {
-             //   exit( var_dump( $wpdb->last_query ) ); //for onscreen debugging when needed
-                error_log( __CLASS__ . '::' . __FUNCTION__ . ": {$wpdb->last_error}");
-                die;
+            if (isset($attrs->wpgconcert_name) && $attrs->wpgconcert_name != $this->cname) {
+                $this->cname = $attrs->wpgconcert_name;
+                $need_update = true;
             }
 
-            return ($wpdb->last_error);
+            if (isset($attrs->wpgconcert_date) && $attrs->wpgconcert_date != $this->cdate) {
+                $this->cdate = $attrs->wpgconcert_date;
+                $need_update = true;
+            }
+
+            if (isset($attrs->wpgconcert_tickets) && $attrs->wpgconcert_tickets != $this->tickets) {
+                $this->tickets = $attrs->wpgconcert_tickets;
+                $need_update = true;
+            }
+
+            if (isset($attrs->wpgconcert_event) && $attrs->wpgconcert_event != $this->eventlink) {
+                $this->eventling = $attrs->wpgconcert_eventlink;
+                $need_update = true;
+            }
+
+            if (isset($attrs->wpgconcert_status) && $attrs->wpgconcert_status != $this->status) {
+                $this->status = $attrs->wpgconcert_status;
+                $need_update = true;
+            }
+
+            if (isset($attrs->wpgconcert_roles) && $attrs->wpgconcert_roles != $this->roles) {
+                $this->roles = $attrs->wpgconcert_roles;
+                $need_update = true;
+            }
+
+            if (isset($attrs->venue) && $attrs->venue != $this->venue()->id()) {
+                $this->venue = GiglogAdmin_Venue::get($attrs->venue);
+                $need_update = true;
+            }
+
+            if ($need_update) {
+                $this->save();
+            }
+
+            return $need_update;
         }
 
         public static function find($cname, $venue, $date)
@@ -176,8 +200,7 @@ if ( !class_exists('GiglogAdmin_Concert') ) {
         {
             global $wpdb;
 
-            $query = 'SELECT wpg_concerts.*, wpg_venues.wpgvenue_name, wpg_venues.wpgvenue_city '
-                . 'FROM wpg_concerts '
+            $query = 'SELECT * FROM wpg_concerts '
                 . 'INNER JOIN wpg_venues ON wpg_concerts.venue = wpg_venues.id ';
 
             $where = [];
@@ -203,34 +226,27 @@ if ( !class_exists('GiglogAdmin_Concert') ) {
         {
             global $wpdb;
 
-            if ( $this->id !== NULL ) {
-                $res = $wpdb->update('wpg_concerts', array(
-                    'id' => $this->id,
-                    'wpgconcert_name' => $this->cname,
-                    'venue' => $this->venue->id(),
-                    'wpgconcert_date' => $this->cdate,
-                    'wpgconcert_tickets' => $this->tickets,
-                    'wpgconcert_event' => $this->eventlink,
-                    'wpgconcert_status' => $this->status,
-                ),
-                array( 'id' => $this->id ) );
+            $columns = [
+                'wpgconcert_name' => $this->cname,
+                'venue' => $this->venue->id(),
+                'wpgconcert_date' => $this->cdate,
+                'wpgconcert_tickets' => $this->tickets,
+                'wpgconcert_event' => $this->eventlink,
+                'wpgconcert_status' => $this->status,
+                'wpgconcert_roles' => wp_json_encode( $this->roles ),
+            ];
 
+            if ( $this->id !== NULL ) {
+                $res = $wpdb->update( 'wpg_concerts', $columns, [ 'id' => $this->id ] );
             }
             else {
-                $res = $wpdb->insert('wpg_concerts', array(
-                    'wpgconcert_name' => $this->cname,
-                    'venue' => $this->venue->id(),
-                    'wpgconcert_date' => $this->cdate,
-                    'wpgconcert_tickets' => $this->tickets,
-                    'wpgconcert_event' => $this->eventlink,
-                    'wpgconcert_status' => $this->status,
-                ));
+                $res = $wpdb->insert('wpg_concerts', $columns);
             }
 
             if ( $res === false ) {
                 $wpdb->print_error( __METHOD__ );
             }
-            else {
+            elseif ( $this->id === NULL ) {
                 $this->id = $wpdb->insert_id;
             }
         }
@@ -271,9 +287,32 @@ if ( !class_exists('GiglogAdmin_Concert') ) {
             $this->status = $new_status;
         }
 
-        public function roles()
+        /**
+         * Return the roles defined for this concert.
+         *
+         * @return array<string, string>
+         */
+        public function roles() : array
         {
             return $this->roles;
+        }
+
+        public function assign_role( string $role, string $username ) : void
+        {
+            $this->roles[$role] = $username;
+        }
+
+        public function remove_user_from_roles( string $username ) : void
+        {
+            $this->roles = array_filter($this->roles, fn($u) => $u != $username);
+        }
+
+        public function created() : DateTimeImmutable {
+            return $this->created;
+        }
+
+        public function updated() : DateTimeImmutable {
+            return $this->updated;
         }
     }
 }
