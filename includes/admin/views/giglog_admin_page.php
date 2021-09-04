@@ -180,27 +180,21 @@ if ( !class_exists( 'GiglogAdmin_AdminPage' ) ) {
         /**
          * @return null|string
          */
-        private function getpublishstatus(int $concert_id)
+        private function getpublishstatus(GiglogAdmin_Concert $concert) : string
         {
-            global $wpdb;
-            $date1 = new DateTime("now");
-            $dsql = "select wpgcl_createddate from wpg_concertlogs where wpgcl_concertid=".$concert_id;
-            $results = $wpdb->get_results($dsql);
-            foreach ( $results AS $row ) {
-                //$x = strtotime($row -> filedate);
-                $x= date('Y-m-d H:i:s', strtotime($row -> wpgcl_createddate));
-                $date2 = new DateTime($x, new DateTimeZone('Europe/London'));
-                $dd = $date2 -> diff($date1) ->format("%a");
+            $now = new DateTime();
+            $new_entry = $now->diff($concert->created())->days <= 10;
+            if ($new_entry) {
+                return '<span style="color:green">NEW</span>';
             }
-
-            if ($dd <= 10) return ('<span style="color:green">NEW</span>');
+            else {
+                return '';
+            }
         }
 
 
         private function get_concerts(): string
         {
-            global $wpdb;
-
             $content = '<table class="assignit">';
             //    $content .= '</tr><th>CITY</th><th>ID</th><th>BAND</th><th>VENUE</th><th>DATE</th></tr>';
 
@@ -245,9 +239,7 @@ if ( !class_exists( 'GiglogAdmin_AdminPage' ) ) {
 
                 //$content .= DATE_FORMAT($fdate,'%d.%b.%Y');
                 $content .= '<td>' . $newformat . '</td>';
-                $content .= '<td>' . /* $concert->isnew() */ '' . '</td>';
-
-                $roles = $concert->roles();
+                $content .= '<td>' . $this->getpublishstatus($concert) . '</td>';
 
                 $content .= '<td>' . $this->assign_role_for_user_form('photo1', $concert) . '</td>';
                 $content .= '<td>' . $this->assign_role_for_user_form('photo2', $concert) . '</td>';

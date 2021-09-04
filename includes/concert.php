@@ -20,6 +20,8 @@ if ( !class_exists('GiglogAdmin_Concert') ) {
         private ?string $eventlink;
         private ?int $status;
         private array $roles;
+        private ?DateTimeImmutable $created;
+        private ?DateTimeImmutable $updated;
 
         public const STATUS_NONE = 0;
         public const STATUS_ACCRED_REQ = 1;
@@ -43,6 +45,8 @@ if ( !class_exists('GiglogAdmin_Concert') ) {
             $this->eventlink = isset($attrs->wpgconcert_event) ? $attrs->wpgconcert_event : NULL;
             $this->status = isset($attrs->wpgconcert_status) ? $attrs->wpgconcert_status : 0;
             $this->roles = isset($attrs->wpgconcert_roles) ? json_decode($attrs->wpgconcert_roles, true) : [];
+            $this->created = isset($attrs->created) ? new DateTimeImmutable($attrs->created) : NULL;
+            $this->updated = isset($attrs->updated) ? new DateTimeImmutable($attrs->updated) : NULL;
 
             if ( isset( $attrs->venue ) ) {
                 if (isset($attrs->wpgvenue_name) && isset($attrs->wpgvenue_city)) {
@@ -74,8 +78,7 @@ if ( !class_exists('GiglogAdmin_Concert') ) {
         {
             global $wpdb;
 
-            $query = 'SELECT wpg_concerts.*, wpg_venues.wpgvenue_name, wpg_venues.wpgvenue_city '
-                . 'FROM wpg_concerts '
+            $query = 'SELECT * FROM wpg_concerts '
                 . 'LEFT JOIN wpg_venues ON wpg_concerts.venue = wpg_venues.id '
                 . 'WHERE ' . $wpdb->prepare('wpg_concerts.id = %d', $id);
 
@@ -197,8 +200,7 @@ if ( !class_exists('GiglogAdmin_Concert') ) {
         {
             global $wpdb;
 
-            $query = 'SELECT wpg_concerts.*, wpg_venues.wpgvenue_name, wpg_venues.wpgvenue_city '
-                . 'FROM wpg_concerts '
+            $query = 'SELECT * FROM wpg_concerts '
                 . 'INNER JOIN wpg_venues ON wpg_concerts.venue = wpg_venues.id ';
 
             $where = [];
@@ -303,6 +305,14 @@ if ( !class_exists('GiglogAdmin_Concert') ) {
         public function remove_user_from_roles( string $username ) : void
         {
             $this->roles = array_filter($this->roles, fn($u) => $u != $username);
+        }
+
+        public function created() : DateTimeImmutable {
+            return $this->created;
+        }
+
+        public function updated() : DateTimeImmutable {
+            return $this->updated;
         }
     }
 }
