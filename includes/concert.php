@@ -30,6 +30,12 @@ if ( !class_exists('GiglogAdmin_Concert') ) {
         public const STATUS_ALL_APPROVED = 4;
         public const STATUS_REJECTED = 5;
 
+        private const BASE_QUERY =
+            'SELECT wpg_concerts.*, wpg_venues.id as venue_id, wpg_venues.wpgvenue_name wpg_venues_wpgvenue_city '
+            . 'FROM wpg_concerts '
+            . 'LEFT JOIN wpg_venues ON wpg_concerts.venue = wpg_venues.id ';
+
+
         /*
          * Constructs a new concert object from an array of attributes.
          * The attributes are expected to be named as in the database,
@@ -67,7 +73,6 @@ if ( !class_exists('GiglogAdmin_Concert') ) {
             }
         }
 
-
         /**
          * Get concert with given id.
          *
@@ -78,8 +83,7 @@ if ( !class_exists('GiglogAdmin_Concert') ) {
         {
             global $wpdb;
 
-            $query = 'SELECT * FROM wpg_concerts '
-                . 'LEFT JOIN wpg_venues ON wpg_concerts.venue = wpg_venues.id '
+            $query = self::BASE_QUERY
                 . 'WHERE ' . $wpdb->prepare('wpg_concerts.id = %d', $id);
 
             $results  = $wpdb->get_results($query);
@@ -200,8 +204,7 @@ if ( !class_exists('GiglogAdmin_Concert') ) {
         {
             global $wpdb;
 
-            $query = 'SELECT * FROM wpg_concerts '
-                . 'INNER JOIN wpg_venues ON wpg_concerts.venue = wpg_venues.id ';
+            $query = self::BASE_QUERY;
 
             $where = [];
 
