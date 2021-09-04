@@ -249,10 +249,10 @@ if ( !class_exists( 'GiglogAdmin_AdminPage' ) ) {
 
                 $roles = $concert->roles();
 
-                $content .= '<td>' . (array_key_exists('photo1', $roles) ? $roles['photo1'] : '') . '</td>';
-                $content .= '<td>' . (array_key_exists('photo1', $roles) ? $roles['photo2'] : '') . '</td>';
-                $content .= '<td>' . (array_key_exists('rev1', $roles) ? $roles['rev1'] : '') . '</td>';
-                $content .= '<td>' . (array_key_exists('rev2', $roles) ? $roles['rev2'] : '') . '</td>';
+                $content .= '<td>' . $this->returnuser('photo1', $concert) . '</td>';
+                $content .= '<td>' . $this->returnuser('photo2', $concert) . '</td>';
+                $content .= '<td>' . $this->returnuser('rev1', $concert) . '</td>';
+                $content .= '<td>' . $this->returnuser('rev2', $concert) . '</td>';
 
                 $content .= '<td>' . self::STATUS_LABELS[$concert->status()] . '</td>';
 
@@ -291,7 +291,12 @@ if ( !class_exists( 'GiglogAdmin_AdminPage' ) ) {
 
             if(isset($_POST['assignitem']))
             {
-                GiglogAdmin_AdminPage::assignconcert($_POST['pid'],$_POST['cid']);
+                $concert = GiglogAdmin_Concert::get(intval($_POST['cid']));
+                $role = sanitize_text_field($_POST['pid']);
+
+                if ($concert) {
+                    GiglogAdmin_AdminPage::assignconcert($role, $concert);
+                }
 
                 $url2=$_SERVER['REQUEST_URI'];
                 header("Refresh: 1; URL=$url2");  //reload page
@@ -371,22 +376,17 @@ if ( !class_exists( 'GiglogAdmin_AdminPage' ) ) {
             }
         }
 
-        static function assignconcert($p1, $c): void
+        static function assignconcert($p1, GiglogAdmin_Concert $concert): void
         {
-            global $wpdb;
+            $username = wp_get_current_user()->user_login;
+            $concert->assign_role($p1, $username);
+            $concert->save();
 
             $to = 'live@eternal-terror.com';
-            $subject = $this->username.' has taken '.$p1. 'for a concert with id '.$c;
+            $subject = $username.' has taken '.$p1. 'for a concert with id '.$concert->id();
             $body = 'The email body content';
             $headers = array('Content-Type: text/html; charset=UTF-8');
-            $usql = "UPDATE wpg_concertlogs  SET wpgcl_".$p1."='".$this->username."'  WHERE wpgcl_concertid=".$c;
-            $uresults = $wpdb->get_results($usql);
-            $wpdb->insert( 'wpg_logchanges', array (
-                'id' => '',
-                'userid' => $this->username,
-                'action' => 'assigned '.$p1,
-                'concertid' => $c));
-            echo ($wpdb->last_error );
+
             wp_mail( $to, $subject, $body, $headers );
         }
 
@@ -409,20 +409,16 @@ if ( !class_exists( 'GiglogAdmin_AdminPage' ) ) {
             wp_mail( $to, $subject, $body, $headers );
         }
 
-        private function returnuser(string $p1, ?int $c) : ?string
+        private function returnuser(string $role, GiglogAdmin_Concert $concert) : ?string
         {
-            if (!$c) {
-                return null;
-            }
-
-            $role = $cl->get_assigned_role( $this->username );
-            $assigned_user = $cl->assigned_user( $p1 );
+            $roles = $concert->roles();
+            $assigned_user = array_key_exists($role, $roles) ? $roles[$role] : NULL;
 
             //first check if current slot is taken by current user
-            if ( $role == $p1 ) {
+            if ( $assigned_user == $this->username ) {
                 $f = '<form class="unassignit" method="POST" action="">'
-                    . '  <input type="hidden" name="cid" value="' . $c. '" />'
-                    . '  <input type="hidden" name="pid" value="' . $p1. '" />'
+                    . '  <input type="hidden" name="cid" value="{$cconcert->id()}" />'
+                    . '  <input type="hidden" name="pid" value="{$role}" />'
                     . '  <input type="submit" name="unassignitem" value="Your"/>'
                     . '</form>';
             }
@@ -430,14 +426,14 @@ if ( !class_exists( 'GiglogAdmin_AdminPage' ) ) {
                 $f = '<span class="takenby">Taken</span>'
                     . '<div class="takenby">Taken by ' . $assigned_user . '</div>';
             }
-            elseif ( $role ) {
+            elseif ( array_search($this->username, $roles) ) {
                 // other slots for this concert are taken by user
                 $f = '<span class="taken_by_self">-</span>';
             }
             else { //not taken by anyone
                 $f = '<form method="POST" action="">'
-                    . '  <input type="hidden" name="cid" value="' . $c. '" />'
-                    . '  <input type="hidden" name="pid" value="' . $p1. '" />'
+                    . '  <input type="hidden" name="cid" value="' . $concert->id() . '" />'
+                    . '  <input type="hidden" name="pid" value="' . $role. '" />'
                     . '  <input  type="submit" name="assignitem" value=""/>'
                     . '</form>';
             }
