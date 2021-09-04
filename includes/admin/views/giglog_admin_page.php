@@ -269,8 +269,6 @@ if ( !class_exists( 'GiglogAdmin_AdminPage' ) ) {
          */
         static function update()
         {
-            global $wpdb;
-
             if ('POST' !== $_SERVER['REQUEST_METHOD'])
                 return;
 
