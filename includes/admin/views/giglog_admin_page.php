@@ -136,7 +136,7 @@ if ( !class_exists( 'GiglogAdmin_AdminPage' ) ) {
                 .'<label for="venue">Venue:</label>' . $this->get_venue_selector($c->venue()) . '<br>'
                 .'<label for="cdate">Date:</label><input type="date" id="cdate" name="cdate" value="'.$c->cdate().'"><br>'
                 .'<label for="ticket">Tickets:</label><input type="text" id="ticket" name="ticket" value="'.$c->tickets().'"><br>'
-                .'<label for="eventurl">Event link:</label><input type="text" id="eventurl" name="eventurl" value="'.$c->eventlink().'"><br>'
+                    .'<label for="eventurl">Event link:</label><input type="text" id="eventurl" name="eventurl" value="'.$c->eventlink().'"><br>'
                 .'</fieldset>';
             // actions differ if we update or create a concert, hence two buttons needed
             if ($editing)
@@ -304,7 +304,10 @@ if ( !class_exists( 'GiglogAdmin_AdminPage' ) ) {
 
             if(isset($_POST['unassignitem']))
             {
-                GiglogAdmin_AdminPage::unassignconcert($_POST['pid'],$_POST['cid']);
+                $concert = GiglogAdmin_Concert::get(intval($_POST['cid']));
+                $role = sanitize_text_field($_POST['pid']);
+
+                GiglogAdmin_AdminPage::unassignconcert($role, $concert);
 
                 $url3=$_SERVER['REQUEST_URI'];
                 header("Refresh: 1; URL=$url3");  //reload page
@@ -390,22 +393,17 @@ if ( !class_exists( 'GiglogAdmin_AdminPage' ) ) {
             wp_mail( $to, $subject, $body, $headers );
         }
 
-        static function unassignconcert($p1, $c): void
+        static function unassignconcert($p1, GiglogAdmin_Concert $concert): void
         {
-            global $wpdb;
+            $username = wp_get_current_user()->user_login;
+            $concert->remove_user_from_roles($username);
+            $concert->save();
 
             $to = 'live@eternal-terror.com';
-            $subject = $this->username.' has UNASSINED  '.$p1. 'for a concert with id '.$c;
+            $subject = $username.' has UNASSINED  '.$p1. 'for a concert with id '.$concert->id();
             $body = 'The email body content';
             $headers = array('Content-Type: text/html; charset=UTF-8');
-            $usql = "UPDATE wpg_concertlogs  SET wpgcl_".$p1."=''  WHERE wpgcl_concertid=".$c;
-            $uresults = $wpdb->get_results($usql);
-            $wpdb->insert( 'wpg_logchanges', array (
-                'id' => '',
-                'userid' => $this->username,
-                'action' => 'unassigned '.$p1,
-                'concertid' => $c));
-            echo ($wpdb->last_error );
+
             wp_mail( $to, $subject, $body, $headers );
         }
 
@@ -417,8 +415,8 @@ if ( !class_exists( 'GiglogAdmin_AdminPage' ) ) {
             //first check if current slot is taken by current user
             if ( $assigned_user == $this->username ) {
                 $f = '<form class="unassignit" method="POST" action="">'
-                    . '  <input type="hidden" name="cid" value="{$cconcert->id()}" />'
-                    . '  <input type="hidden" name="pid" value="{$role}" />'
+                    . '  <input type="hidden" name="cid" value="' . $concert->id() . '" />'
+                    . '  <input type="hidden" name="pid" value="' . $role . '" />'
                     . '  <input type="submit" name="unassignitem" value="Your"/>'
                     . '</form>';
             }

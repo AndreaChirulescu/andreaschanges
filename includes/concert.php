@@ -299,6 +299,11 @@ if ( !class_exists('GiglogAdmin_Concert') ) {
         {
             $this->roles[$role] = $username;
         }
+
+        public function remove_user_from_roles( string $username ) : void
+        {
+            $this->roles = array_filter($this->roles, fn($u) => $u != $username);
+        }
     }
 }
 ?>
