@@ -25,15 +25,6 @@
 
 if ( !class_exists( 'GiglogAdmin_Plugin' ) ) {
 
-    require_once __DIR__ . '/includes/admin/register_db_tables.php';
-    require_once __DIR__ . '/includes/admin/views/giglog_admin_page.php';
-    require_once __DIR__ . '/includes/admin/views/giglog_import_gigs.php';
-    require_once __DIR__ . '/includes/admin/helpfiles/instrunctions.php';
-    require_once __DIR__ . '/includes/admin/helpfiles/instr_reviewers.php';
-    require_once __DIR__ . '/includes/admin/helpfiles/instr_photog.php';
-    require_once __DIR__ . '/includes/view-helpers/select_field.php';
-    require_once __DIR__ . '/includes/roles.php';
-
     class GiglogAdmin_Plugin
     {
         static public function init(): void {
@@ -133,6 +124,16 @@ if ( !class_exists( 'GiglogAdmin_Plugin' ) ) {
     register_activation_hook( __FILE__, array( 'GiglogAdmin_Plugin', 'activate' ));
     register_deactivation_hook( __FILE__, array( 'GiglogAdmin_Plugin', 'deactivate' ));
 
-    GiglogAdmin_Plugin::init();
+    if (is_admin()) {
+        require_once __DIR__ . '/includes/admin/register_db_tables.php';
+        require_once __DIR__ . '/includes/admin/views/giglog_admin_page.php';
+        require_once __DIR__ . '/includes/admin/views/giglog_import_gigs.php';
+        require_once __DIR__ . '/includes/admin/helpfiles/instrunctions.php';
+        require_once __DIR__ . '/includes/admin/helpfiles/instr_reviewers.php';
+        require_once __DIR__ . '/includes/admin/helpfiles/instr_photog.php';
+        require_once __DIR__ . '/includes/view-helpers/select_field.php';
+
+        GiglogAdmin_Plugin::init();
+    }
 }
 ?>
