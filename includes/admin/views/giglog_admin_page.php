@@ -249,10 +249,10 @@ if ( !class_exists( 'GiglogAdmin_AdminPage' ) ) {
 
                 $roles = $concert->roles();
 
-                $content .= '<td>' . $this->returnuser('photo1', $concert) . '</td>';
-                $content .= '<td>' . $this->returnuser('photo2', $concert) . '</td>';
-                $content .= '<td>' . $this->returnuser('rev1', $concert) . '</td>';
-                $content .= '<td>' . $this->returnuser('rev2', $concert) . '</td>';
+                $content .= '<td>' . $this->assign_role_for_user_form('photo1', $concert) . '</td>';
+                $content .= '<td>' . $this->assign_role_for_user_form('photo2', $concert) . '</td>';
+                $content .= '<td>' . $this->assign_role_for_user_form('rev1', $concert) . '</td>';
+                $content .= '<td>' . $this->assign_role_for_user_form('rev2', $concert) . '</td>';
 
                 $content .= '<td>' . self::STATUS_LABELS[$concert->status()] . '</td>';
 
@@ -409,7 +409,7 @@ if ( !class_exists( 'GiglogAdmin_AdminPage' ) ) {
             wp_mail( $to, $subject, $body, $headers );
         }
 
-        private function returnuser(string $role, GiglogAdmin_Concert $concert) : ?string
+        private function assign_role_for_user_form(string $role, GiglogAdmin_Concert $concert) : ?string
         {
             $roles = $concert->roles();
             $assigned_user = array_key_exists($role, $roles) ? $roles[$role] : NULL;
