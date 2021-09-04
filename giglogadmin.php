@@ -24,6 +24,8 @@
 
 
 if ( !class_exists( 'GiglogAdmin_Plugin' ) ) {
+
+    require_once __DIR__ . '/includes/admin/register_db_tables.php';
     require_once __DIR__ . '/includes/public/shortcodes/giglog_bands.php';
     require_once __DIR__ . '/includes/public/shortcodes/giglog_display_unprocessed.php';
     require_once __DIR__ . '/includes/public/shortcodes/giglog_photographers.php';
@@ -52,7 +54,6 @@ if ( !class_exists( 'GiglogAdmin_Plugin' ) ) {
         }
 
         static function activate(): void {
-            require_once __DIR__ . '/includes/admin/register_db_tables.php';
         }
 
         static function deactivate(): void {
