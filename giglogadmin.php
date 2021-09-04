@@ -32,7 +32,6 @@ if ( !class_exists( 'GiglogAdmin_Plugin' ) ) {
     require_once __DIR__ . '/includes/admin/helpfiles/instr_reviewers.php';
     require_once __DIR__ . '/includes/admin/helpfiles/instr_photog.php';
     require_once __DIR__ . '/includes/view-helpers/select_field.php';
-    require_once __DIR__ . '/includes/roles.php';
 
     class GiglogAdmin_Plugin
     {
