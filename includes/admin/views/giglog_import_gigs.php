@@ -27,9 +27,13 @@ if ( !class_exists( 'GiglogAdmin_ImportGigsPage' ) ) {
 
         static function submit_form(): void {
             if ('POST' === $_SERVER['REQUEST_METHOD'] && current_user_can('upload_files') && !empty($_FILES['giglog_import_file']['tmp_name'])) {
-                $nonce = $_POST['giglog_import_nonce'];
-                $valid_nonce = isset($nonce) && wp_verify_nonce($nonce);
-                GiglogAdmin_ImportGigsPage::process_upload($_FILES['giglog_import_file']);
+                if (isset($_POST['giglog_import_nonce']) && wp_verify_nonce($_POST['giglog_import_nonce'], plugin_basename( __FILE__ )) ) {
+                    GiglogAdmin_ImportGigsPage::process_upload($_FILES['giglog_import_file']);
+                }
+                else {
+                    header('HTTP/1.1 400 Bad Request');
+                    wp_die('Bad request', 400);
+                }
             }
         }
 
