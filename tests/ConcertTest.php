@@ -71,7 +71,6 @@ final class ConcertTest extends WP_UnitTestCase
         $tables = [
             "wpg_concerts",
             "wpg_venues",
-            "wpg_concertlogs",
         ];
 
         foreach( $tables as $table ) {
