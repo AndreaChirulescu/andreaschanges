@@ -35,8 +35,9 @@ if (!class_exists("GiglogAdmin_ConcertsTable"))
             //    $content .= '</tr><th>CITY</th><th>ID</th><th>BAND</th><th>VENUE</th><th>DATE</th></tr>';
 
             $content .= '<tr class="assignithrow"><th>CITY</th><th>NAME</th><th>VENUE</th><th>DATE</th>';
-            if(!is_admin())
-            $content .= '<th>EVENT</th><th>TICKETS</th>';
+            if(!is_admin()) {
+                $content .= '<th>EVENT</th><th>TICKETS</th>';
+            }
 
             else
             {
@@ -118,7 +119,7 @@ if (!class_exists("GiglogAdmin_ConcertsTable"))
         {
             $cty = filter_input(INPUT_POST, 'selectcity', FILTER_SANITIZE_SPECIAL_CHARS);
 
-            $select = '<form method="POST" action="">FILTER DATA:';
+            $select = '<form method="POST" action="" class="filterclass">FILTER DATA:';
             $select .= \EternalTerror\ViewHelpers\select_field(
                 "selectcity",
                 array_map(fn($city) => [$city, $city], GiglogAdmin_Venue::all_cities()),
@@ -143,7 +144,7 @@ if (!class_exists("GiglogAdmin_ConcertsTable"))
                         . checked(isset($_POST['ownconcerts']) ? $_POST['ownconcerts'] : false)
                         . '><label for="ownconcerts">Show own concerts only</label>';
                     }
-                    $select .= '<input type="submit" value="APPLY"></form>';
+                    $select .= '<input class="applybuton" type="submit" value="Apply Filters"></form>';
 
                     return $select;
                 }
