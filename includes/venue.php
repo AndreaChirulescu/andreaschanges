@@ -110,7 +110,7 @@ if ( !class_exists('GiglogAdmin_Venue') ) {
         {
             global $wpdb;
 
-            $results = $wpdb->get_results("select * from wpg_venues");
+            $results = $wpdb->get_results("select * from wpg_venues ORDER BY wpgvenue_name");
 
             return array_map(function ($r) { return new GiglogAdmin_Venue($r); }, $results);
         }
@@ -125,6 +125,7 @@ if ( !class_exists('GiglogAdmin_Venue') ) {
         {
             global $wpdb;
             $q = $wpdb->prepare("select * from wpg_venues where wpgvenue_city=%s", $city);
+            $q .=" ORDER BY wpgvenue_name";
             $results = $wpdb->get_results($q);
 
             return array_map(function ($r) { return new GiglogAdmin_Venue($r); }, $results);
