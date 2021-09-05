@@ -81,7 +81,7 @@ if (!class_exists("GiglogAdmin_ConcertsTable"))
                 $content .= '<td class="publishstatus">' . $this->mark_new_concert($concert) . '</td>';
 
                 $content .= '<td class="assigneduser">' . $this->assign_role_for_user_form('photo1', $concert) . '</td>';
-                $content .= '<td> class="assigneduser">' . $this->assign_role_for_user_form('photo2', $concert) . '</td>';
+                $content .= '<td class="assigneduser">' . $this->assign_role_for_user_form('photo2', $concert) . '</td>';
                 $content .= '<td class="assigneduser">' . $this->assign_role_for_user_form('rev1', $concert) . '</td>';
                 $content .= '<td class="assigneduser">' . $this->assign_role_for_user_form('rev2', $concert) . '</td>';
 
