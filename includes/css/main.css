@@ -78,6 +78,7 @@ span.takenbyself
 	font-size: small;
 	vertical-align: center;
     border-collapse:collapse;
+    line-height: 2.5em;
 }
 
 table.assignit

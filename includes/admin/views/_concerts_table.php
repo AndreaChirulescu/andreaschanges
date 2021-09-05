@@ -34,11 +34,13 @@ if (!class_exists("GiglogAdmin_ConcertsTable"))
             $content = '<table class="assignit">';
             //    $content .= '</tr><th>CITY</th><th>ID</th><th>BAND</th><th>VENUE</th><th>DATE</th></tr>';
 
-            $content .= '<tr class="assignithrow">
-                <th>CITY</th><th>NAME</th><th>VENUE</th><th>DATE</th><th> </th>
-                <th>PHOTO1</th><th>PHOTO2</th><th>TEXT1</th><th>TEXT2</th>
-                <th>STATUS</th>';
-                if (current_user_can('administrator'))
+            $content .= '<tr class="assignithrow"><th>CITY</th><th>NAME</th><th>VENUE</th><th>DATE</th>';
+             if(!is_user_logged_in())
+              $content .= '<th>EVENT</th><th>TICKETS</th>';
+
+             else
+                 $content .= '<th> </th><th>PHOTO1</th><th>PHOTO2</th><th>TEXT1</th><th>TEXT2</th><th>STATUS</th>';
+             if (current_user_can('administrator'))
                 $content .=  '<th>AdminOptions</th>';
                 $content .= '</tr>';
 
@@ -62,36 +64,44 @@ if (!class_exists("GiglogAdmin_ConcertsTable"))
                 $content .= '<tr class="assignitr">';
 
                 if ($lastType != '' && $lastType !=  $concert->venue()->city()) {
-                    $content .= '<td>' . $concert->venue()->city() . '</td></tr><tr class="assignitr">';
+                    $content .= '<td>' . $concert->venue()->city() . '</td>">';
                 }
 
                 if  ($lastType == '' ) {
-                    $content .= '<td>' . $concert->venue()->city() . '</td></tr><tr class="assignitr">';
+                    $content .= '<td>' . $concert->venue()->city() . '</td>';
                 }
                 // Modify these to match the database structure
                 //     $content .= '<td>' . $row->id. '</td>';
-                $content .= '<td></td>';
-                $content .= '<td>' . $concert->cname() . '</td>';
+                //     $content .= '<td>' . $row->id. '</td>';
+                if  ($lastType != '' && $lastType ==  $concert->venue()->city()) $content .= '<td></td>';
+                $content .= '<td>'. $concert->cname() . '</td>';
                 $content .= '<td>' . $concert->venue()->name() . '</td>';
                 $fdate =  strtotime($concert->cdate());
                 $newformat = date('d.M.Y',$fdate);
 
                 //$content .= DATE_FORMAT($fdate,'%d.%b.%Y');
-                $content .= '<td>' . $newformat . '</td>';
-                $content .= '<td class="publishstatus">' . $this->mark_new_concert($concert) . '</td>';
+                    $content .= '<td>' . $newformat . '</td>';
+                if(!is_user_logged_in()){
+                $content .= '<td><a target="_blank" href="'.$concert->eventlink() .'">Link</a></td>';
+                $content .= '<td><a target="_blank" href="'.$concert->tickets() .'">Tickets</a></td>';
 
-                $content .= '<td class="assigneduser">' . $this->assign_role_for_user_form('photo1', $concert) . '</td>';
-                $content .= '<td class="assigneduser">' . $this->assign_role_for_user_form('photo2', $concert) . '</td>';
-                $content .= '<td class="assigneduser">' . $this->assign_role_for_user_form('rev1', $concert) . '</td>';
-                $content .= '<td class="assigneduser">' . $this->assign_role_for_user_form('rev2', $concert) . '</td>';
+                }
+                else {
+                    $content .= '<td class="publishstatus">' . $this->mark_new_concert($concert) . '</td>';
 
-                $content .= '<td>' . self::STATUS_LABELS[$concert->status()] . '</td>';
+                    $content .= '<td class="assigneduser">' . $this->assign_role_for_user_form('photo1', $concert) . '</td>';
+                    $content .= '<td class="assigneduser">' . $this->assign_role_for_user_form('photo2', $concert) . '</td>';
+                    $content .= '<td class="assigneduser">' . $this->assign_role_for_user_form('rev1', $concert) . '</td>';
+                    $content .= '<td class="assigneduser">' . $this->assign_role_for_user_form('rev2', $concert) . '</td>';
 
-                if (current_user_can('administrator')) {
-                    $content .=
+                    $content .= '<td>' . self::STATUS_LABELS[$concert->status()] . '</td>';
+
+                    if (current_user_can('administrator')) {
+                        $content .=
                         '<td  class="adminbuttons">'
                         . $this->adminactions($concert)
                         . '</td>';
+                    }
                 }
                 $content .= '</tr>';
                 $lastType = $concert->venue()->city();
@@ -125,11 +135,12 @@ if (!class_exists("GiglogAdmin_ConcertsTable"))
                     filter_input(INPUT_POST, 'selectvenue', FILTER_SANITIZE_SPECIAL_CHARS),
                     "Select venue...");
             }
+            if(is_user_logged_in()) {
             //option to select own concerts only
             $select .= '<input name="ownconcerts" class="ownconc" type="checkbox" value="1"'
                 . checked(isset($_POST['ownconcerts']) ? $_POST['ownconcerts'] : false)
                 . '><label for="ownconcerts">Show own concerts only</label>';
-
+            }
             $select .= '<input type="submit" value="APPLY"></form>';
 
             return $select;
