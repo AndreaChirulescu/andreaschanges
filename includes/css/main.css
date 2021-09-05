@@ -169,9 +169,6 @@ input[name="unassignitem"]
  	 background: #CCC
   }
 
-tr.assignitr  {
-	min-height: 120%;
- }
 
  .assigneduser, .publishstatus
  {
