@@ -348,10 +348,10 @@ if ( !function_exists( "giglog_register_db_tables") )
                 ADD COLUMN IF NOT EXISTS
                 `wpgconcert_type` INT NOT NULL DEFAULT '1' COMMENT '1 concert, 2 festival';");
             $wpdb->query(
-                "ALTER TABLE `wpg_concerts` DROP INDEX `wpgconcert_band`;");
+                "ALTER TABLE `wpg_concerts` DROP INDEX IF EXISTS `wpgconcert_band`;");
 
             $wpdb->query(
-                "ALTER TABLE `wpg_concerts` DROP FOREIGN KEY `wpgconcert_band`;");
+                "ALTER TABLE `wpg_concerts` DROP FOREIGN KEY IF EXISTS `wpgconcert_band`;");
         }
 
         if ($db_version == NULL || $db_version < 6)
