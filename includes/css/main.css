@@ -77,6 +77,7 @@ span.takenbyself
 	padding: none !important;
 	font-size: small;
 	vertical-align: center;
+    border-collapse:collapse;
 }
 
 table.assignit
@@ -84,6 +85,7 @@ table.assignit
 {
       white-space: nowrap;
       overflow: hidden;
+      border-collapse:collapse;
 }
 
 input[name="unassignitem"]
@@ -161,4 +163,15 @@ input[name="unassignitem"]
  .editform textarea
  {
 	 height: auto;
+ }
+
+ tr.assignitr:nth-child(even){
+ 	 background: #CCC
+  }
+
+
+ .assigneduser, .publishstatus
+ {
+	 text-align: center;
+
  }

@@ -5,6 +5,7 @@
         "This file is @generated automatically"
     ],
     "content-hash": "da8593c79fc71116e3079512611bb8ec",
+
     "packages": [],
     "packages-dev": [
         {
@@ -329,6 +330,7 @@
         },
         {
             "name": "composer/xdebug-handler",
+
             "version": "2.0.0",
             "source": {
                 "type": "git",
@@ -373,7 +375,9 @@
             "support": {
                 "irc": "irc://irc.freenode.org/composer",
                 "issues": "https://github.com/composer/xdebug-handler/issues",
+
                 "source": "https://github.com/composer/xdebug-handler/tree/2.0.0"
+
             },
             "funding": [
                 {
@@ -389,7 +393,9 @@
                     "type": "tidelift"
                 }
             ],
+
             "time": "2021-04-09T19:40:06+00:00"
+
         },
         {
             "name": "dnoegel/php-xdg-base-dir",
@@ -530,6 +536,7 @@
             "time": "2021-02-22T14:02:09+00:00"
         },
         {
+
             "name": "humanmade/psalm-plugin-wordpress",
             "version": "2.0.4",
             "source": {
@@ -809,6 +816,7 @@
             "time": "2019-03-29T20:06:56+00:00"
         },
         {
+
             "name": "php-stubs/wordpress-stubs",
             "version": "v5.7.0",
             "source": {

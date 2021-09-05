@@ -85,6 +85,7 @@ if ( !class_exists('GiglogAdmin_Concert') ) {
 
             $query = self::BASE_QUERY
                 . 'WHERE ' . $wpdb->prepare('wpg_concerts.id = %d', $id);
+            $query.= ' ORDER BY wpgconcert_date';
 
             $results  = $wpdb->get_results($query);
 
@@ -216,9 +217,14 @@ if ( !class_exists('GiglogAdmin_Concert') ) {
                 array_push($where, 'wpg_venues.id = ' . $wpdb->prepare('%s', $filter["venue_id"]));
             }
 
+            if ( isset( $filter["currentuser"] ) ) {
+                array_push($where , 'wpgconcert_roles like "%'.$filter["currentuser"].'%"');
+            }
+
             if ( ! empty( $where ) ) {
                 $query .= 'WHERE ' . implode(' and ', $where);
             }
+            $query.= ' ORDER BY wpgconcert_date';
 
             $results  = $wpdb->get_results($query);
 
