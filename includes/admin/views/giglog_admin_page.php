@@ -7,10 +7,11 @@
 
 if ( !class_exists( 'GiglogAdmin_AdminPage' ) ) {
     require_once __DIR__ . '/../../venue.php';
+    require_once __DIR__ . '/_concerts_table.php';
+    require_once __DIR__ . '/_edit_concert_form.php';
 
-    class GiglogAdmin_AdminPage {
-        private string $username;
-
+    class GiglogAdmin_AdminPage
+    {
         const STATUS_LABELS = [
             '',
             'Accred Requested',
@@ -20,19 +21,15 @@ if ( !class_exists( 'GiglogAdmin_AdminPage' ) ) {
             'Rejected'
         ];
 
-        public function __construct()
-        {
-            $this->username = wp_get_current_user()->user_login;
-        }
-
         public static function render_html() : void
         {
             $page = new self();
             $page->render_page();
         }
 
-        public function render_page() : void
+        private function render_page() : void
         {
+            $concerts = new GiglogAdmin_ConcertsTable();
             ?>
             <div class="wrap">
                 <h1>Giglog Admin</h1>
@@ -51,221 +48,14 @@ if ( !class_exists( 'GiglogAdmin_AdminPage' ) ) {
                 what the accreditation status is. You will get personal message if this
                 is really close to the concert date.</p>
 
-                <p><?php echo $this->get_filters() ?></p>
-                <p><?php echo $this->get_concerts() ?></p>
+                <p><?php echo $concerts->render() ?></p>
             </div>
             <?php
-            if (current_user_can('administrator'))
-                echo(GiglogAdmin_AdminPage::editforms());  //not sure why it doesn't show without the echo?
-        }
-
-        private function get_venue_selector( ?GiglogAdmin_Venue $invenue ): string
-        {
-            return \EternalTerror\ViewHelpers\select_field(
-                "selectvenueadmin",
-                array_map(fn($venue) => [$venue->id(), $venue->name()], GiglogAdmin_Venue::all_venues()),
-                $invenue ? $invenue->id() : null);
-        }
-
-
-        private function user_dropdown_for_role( GiglogAdmin_Concert $concert, string $role): string
-        {
-            $users = array_map(
-                fn($usr) => $usr->user_login,
-                get_users( array( 'fields' => array( 'user_login' ) ) ) );
-
-            $roles = $concert->roles();
-
-            $current_user = array_key_exists($role, $roles) ? $roles[$role] : NULL;
-
-            return \EternalTerror\ViewHelpers\select_field(
-                $role,
-                array_map( fn($user) => [ $user, $user ], $users ),
-                $current_user);
-        }
-
-
-        private function get_filters() : string
-        {
-            $cty = filter_input(INPUT_POST, 'selectcity', FILTER_SANITIZE_SPECIAL_CHARS);
-
-            $select = '<form method="POST" action="">FILTER DATA:';
-            $select .= \EternalTerror\ViewHelpers\select_field(
-                "selectcity",
-                array_map(fn($city) => [$city, $city], GiglogAdmin_Venue::all_cities()),
-                $cty,
-                "Select city...");
-
-
-            if ( !empty($cty) ) {
-                //second drop down for venue
-                $select .= \EternalTerror\ViewHelpers\select_field(
-                    "selectvenue",
-                    array_map(
-                        fn($venue) => [$venue->id(), $venue->name()],
-                        GiglogAdmin_Venue::venues_in_city($cty)
-                    ),
-                    filter_input(INPUT_POST, 'selectvenue', FILTER_SANITIZE_SPECIAL_CHARS),
-                    "Select venue...");
-            }
-            //option to select own concerts only
-            $select .= '<input  class="ownconc" type="checkbox" value="1"';
-            if(isset($_POST['ownconcerts'])) $select .=' checked="checked" ';
-            $select.=' name="ownconcerts">Show own concerts only</input>';
-
-            $select .= '<input type="submit" value="APPLY"></form>';
-
-            return $select;
-        }
-
-        private function editforms(): string
-        {
-            $cid = filter_input(INPUT_POST, "cid");
-            $editing = filter_input(INPUT_POST, "edit") == "EDIT";
-
-            if ($editing && !empty($cid))   //A bit overdoing with the checks if concert ID is empty both here and in find_cid. But based on that, things are NULL or not. Better ideas?
-                $c = GiglogAdmin_Concert::get($cid);
-            else
-                $c = new GiglogAdmin_Concert((object)[]);
-
-            $content='<div><h3>Form to create/edit concerts and venues</h3><br></div><div class="editform"><div class="concertform">';
-            $content.='<form method="POST" action="" class="concert" >'
-                .'<div class="concertitems"><strong>CONCERT DETAILS</strong><br><br><fieldset>'
-                .'<input type="hidden" name="pid" value="' .$c->id(). '" />'
-                .'<label for="cname">Concert Name:</label><textarea id="cname" name="cname" value="'.$c->cname().'">'.$c->cname().'</textarea><br>'
-                .'<label for="venue">Venue:</label>' . $this->get_venue_selector($c->venue()) . '<br>'
-                .'<label for="cdate">Date:</label><input type="date" id="cdate" name="cdate" value="'.$c->cdate().'"><br>'
-                .'<label for="ticket">Tickets:</label><input type="text" id="ticket" name="ticket" value="'.$c->tickets().'"><br>'
-                    .'<label for="eventurl">Event link:</label><input type="text" id="eventurl" name="eventurl" value="'.$c->eventlink().'"><br>'
-                .'</fieldset>';
-            // actions differ if we update or create a concert, hence two buttons needed
-            if ($editing)
-                $content.='<p><input type="submit" name="editconcert" value="Edit Concert"></p>';
-            else
-                $content.='<p><input type="submit" name="newconcert" value="Create New Concert"></p>';
-
-            $content.='</div>';
-
-            $content.='<div class="useritems"><strong>ASSIGNMENT DETAILS</strong><br><br><fieldset>'
-                .'<label for="photo1">Photo1:</label>'.$this->user_dropdown_for_role($c,'photo1').'<br>'
-                .'<label for="photo2">Photo2:</label>'.$this->user_dropdown_for_role($c,'photo2').'<br>'
-                .'<label for="rev1">Text1:</label>'.$this->user_dropdown_for_role($c,'rev1').'<br>'
-                .'<label for="rev2">Text2:</label>'.$this->user_dropdown_for_role($c,'rev2').'<br>';
-
-            $content.='<fieldset></div></form></div>';
-            $content.='<div class="venueform"><form method="POST" action="" class="venue" ><strong>VENUE DETAILS</strong><br><br>'
-                .'<fieldset><label for="venue">Venue Name:</label><input type="text" id="venuename" name="venuename"><br>'
-                .'<label for="eventurl">Venue City:</label><input type="text" id="venuecity" name="venuecity"><br>'
-                .'<p><input type="submit" name="newvenue" value="Create New Venue"></p>'
-                .'<fieldset></form></div>';
-            $content.='</div>';
-            return $content;
-        }
-
-        private function adminactions( GiglogAdmin_Concert $concert ) : string
-        {
-            return
-                '<form method="POST" action="">'
-                . '<input type="hidden" name="cid" value="' . $concert->id() .  '" />'
-                . \EternalTerror\ViewHelpers\select_field(
-                    'selectstatus',
-                    array_map(fn($i) => [ $i, self::STATUS_LABELS[$i] ], range(1, count(self::STATUS_LABELS) - 1)),
-                    $concert->status())
-                . '<input type="submit" value="SetStatus">'
-                . '<input type="submit" name ="edit" value="EDIT">'
-                . '</form>';
-        }
-
-        //function to calculate if the concert has been added in the past 10 days or before that and show a green NEW for the newest rows
-        /**
-         * @return null|string
-         */
-        private function getpublishstatus(GiglogAdmin_Concert $concert) : string
-        {
-            $now = new DateTime();
-            $new_entry = $now->diff($concert->created())->days <= 10;
-            if ($new_entry) {
-                return '<span style="color:green">NEW</span>';
-            }
-            else {
-                return '';
+            if (current_user_can('administrator')) {
+                $form = new GiglogAdmin_EditConcertForm();
+                echo $form->render();
             }
         }
-
-
-        private function get_concerts(): string
-        {
-            $content = '<table class="assignit">';
-            //    $content .= '</tr><th>CITY</th><th>ID</th><th>BAND</th><th>VENUE</th><th>DATE</th></tr>';
-
-            $content .= '<tr class="assignithrow">
-                <th>CITY</th><th>NAME</th><th>VENUE</th><th>DATE</th><th> </th>
-                <th>PHOTO1</th><th>PHOTO2</th><th>TEXT1</th><th>TEXT2</th>
-                <th>STATUS</th>';
-                if (current_user_can('administrator'))
-                $content .=  '<th>AdminOptions</th>';
-                $content .= '</tr>';
-
-            $filter = [];
-
-            // Use the submitted "city" if any. Otherwise, use the default/static value.
-            $cty = filter_input( INPUT_POST, 'selectcity', FILTER_SANITIZE_SPECIAL_CHARS );
-            if ($cty) $filter['city'] = $cty;
-
-            $venue = filter_input( INPUT_POST, 'selectvenue', FILTER_SANITIZE_SPECIAL_CHARS );
-            if ($venue) $filter['venue_id'] = $venue;
-
-            if(isset($_POST['ownconcerts']) &&  $_POST['ownconcerts'] == '1')
-                $filter['currentuser'] = wp_get_current_user()->user_login;
-
-            $concerts = GiglogAdmin_Concert::find_concerts($filter);
-
-            $lastType = '';
-
-            foreach ( $concerts AS $concert ) {
-                $content .= '<tr class="assignitr">';
-
-                if ($lastType != '' && $lastType !=  $concert->venue()->city()) {
-                    $content .= '<td>' . $concert->venue()->city() . '</td></tr><tr class="assignitr">';
-                }
-
-                if  ($lastType == '' ) {
-                    $content .= '<td>' . $concert->venue()->city() . '</td></tr><tr class="assignitr">';
-                }
-                // Modify these to match the database structure
-                //     $content .= '<td>' . $row->id. '</td>';
-                $content .= '<td></br></br></td>';
-                $content .= '<td>' . $concert->cname() . '</td>';
-                $content .= '<td>' . $concert->venue()->name() . '</td>';
-                $fdate =  strtotime($concert->cdate());
-                $newformat = date('d.M.Y',$fdate);
-
-                //$content .= DATE_FORMAT($fdate,'%d.%b.%Y');
-                $content .= '<td>' . $newformat . '</td>';
-                $content .= '<td class="publishstatus">' . $this->getpublishstatus($concert) . '</td>';
-
-                $content .= '<td class="assigneduser">' . $this->assign_role_for_user_form('photo1', $concert) . '</td>';
-                $content .= '<td class="assigneduser">' . $this->assign_role_for_user_form('photo2', $concert) . '</td>';
-                $content .= '<td class="assigneduser">' . $this->assign_role_for_user_form('rev1', $concert) . '</td>';
-                $content .= '<td class="assigneduser">' . $this->assign_role_for_user_form('rev2', $concert) . '</td>';
-
-                $content .= '<td>' . self::STATUS_LABELS[$concert->status()] . '</td>';
-
-                if (current_user_can('administrator')) {
-                    $content .=
-                        '<td  class="adminbuttons">'
-                        . $this->adminactions($concert)
-                        . '</td>';
-                }
-                $content .= '</tr>';
-                $lastType = $concert->venue()->city();
-            }
-            $content .= '</table>';
-
-            // return the table
-            return $content;
-        }
-
 
         /**
          * @return void
@@ -400,37 +190,6 @@ if ( !class_exists( 'GiglogAdmin_AdminPage' ) ) {
             wp_mail( $to, $subject, $body, $headers );
         }
 
-        private function assign_role_for_user_form(string $role, GiglogAdmin_Concert $concert) : ?string
-        {
-            $roles = $concert->roles();
-            $assigned_user = array_key_exists($role, $roles) ? $roles[$role] : NULL;
-
-            //first check if current slot is taken by current user
-            if ( $assigned_user == $this->username ) {
-                $f = '<form class="unassignit" method="POST" action="">'
-                    . '  <input type="hidden" name="cid" value="' . $concert->id() . '" />'
-                    . '  <input type="hidden" name="pid" value="' . $role . '" />'
-                    . '  <input type="submit" name="unassignitem" value=""/>'
-                    . '</form>';
-            }
-            elseif ( $assigned_user ) { //check if slot is taken by another user
-                $f = '<span class="takenby">Taken</span>'
-                    . '<div class="takenby">Taken by ' . $assigned_user . '</div>';
-            }
-            elseif ( array_search($this->username, $roles) ) {
-                // other slots for this concert are taken by user
-                $f = '<span class="taken_by_self">-</span>';
-            }
-            else { //not taken by anyone
-                $f = '<form method="POST" action="">'
-                    . '  <input type="hidden" name="cid" value="' . $concert->id() . '" />'
-                    . '  <input type="hidden" name="pid" value="' . $role. '" />'
-                    . '  <input  type="submit" name="assignitem" value=""/>'
-                    . '</form>';
-            }
-
-            return $f;
-        }
     }
 }
 ?>

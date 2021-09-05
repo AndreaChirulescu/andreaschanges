@@ -31,7 +31,7 @@ if ( !class_exists('GiglogAdmin_Concert') ) {
         public const STATUS_REJECTED = 5;
 
         private const BASE_QUERY =
-            'SELECT wpg_concerts.*, wpg_venues.id as venue_id, wpg_venues.wpgvenue_name wpg_venues_wpgvenue_city '
+            'SELECT wpg_concerts.*, wpg_venues.wpgvenue_name wpg_venues_wpgvenue_city '
             . 'FROM wpg_concerts '
             . 'LEFT JOIN wpg_venues ON wpg_concerts.venue = wpg_venues.id ';
 
