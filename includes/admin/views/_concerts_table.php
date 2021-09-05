@@ -70,7 +70,7 @@ if (!class_exists("GiglogAdmin_ConcertsTable"))
                 }
                 // Modify these to match the database structure
                 //     $content .= '<td>' . $row->id. '</td>';
-                $content .= '<td></br></br></td>';
+                $content .= '<td></td>';
                 $content .= '<td>' . $concert->cname() . '</td>';
                 $content .= '<td>' . $concert->venue()->name() . '</td>';
                 $fdate =  strtotime($concert->cdate());
@@ -81,7 +81,7 @@ if (!class_exists("GiglogAdmin_ConcertsTable"))
                 $content .= '<td class="publishstatus">' . $this->mark_new_concert($concert) . '</td>';
 
                 $content .= '<td class="assigneduser">' . $this->assign_role_for_user_form('photo1', $concert) . '</td>';
-                $content .= '<td> class="assigneduser">' . $this->assign_role_for_user_form('photo2', $concert) . '</td>';
+                $content .= '<td class="assigneduser">' . $this->assign_role_for_user_form('photo2', $concert) . '</td>';
                 $content .= '<td class="assigneduser">' . $this->assign_role_for_user_form('rev1', $concert) . '</td>';
                 $content .= '<td class="assigneduser">' . $this->assign_role_for_user_form('rev2', $concert) . '</td>';
 
@@ -126,9 +126,9 @@ if (!class_exists("GiglogAdmin_ConcertsTable"))
                     "Select venue...");
             }
             //option to select own concerts only
-            $select .= '<input  class="ownconc" type="checkbox" value="1"';
-            if(isset($_POST['ownconcerts'])) $select .=' checked="checked" ';
-            $select.=' name="ownconcerts">Show own concerts only</input>';
+            $select .= '<input name="ownconcerts" class="ownconc" type="checkbox" value="1"'
+                . checked(isset($_POST['ownconcerts']) ? $_POST['ownconcerts'] : false)
+                . '><label for="ownconcerts">Show own concerts only</label>';
 
             $select .= '<input type="submit" value="APPLY"></form>';
 
