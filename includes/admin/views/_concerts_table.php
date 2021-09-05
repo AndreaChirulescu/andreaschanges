@@ -59,7 +59,7 @@ if (!class_exists("GiglogAdmin_ConcertsTable"))
                 $content .= '<tr class="assignitr">';
 
                 if ($lastType != '' && $lastType !=  $concert->venue()->city()) {
-                    $content .= '<td>' . $concert->city() . '</td></tr><tr>';
+                    $content .= '<td>' . $concert->venue()->city() . '</td></tr><tr>';
                 }
 
                 if  ($lastType == '' ) {
