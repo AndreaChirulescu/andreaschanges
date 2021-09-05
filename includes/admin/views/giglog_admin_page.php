@@ -110,8 +110,8 @@ if ( !class_exists( 'GiglogAdmin_AdminPage' ) ) {
             }
             //option to select own concerts only
             $select .= '<input  class="ownconc" type="checkbox" value="1"';
-                if(isset($_POST['my_checkbox'])) $select .=' checked="checked" ';
-            $select.=' name="my_checkbox">Show own concerts only</input>';
+            if(isset($_POST['ownconcerts'])) $select .=' checked="checked" ';
+            $select.=' name="ownconcerts">Show own concerts only</input>';
 
             $select .= '<input type="submit" value="APPLY"></form>';
 
@@ -215,6 +215,9 @@ if ( !class_exists( 'GiglogAdmin_AdminPage' ) ) {
             $venue = filter_input( INPUT_POST, 'selectvenue', FILTER_SANITIZE_SPECIAL_CHARS );
             if ($venue) $filter['venue_id'] = $venue;
 
+            if(isset($_POST['ownconcerts']) &&  $_POST['ownconcerts'] == '1')
+                $filter['currentuser'] = wp_get_current_user()->user_login;
+
             $concerts = GiglogAdmin_Concert::find_concerts($filter);
 
             $lastType = '';
@@ -223,15 +226,15 @@ if ( !class_exists( 'GiglogAdmin_AdminPage' ) ) {
                 $content .= '<tr class="assignitr">';
 
                 if ($lastType != '' && $lastType !=  $concert->venue()->city()) {
-                    $content .= '<td>' . $concert->venue()->city() . '</td></tr><tr>';
+                    $content .= '<td>' . $concert->venue()->city() . '</td></tr><tr class="assignitr">';
                 }
 
                 if  ($lastType == '' ) {
-                    $content .= '<td>' . $concert->venue()->city() . '</td></tr><tr>';
+                    $content .= '<td>' . $concert->venue()->city() . '</td></tr><tr class="assignitr">';
                 }
                 // Modify these to match the database structure
                 //     $content .= '<td>' . $row->id. '</td>';
-                $content .= '<td></td>';
+                $content .= '<td></br></br></td>';
                 $content .= '<td>' . $concert->cname() . '</td>';
                 $content .= '<td>' . $concert->venue()->name() . '</td>';
                 $fdate =  strtotime($concert->cdate());
@@ -239,12 +242,12 @@ if ( !class_exists( 'GiglogAdmin_AdminPage' ) ) {
 
                 //$content .= DATE_FORMAT($fdate,'%d.%b.%Y');
                 $content .= '<td>' . $newformat . '</td>';
-                $content .= '<td>' . $this->getpublishstatus($concert) . '</td>';
+                $content .= '<td class="publishstatus">' . $this->getpublishstatus($concert) . '</td>';
 
-                $content .= '<td>' . $this->assign_role_for_user_form('photo1', $concert) . '</td>';
-                $content .= '<td>' . $this->assign_role_for_user_form('photo2', $concert) . '</td>';
-                $content .= '<td>' . $this->assign_role_for_user_form('rev1', $concert) . '</td>';
-                $content .= '<td>' . $this->assign_role_for_user_form('rev2', $concert) . '</td>';
+                $content .= '<td class="assigneduser">' . $this->assign_role_for_user_form('photo1', $concert) . '</td>';
+                $content .= '<td class="assigneduser">' . $this->assign_role_for_user_form('photo2', $concert) . '</td>';
+                $content .= '<td class="assigneduser">' . $this->assign_role_for_user_form('rev1', $concert) . '</td>';
+                $content .= '<td class="assigneduser">' . $this->assign_role_for_user_form('rev2', $concert) . '</td>';
 
                 $content .= '<td>' . self::STATUS_LABELS[$concert->status()] . '</td>';
 
@@ -407,7 +410,7 @@ if ( !class_exists( 'GiglogAdmin_AdminPage' ) ) {
                 $f = '<form class="unassignit" method="POST" action="">'
                     . '  <input type="hidden" name="cid" value="' . $concert->id() . '" />'
                     . '  <input type="hidden" name="pid" value="' . $role . '" />'
-                    . '  <input type="submit" name="unassignitem" value="Your"/>'
+                    . '  <input type="submit" name="unassignitem" value=""/>'
                     . '</form>';
             }
             elseif ( $assigned_user ) { //check if slot is taken by another user

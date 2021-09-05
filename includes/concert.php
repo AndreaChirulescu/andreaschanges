@@ -217,6 +217,10 @@ if ( !class_exists('GiglogAdmin_Concert') ) {
                 array_push($where, 'wpg_venues.id = ' . $wpdb->prepare('%s', $filter["venue_id"]));
             }
 
+            if ( isset( $filter["currentuser"] ) ) {
+                array_push($where , 'wpgconcert_roles like "%'.$filter["currentuser"].'%"');
+            }
+
             if ( ! empty( $where ) ) {
                 $query .= 'WHERE ' . implode(' and ', $where);
             }
