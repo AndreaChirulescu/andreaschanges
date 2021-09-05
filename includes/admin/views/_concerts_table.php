@@ -38,10 +38,12 @@ if (!class_exists("GiglogAdmin_ConcertsTable"))
              if(!is_user_logged_in())
               $content .= '<th>EVENT</th><th>TICKETS</th>';
 
-             else
-                 $content .= '<th> </th><th>PHOTO1</th><th>PHOTO2</th><th>TEXT1</th><th>TEXT2</th><th>STATUS</th>';
-             if (current_user_can('administrator'))
-                $content .=  '<th>AdminOptions</th>';
+              else if(!is_page('Giglog'))
+              {
+                  $content .= '<th> </th><th>PHOTO1</th><th>PHOTO2</th><th>TEXT1</th><th>TEXT2</th><th>STATUS</th>';
+              if (current_user_can('administrator'))
+                 $content .=  '<th>AdminOptions</th>';
+              }
                 $content .= '</tr>';
 
             $filter = [];
@@ -86,7 +88,7 @@ if (!class_exists("GiglogAdmin_ConcertsTable"))
                 $content .= '<td><a target="_blank" href="'.$concert->tickets() .'">Tickets</a></td>';
 
                 }
-                else {
+                else if (!is_page('Giglog')){
                     $content .= '<td class="publishstatus">' . $this->mark_new_concert($concert) . '</td>';
 
                     $content .= '<td class="assigneduser">' . $this->assign_role_for_user_form('photo1', $concert) . '</td>';
@@ -135,7 +137,7 @@ if (!class_exists("GiglogAdmin_ConcertsTable"))
                     filter_input(INPUT_POST, 'selectvenue', FILTER_SANITIZE_SPECIAL_CHARS),
                     "Select venue...");
             }
-            if(is_user_logged_in()) {
+            if(is_user_logged_in() && !is_page('Giglog')) {
             //option to select own concerts only
             $select .= '<input name="ownconcerts" class="ownconc" type="checkbox" value="1"'
                 . checked(isset($_POST['ownconcerts']) ? $_POST['ownconcerts'] : false)
