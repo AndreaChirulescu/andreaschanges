@@ -220,7 +220,7 @@ if ( !class_exists('GiglogAdmin_Concert') ) {
                         break;
 
                     case 'currentuser':
-                        array_push($where , $wpdb->prepare(self::KEY_TRANS_TABLE[$key] . ' like %%%s%%', $value));
+                        array_push($where , $wpdb->prepare(self::KEY_TRANS_TABLE[$key] . ' like "%%%s%%"', $value));
                         break;
                 }
             }
