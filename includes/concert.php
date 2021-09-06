@@ -176,19 +176,6 @@ if ( !class_exists('GiglogAdmin_Concert') ) {
             return $need_update;
         }
 
-        public static function find($cname, $venue, $date)
-        {
-            global $wpdb;
-
-            $sql = 'SELECT id from wpg_concerts'
-                . ' where upper(wpgconcert_name) = upper("' . $cname .'")'
-                . ' and venue = ' . $venue
-                . ' and wpgconcert_date ="' . $date . '"';
-
-            return $wpdb->get_results($sql);
-        }
-
-
         /**
          * Return an array of concert objects optionally limited by a specified
          * filter.
