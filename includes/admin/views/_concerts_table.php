@@ -72,7 +72,7 @@ if (!class_exists("GiglogAdmin_ConcertsTable"))
                 $content .= '<tr class="assignitr">';
 
                 if ($lastType != '' && $lastType !=  $concert->venue()->city()) {
-                    $content .= '<td>' . $concert->venue()->city() . '</td>">';
+                    $content .= '<td>' . $concert->venue()->city() . '</td>';
                 }
 
                 if  ($lastType == '' ) {
@@ -149,7 +149,7 @@ if (!class_exists("GiglogAdmin_ConcertsTable"))
                             . checked(isset($_POST['ownconcerts']) ? $_POST['ownconcerts'] : false)
                             . '><label for="ownconcerts">Show own concerts only</label>';
                     }
-                    $select .= '<input class="applybuton" type="submit" value="Apply Filters"></form>';
+                    $select .= '<input class="applybutton" type="submit" value="Apply Filters"></form>';
 
                     return $select;
                 }
