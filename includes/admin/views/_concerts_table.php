@@ -149,7 +149,7 @@ if (!class_exists("GiglogAdmin_ConcertsTable"))
                             . checked(isset($_POST['ownconcerts']) ? $_POST['ownconcerts'] : false)
                             . '><label for="ownconcerts">Show own concerts only</label>';
                     }
-                    $select .= '<input class="applybuton" type="submit" value="Apply Filters"></form>';
+                    $select .= '<input class="applybutton" type="submit" value="Apply Filters"></form>';
 
                     return $select;
                 }
