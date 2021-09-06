@@ -67,10 +67,6 @@ if ( !class_exists('GiglogAdmin_Venue') ) {
                 'wpgvenue_city' => $city,
             ]);
             $venue->save();
-            error_log( 'NEW VENUE ADDED: '
-                . ' ID: ' . $venue -> id()
-                . ' VENUE NAME ' . $name
-                . ', VENUE CITY ' . $city);
 
             return $venue;
         }
@@ -82,10 +78,6 @@ if ( !class_exists('GiglogAdmin_Venue') ) {
             $results  = $wpdb->get_results($venuesql);
 
             if ($results) {
-                error_log( 'DUPLICATE VENUE: '
-                    . ' ID: ' . $results[0]->id
-                    . ' VENUE NAME ' . $name
-                    . ', VENUE CITY ' . $city);
                 return new GiglogAdmin_Venue($results[0]);
             }
             else {
