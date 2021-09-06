@@ -96,12 +96,18 @@ if ( !class_exists('GiglogAdmin_Concert') ) {
             return new GiglogAdmin_Concert($res);
         }
 
-        public static function create(string $name, $venue, string $date, string $ticketlink, string $eventlink): ?self
+        public static function create(string $name, int $venue_id, string $date, string $ticketlink, string $eventlink): ?self
         {
-            if ( GiglogAdmin_Concert::find($name, $venue, $date) ) {
+            $gigs = GiglogAdmin_Concert::find_concerts([
+                'name' => $name,
+                'venue_id' => $venue_id,
+                'date' => $date
+            ]);
+
+            if (!empty($gigs)) {
                 error_log( 'DUPLICATE ROW detected: '
                     . ' CONCERT NAME ' . $name
-                    . ', VENUE  ID ' . $venue
+                    . ', VENUE  ID ' . $venue_id
                     . ', CONCERTDATE ' . $date);
 
                 return NULL;
@@ -109,7 +115,7 @@ if ( !class_exists('GiglogAdmin_Concert') ) {
             else {
                 $concert = new GiglogAdmin_Concert( (object) [
                     "wpgconcert_name" => $name,
-                    "venue" => $venue,
+                    "venue" => $venue_id,
                     "wpgconcert_date" => $date,
                     "wpgconcert_tickets" => $ticketlink,
                     "wpgconcert_event" => $eventlink,
@@ -120,7 +126,7 @@ if ( !class_exists('GiglogAdmin_Concert') ) {
                 error_log( 'NEW CONCERT ADDED: '
                     . ' ID: ' . $concert -> id()
                     . ' CONCERT NAME ' . $name
-                    . ', VENUE ID ' . $venue
+                    . ', VENUE ID ' . $venue_id
                     . ', CONCERTDATE ' . $date
                     . ', Ticket LINK ' . $ticketlink
                     . ', Event LINK ' . $eventlink);
@@ -195,12 +201,24 @@ if ( !class_exists('GiglogAdmin_Concert') ) {
 
             $where = [];
 
+            if ( isset( $filter['name'] ) ) {
+                array_push($where, "wpgconcert_name = {$wpdb->prepare('%s', $filter['name'])}");
+            }
+
+            if ( isset( $filter['date'] ) ) {
+                array_push($where, "wpgconcert_date = {$wpdb->prepare('%s', $filter['date'])}");
+            }
+
             if ( isset( $filter["city"] ) ) {
                 array_push($where, 'wpg_venues.wpgvenue_city = ' . $wpdb->prepare('%s', $filter["city"]));
             }
 
             if ( isset( $filter["venue_id"] ) ) {
                 array_push($where, 'wpg_venues.id = ' . $wpdb->prepare('%s', $filter["venue_id"]));
+            }
+
+            if ( isset( $filter['venue'] ) ) {
+                array_push($where, "wpg_venues.wpgvenue_name = {$wpdb->prepare('%s', $filter['venue'])}");
             }
 
             if ( isset( $filter["currentuser"] ) ) {
@@ -210,6 +228,7 @@ if ( !class_exists('GiglogAdmin_Concert') ) {
             if ( ! empty( $where ) ) {
                 $query .= 'WHERE ' . implode(' and ', $where);
             }
+
             $query.= ' ORDER BY wpgconcert_date';
 
             $results  = $wpdb->get_results($query);

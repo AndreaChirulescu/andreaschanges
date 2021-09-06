@@ -198,4 +198,20 @@ final class ConcertTest extends WP_UnitTestCase
         $gigs = GiglogAdmin_Concert::find_concerts();
         $this->assertEquals(count(self::$concerts), count($gigs));
     }
+
+    public function testFetchConcertByNameVenueAndDate() : void
+    {
+        $gigs = GiglogAdmin_Concert::find_concerts([
+            'name' => 'a concert',
+            'venue' => 'a venue',
+            'date' => date('Y-m-d')
+        ]);
+
+        $this->assertEquals(1, count($gigs));
+
+        $gig = array_shift($gigs);
+        $this->assertEquals('a concert', $gig->cname());
+        $this->assertEquals('a venue', $gig->venue()->name());
+        $this->assertEquals(date('Y-m-d'), $gig->cdate());
+    }
 }
