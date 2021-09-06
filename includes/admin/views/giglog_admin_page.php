@@ -103,6 +103,7 @@ if ( !class_exists( 'GiglogAdmin_AdminPage' ) ) {
                     $concert = GiglogAdmin_Concert::get(intval($_POST['cid']));
                     $concert->set_status(intval($_POST['selectstatus']));
                     $concert->save();
+                    GiglogAdmin_AdminPage::emailuser($concert,intval($_POST['selectstatus']));
                 }
             }
 
@@ -169,8 +170,8 @@ if ( !class_exists( 'GiglogAdmin_AdminPage' ) ) {
             $concert->save();
 
             $to = 'live@eternal-terror.com';
-            $subject = $username.' has taken '.$p1. 'for a concert with id '.$concert->id();
-            $body = 'The email body content';
+            $subject = 'WP-GIGLOG '.$username.' has taken '.$p1. 'for a concert with id '.$concert->id();
+            $body = 'WP-GIGLOG '.$username.' has taken '.$p1. 'for a concert with id '.$concert->id();
             $headers = array('Content-Type: text/html; charset=UTF-8');
 
             wp_mail( $to, $subject, $body, $headers );
@@ -183,8 +184,32 @@ if ( !class_exists( 'GiglogAdmin_AdminPage' ) ) {
             $concert->save();
 
             $to = 'live@eternal-terror.com';
-            $subject = $username.' has UNASSINED  '.$p1. 'for a concert with id '.$concert->id();
-            $body = 'The email body content';
+            $subject = 'WP-GIGLOG '.$username.' has UNASSIGNED  '.$p1. 'for a concert with id '.$concert->id();
+            $body = 'WP-GIGLOG '.$username.' has UNASSIGNED  '.$p1. 'for a concert with id '.$concert->id();
+            $headers = array('Content-Type: text/html; charset=UTF-8');
+
+            wp_mail( $to, $subject, $body, $headers );
+        }
+
+        static function emailuser(GiglogAdmin_Concert $concert, $cstatus): void
+        {
+            $username = wp_get_current_user()->user_login;
+            $useremail = 'live@eternal-terror.com';
+            $dest = '';
+            $roles = $concert -> roles();
+            $x = '';
+            foreach ($roles AS  $role) {
+             if($role){
+            $cuser = get_user_by( 'login', $role);
+            $dest.= $cuser->user_email.';';
+             }
+            }
+
+            $to = $useremail; //change to $dest once testing is ok
+            $subject = 'Message from GIGLOG: Concert '.$concert->cname().' has a new status  '.$cstatus. '.';
+            $body = 'You receive this message because you have assigned one of the roles for Concert '.$concert->cname().'.';
+            $body .= '\r\n This is to inform you that there is a new status for the acreditation  '.$cstatus. '.';
+            $body .= '\r\n Should you no longer want to receive updates about this concert, please log in to Giglog and remove yourself from the concert. Thanks!';
             $headers = array('Content-Type: text/html; charset=UTF-8');
 
             wp_mail( $to, $subject, $body, $headers );
