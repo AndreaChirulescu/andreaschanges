@@ -7,6 +7,13 @@
 
 require_once __DIR__ . '/venue.php';
 
+if ( !class_exists('GiglogAdmin_DuplicateConcertException') )
+{
+    class GiglogAdmin_DuplicateConcertException extends Exception
+    {
+    }
+}
+
 if ( !class_exists('GiglogAdmin_Concert') ) {
     require_once __DIR__ . '/venue.php';
 
@@ -105,12 +112,8 @@ if ( !class_exists('GiglogAdmin_Concert') ) {
             ]);
 
             if (!empty($gigs)) {
-                error_log( 'DUPLICATE ROW detected: '
-                    . ' CONCERT NAME ' . $name
-                    . ', VENUE  ID ' . $venue_id
-                    . ', CONCERTDATE ' . $date);
-
-                return NULL;
+                throw new GiglogAdmin_DuplicateConcertException(
+                    "Duplicate concert: name: {$name}, venue_id: {$venue_id}, date: {$date}");
             }
             else {
                 $concert = new GiglogAdmin_Concert( (object) [
@@ -122,14 +125,6 @@ if ( !class_exists('GiglogAdmin_Concert') ) {
                 ]);
 
                 $concert->save();
-
-                error_log( 'NEW CONCERT ADDED: '
-                    . ' ID: ' . $concert -> id()
-                    . ' CONCERT NAME ' . $name
-                    . ', VENUE ID ' . $venue_id
-                    . ', CONCERTDATE ' . $date
-                    . ', Ticket LINK ' . $ticketlink
-                    . ', Event LINK ' . $eventlink);
 
                 return $concert;
             }

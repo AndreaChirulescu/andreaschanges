@@ -80,6 +80,8 @@ final class ConcertTest extends WP_UnitTestCase
 
     public function testCreateExistingConcertShouldFail() : void
     {
+        $this->expectException(GiglogAdmin_DuplicateConcertException::class);
+
         $venue = GiglogAdmin_Venue::find_or_create("a venue", "Somewhere");
         $today = date("Y-m-d");
 
@@ -89,12 +91,12 @@ final class ConcertTest extends WP_UnitTestCase
             $today,
             "https://example.com/tickets/42",
             "https://example.com/events/93");
-
-        $this->assertNull($new);
     }
 
     public function testCreateExistingConcertVariableCase() : void
     {
+        $this->expectException(GiglogAdmin_DuplicateConcertException::class);
+
         $venue = GiglogAdmin_Venue::find_or_create("a venue", "Somewhere");
         $today = date("Y-m-d");
 
@@ -104,8 +106,6 @@ final class ConcertTest extends WP_UnitTestCase
             $today,
             "https://example.com/tickets/42",
             "https://example.com/events/93");
-
-        $this->assertNull($new);
     }
 
     public function testGetConcertByIdReturnsFullConcertObject() : void
