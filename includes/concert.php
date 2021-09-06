@@ -85,7 +85,6 @@ if ( !class_exists('GiglogAdmin_Concert') ) {
 
             $query = self::BASE_QUERY
                 . 'WHERE ' . $wpdb->prepare('wpg_concerts.id = %d', $id);
-            $query.= ' ORDER BY wpgconcert_date';
 
             $results  = $wpdb->get_results($query);
 
