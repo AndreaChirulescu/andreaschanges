@@ -26,7 +26,7 @@ if (!class_exists("GiglogAdmin_ConcertsTable"))
         public function render(): string
         {
             return $this->render_filters()
-            . $this->render_concerts_table();
+                . $this->render_concerts_table();
         }
 
         private function render_concerts_table() : string
@@ -35,15 +35,15 @@ if (!class_exists("GiglogAdmin_ConcertsTable"))
             //    $content .= '</tr><th>CITY</th><th>ID</th><th>BAND</th><th>VENUE</th><th>DATE</th></tr>';
 
             $content .= '<tr class="assignithrow"><th>CITY</th><th>NAME</th><th>VENUE</th><th>DATE</th>';
-            if(!is_admin()) {
+
+            if (!is_admin()) {
                 $content .= '<th>EVENT</th><th>TICKETS</th>';
             }
-
-            else
-            {
+            else {
                 $content .= '<th> </th><th>PHOTO1</th><th>PHOTO2</th><th>TEXT1</th><th>TEXT2</th><th>STATUS</th>';
-                if (current_user_can('administrator'))
-                $content .=  '<th>AdminOptions</th>';
+                if (current_user_can('administrator')) {
+                    $content .=  '<th>AdminOptions</th>';
+                }
             }
             $content .= '</tr>';
 
@@ -51,13 +51,18 @@ if (!class_exists("GiglogAdmin_ConcertsTable"))
 
             // Use the submitted "city" if any. Otherwise, use the default/static value.
             $cty = filter_input( INPUT_POST, 'selectcity', FILTER_SANITIZE_SPECIAL_CHARS );
-            if ($cty) $filter['city'] = $cty;
+            if ($cty) {
+                $filter['city'] = $cty;
+            }
 
             $venue = filter_input( INPUT_POST, 'selectvenue', FILTER_SANITIZE_SPECIAL_CHARS );
-            if ($venue) $filter['venue_id'] = $venue;
+            if ($venue) {
+                $filter['venue_id'] = $venue;
+            }
 
-            if(isset($_POST['ownconcerts']) &&  $_POST['ownconcerts'] == '1')
-            $filter['currentuser'] = wp_get_current_user()->user_login;
+            if(isset($_POST['ownconcerts']) && $_POST['ownconcerts'] == '1') {
+                $filter['currentuser'] = wp_get_current_user()->user_login;
+            }
 
             $concerts = GiglogAdmin_Concert::find_concerts($filter);
 
@@ -73,10 +78,11 @@ if (!class_exists("GiglogAdmin_ConcertsTable"))
                 if  ($lastType == '' ) {
                     $content .= '<td>' . $concert->venue()->city() . '</td>';
                 }
-                // Modify these to match the database structure
-                //     $content .= '<td>' . $row->id. '</td>';
-                //     $content .= '<td>' . $row->id. '</td>';
-                if  ($lastType != '' && $lastType ==  $concert->venue()->city()) $content .= '<td></td>';
+
+                if  ($lastType != '' && $lastType ==  $concert->venue()->city()) {
+                    $content .= '<td></td>';
+                }
+
                 $content .= '<td>'. $concert->cname() . '</td>';
                 $content .= '<td>' . $concert->venue()->name() . '</td>';
                 $fdate =  strtotime($concert->cdate());
@@ -100,10 +106,9 @@ if (!class_exists("GiglogAdmin_ConcertsTable"))
                     $content .= '<td>' . self::STATUS_LABELS[$concert->status()] . '</td>';
 
                     if (current_user_can('administrator')) {
-                        $content .=
-                        '<td  class="adminbuttons">'
-                        . $this->adminactions($concert)
-                        . '</td>';
+                        $content .= '<td  class="adminbuttons">'
+                            . $this->adminactions($concert)
+                            . '</td>';
                     }
                 }
                 $content .= '</tr>';
@@ -119,12 +124,12 @@ if (!class_exists("GiglogAdmin_ConcertsTable"))
         {
             $cty = filter_input(INPUT_POST, 'selectcity', FILTER_SANITIZE_SPECIAL_CHARS);
 
-            $select = '<form method="POST" action="" class="filterclass">FILTER DATA:';
-            $select .= \EternalTerror\ViewHelpers\select_field(
-                "selectcity",
-                array_map(fn($city) => [$city, $city], GiglogAdmin_Venue::all_cities()),
-                $cty,
-                "Select city...");
+            $select = '<form method="POST" action="" class="filterclass">FILTER DATA:'
+                . \EternalTerror\ViewHelpers\select_field(
+                    "selectcity",
+                    array_map(fn($city) => [$city, $city], GiglogAdmin_Venue::all_cities()),
+                    $cty,
+                    "Select city...");
 
 
                 if ( !empty($cty) ) {
@@ -141,8 +146,8 @@ if (!class_exists("GiglogAdmin_ConcertsTable"))
                     if(is_admin()) {
                         //option to select own concerts only
                         $select .= '<input name="ownconcerts" class="ownconc" type="checkbox" value="1"'
-                        . checked(isset($_POST['ownconcerts']) ? $_POST['ownconcerts'] : false)
-                        . '><label for="ownconcerts">Show own concerts only</label>';
+                            . checked(isset($_POST['ownconcerts']) ? $_POST['ownconcerts'] : false)
+                            . '><label for="ownconcerts">Show own concerts only</label>';
                     }
                     $select .= '<input class="applybuton" type="submit" value="Apply Filters"></form>';
 
@@ -152,12 +157,12 @@ if (!class_exists("GiglogAdmin_ConcertsTable"))
                 private function adminactions( GiglogAdmin_Concert $concert ) : string
                 {
                     return
-                    '<form method="POST" action="">'
-                    . '<input type="hidden" name="cid" value="' . $concert->id() .  '" />'
-                    . \EternalTerror\ViewHelpers\select_field(
-                        'selectstatus',
-                        array_map(fn($i) => [ $i, self::STATUS_LABELS[$i] ], range(1, count(self::STATUS_LABELS) - 1)),
-                        $concert->status())
+                        '<form method="POST" action="">'
+                        . '<input type="hidden" name="cid" value="' . $concert->id() .  '" />'
+                        . \EternalTerror\ViewHelpers\select_field(
+                            'selectstatus',
+                            array_map(fn($i) => [ $i, self::STATUS_LABELS[$i] ], range(1, count(self::STATUS_LABELS) - 1)),
+                            $concert->status())
                         . '<input type="submit" value="SetStatus">'
                         . '<input type="submit" name ="edit" value="EDIT">'
                         . '</form>';
@@ -189,10 +194,10 @@ if (!class_exists("GiglogAdmin_ConcertsTable"))
                         //first check if current slot is taken by current user
                         if ( $assigned_user == $this->username ) {
                             $f = '<form class="unassignit" method="POST" action="">'
-                            . '  <input type="hidden" name="cid" value="' . $concert->id() . '" />'
-                            . '  <input type="hidden" name="pid" value="' . $role . '" />'
-                            . '  <input type="submit" name="unassignitem" value=""/>'
-                            . '</form>';
+                                . '  <input type="hidden" name="cid" value="' . $concert->id() . '" />'
+                                . '  <input type="hidden" name="pid" value="' . $role . '" />'
+                                . '  <input type="submit" name="unassignitem" value=""/>'
+                                . '</form>';
                         }
                         elseif ( $assigned_user ) { //check if slot is taken by another user
                             $f = '<span class="takenby">Taken</span>'
@@ -204,10 +209,10 @@ if (!class_exists("GiglogAdmin_ConcertsTable"))
                         }
                         else { //not taken by anyone
                             $f = '<form method="POST" action="">'
-                            . '  <input type="hidden" name="cid" value="' . $concert->id() . '" />'
-                            . '  <input type="hidden" name="pid" value="' . $role. '" />'
-                            . '  <input  type="submit" name="assignitem" value=""/>'
-                            . '</form>';
+                                . '  <input type="hidden" name="cid" value="' . $concert->id() . '" />'
+                                . '  <input type="hidden" name="pid" value="' . $role. '" />'
+                                . '  <input  type="submit" name="assignitem" value=""/>'
+                                . '</form>';
                         }
 
                         return $f;
