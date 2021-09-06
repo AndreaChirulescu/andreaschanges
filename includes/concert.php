@@ -37,6 +37,17 @@ if ( !class_exists('GiglogAdmin_Concert') ) {
         public const STATUS_ALL_APPROVED = 4;
         public const STATUS_REJECTED = 5;
 
+        // Table to translate from filter keys to db columns used by
+        // find_Concerts
+        private const KEY_TRANS_TABLE = [
+            'name' => 'wpgconcert_name',
+            'date' => 'wpgconcert_date',
+            'venue_id' => 'wpg_venues.id',
+            'venue' => 'wpg_venues.wpgvenue_name',
+            'city' => 'wpg_venues.wpgvenue_city',
+            'currentuser' => 'wpgconcert_roles',
+        ];
+
         private const BASE_QUERY =
             'SELECT wpg_concerts.*, wpg_venues.wpgvenue_name wpg_venues_wpgvenue_city '
             . 'FROM wpg_concerts '
@@ -195,29 +206,23 @@ if ( !class_exists('GiglogAdmin_Concert') ) {
             $query = self::BASE_QUERY;
 
             $where = [];
+            foreach( $filter as $key => $value ) {
+                switch ($key) {
+                    case 'name':
+                    case 'date':
+                    case 'venue':
+                    case 'city':
+                        array_push($where, $wpdb->prepare(self::KEY_TRANS_TABLE[$key] . '=%s', $value));
+                        break;
 
-            if ( isset( $filter['name'] ) ) {
-                array_push($where, "wpgconcert_name = {$wpdb->prepare('%s', $filter['name'])}");
-            }
+                    case 'venue_id':
+                        array_push($where, $wpdb->prepare(self::KEY_TRANS_TABLE[$key] . '=%d', $value));
+                        break;
 
-            if ( isset( $filter['date'] ) ) {
-                array_push($where, "wpgconcert_date = {$wpdb->prepare('%s', $filter['date'])}");
-            }
-
-            if ( isset( $filter["city"] ) ) {
-                array_push($where, 'wpg_venues.wpgvenue_city = ' . $wpdb->prepare('%s', $filter["city"]));
-            }
-
-            if ( isset( $filter["venue_id"] ) ) {
-                array_push($where, 'wpg_venues.id = ' . $wpdb->prepare('%s', $filter["venue_id"]));
-            }
-
-            if ( isset( $filter['venue'] ) ) {
-                array_push($where, "wpg_venues.wpgvenue_name = {$wpdb->prepare('%s', $filter['venue'])}");
-            }
-
-            if ( isset( $filter["currentuser"] ) ) {
-                array_push($where , 'wpgconcert_roles like "%'.$filter["currentuser"].'%"');
+                    case 'currentuser':
+                        array_push($where , $wpdb->prepare(self::KEY_TRANS_TABLE[$key] . ' like %%%s%%', $value));
+                        break;
+                }
             }
 
             if ( ! empty( $where ) ) {
