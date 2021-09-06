@@ -74,7 +74,7 @@ if ( !class_exists('GiglogAdmin_Concert') ) {
         }
 
         /**
-         * Get concert with given id.
+         * Return the concert with the given id.
          *
          * @param int $id.
          * @return null|self.
@@ -86,14 +86,14 @@ if ( !class_exists('GiglogAdmin_Concert') ) {
             $query = self::BASE_QUERY
                 . 'WHERE ' . $wpdb->prepare('wpg_concerts.id = %d', $id);
 
-            $results  = $wpdb->get_results($query);
+            $res= $wpdb->get_row($query);
 
-            if ( !$results ) {
+            if ( !$res) {
                 $wpdb->print_error( __METHOD__ );
                 return null;
             }
 
-            return new GiglogAdmin_Concert($results[0]);
+            return new GiglogAdmin_Concert($res);
         }
 
         public static function create(string $name, $venue, string $date, string $ticketlink, string $eventlink): ?self
