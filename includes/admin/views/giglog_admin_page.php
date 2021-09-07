@@ -168,13 +168,13 @@ if ( !class_exists( 'GiglogAdmin_AdminPage' ) ) {
             $username = wp_get_current_user()->user_login;
             $concert->assign_role($p1, $username);
             $concert->save();
-
-            $to = 'live@eternal-terror.com';
-            $subject = 'WP-GIGLOG '.$username.' has taken '.$p1. 'for a concert with id '.$concert->id();
-            $body = 'WP-GIGLOG '.$username.' has taken '.$p1. 'for a concert with id '.$concert->id();
+            $cuser = get_user_by( 'login', 'etadmin');
+            $dest = $cuser->user_email;
+            $subject = 'WP-GIGLOG '.$username.' has taken '.$p1. 'for concert '.$concert->cname();
+            $body = 'WP-GIGLOG '.$username.' has taken '.$p1. 'for concert '.$concert->cname().', concert with ID ' .$concert->id();
             $headers = array('Content-Type: text/html; charset=UTF-8');
 
-            wp_mail( $to, $subject, $body, $headers );
+            wp_mail( $dest, $subject, $body );
         }
 
         static function unassignconcert($p1, GiglogAdmin_Concert $concert): void
@@ -182,13 +182,13 @@ if ( !class_exists( 'GiglogAdmin_AdminPage' ) ) {
             $username = wp_get_current_user()->user_login;
             $concert->remove_user_from_roles($username);
             $concert->save();
-
-            $to = 'live@eternal-terror.com';
-            $subject = 'WP-GIGLOG '.$username.' has UNASSIGNED  '.$p1. 'for a concert with id '.$concert->id();
-            $body = 'WP-GIGLOG '.$username.' has UNASSIGNED  '.$p1. 'for a concert with id '.$concert->id();
+            $cuser = get_user_by( 'login', 'etadmin');
+            $dest = $cuser->user_email;
+            $subject = 'WP-GIGLOG '.$username.' has UNASSIGNED  '.$p1. 'for concert '.$concert->cname();
+            $body = 'WP-GIGLOG '.$username.' has UNASSIGNED  '.$p1. 'for concert '.$concert->cname().', concert with ID ' .$concert->id();
             $headers = array('Content-Type: text/html; charset=UTF-8');
 
-            wp_mail( $to, $subject, $body, $headers );
+            wp_mail( $dest, $subject, $body );
         }
 
         static function emailuser(GiglogAdmin_Concert $concert, $cstatus): void
@@ -201,18 +201,17 @@ if ( !class_exists( 'GiglogAdmin_AdminPage' ) ) {
             foreach ($roles AS  $role) {
              if($role){
             $cuser = get_user_by( 'login', $role);
-            $dest.= $cuser->user_email.';';
+            $dest.= $cuser->user_email.',';
              }
             }
 
-            $to = $useremail; //change to $dest once testing is ok
             $subject = 'Message from GIGLOG: Concert '.$concert->cname().' has a new status  '.$cstatus. '.';
             $body = 'You receive this message because you have assigned one of the roles for Concert '.$concert->cname().'.';
             $body .= '\r\n This is to inform you that there is a new status for the acreditation  '.$cstatus. '.';
             $body .= '\r\n Should you no longer want to receive updates about this concert, please log in to Giglog and remove yourself from the concert. Thanks!';
-            $headers = array('Content-Type: text/html; charset=UTF-8');
+            $headers = array('Content-Type: text/plain; charset=UTF-8'); //it is text by default so no need for headers actually
 
-            wp_mail( $to, $subject, $body, $headers );
+            wp_mail( $dest, $subject, $body );
         }
 
     }
