@@ -153,12 +153,13 @@ if ( !class_exists( 'GiglogAdmin_AdminPage' ) ) {
 
             if(isset($_POST['newvenue']))
             {
-            IF (empty($_POST['venuename']) || empty($_POST['venuecity']))
+                if (empty($_POST['venuename']) || empty($_POST['venuecity'])) {
                     echo '<script language="javascript">alert("You are missing a value, venue was not created"); </script>';
-            else
+                }
+                else
                 {
-                GiglogAdmin_Venue::create($_POST['venuename'],$_POST['venuecity']);
-                echo '<script language="javascript">alert("Yey, venue created"); </script>';
+                    GiglogAdmin_Venue::create($_POST['venuename'],$_POST['venuecity']);
+                    echo '<script language="javascript">alert("Yey, venue created"); </script>';
                 }
             }
         }
@@ -198,11 +199,12 @@ if ( !class_exists( 'GiglogAdmin_AdminPage' ) ) {
             $dest = '';
             $roles = $concert -> roles();
             $x = '';
+
             foreach ($roles AS  $role) {
-             if($role){
-            $cuser = get_user_by( 'login', $role);
-            $dest.= $cuser->user_email.',';
-             }
+                if($role){
+                    $cuser = get_user_by( 'login', $role);
+                    $dest.= $cuser->user_email.',';
+                }
             }
 
             $subject = 'Message from GIGLOG: Concert '.$concert->cname().' has a new status  '.$cstatus. '.';
