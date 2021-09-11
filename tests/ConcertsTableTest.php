@@ -79,11 +79,8 @@ class ConcertsTableTest extends WP_UnitTestCase
         global $current_user;
 
         $current_user = $this->factory()->user->create_and_get(['role' => 'administrator']);
-        $this->assertTrue( current_user_can( 'administrator' ) );
-
         $oldscreen = $current_screen;
         $current_screen = WP_Screen::get( 'admin_init' );
-        $this->assertTrue(is_admin());
 
         $c = new GiglogAdmin_ConcertsTable();
         $html = $c->render();
@@ -109,5 +106,70 @@ class ConcertsTableTest extends WP_UnitTestCase
 
         $this->assertEquals(64, $assignit_count);       // four for each gig
         $this->assertEquals(16, $adminactions_count);   // once for each gig
+    }
+
+    function testDontShowAdminOnlyControlsToNonAdminsOnAdminPage() {
+        global $current_screen;
+        global $current_user;
+
+        $current_user = $this->factory()->user->create_and_get(['role' => 'editor']);
+        $oldscreen = $current_screen;
+        $current_screen = WP_Screen::get( 'admin_init' );
+
+        $c = new GiglogAdmin_ConcertsTable();
+        $html = $c->render();
+
+        $current_screen = $oldscreen;
+
+        $doc = DOMDocument::loadHTML($html);
+        $forms = $doc->getElementsByTagName('form');
+
+        $assignit_count = 0;
+        $adminactions_count = 0;
+
+        foreach ($forms as $form) {
+            $cls = $form->attributes->getNamedItem('class')->nodeValue;
+            if ($cls == 'assign_concert' || $cls == 'unassign_concert') {
+                $assignit_count++;
+            }
+
+            if ($cls == 'adminactions') {
+                $adminactions_count++;
+            }
+        }
+
+        $this->assertEquals(64, $assignit_count);       // four for each gig
+        $this->assertEquals(0, $adminactions_count);   // once for each gig
+    }
+
+    function testDontShowAnyControlsIfNotOnAdminPage() {
+        global $current_user;
+
+        // "log in" as administrator to make sure no admin side stuff is
+        // rendered on the public site, even if we're a high privilege user.
+        $current_user = $this->factory()->user->create_and_get(['role' => 'administrator']);
+
+        $c = new GiglogAdmin_ConcertsTable();
+        $html = $c->render();
+
+        $doc = DOMDocument::loadHTML($html);
+        $forms = $doc->getElementsByTagName('form');
+
+        $assignit_count = 0;
+        $adminactions_count = 0;
+
+        foreach ($forms as $form) {
+            $cls = $form->attributes->getNamedItem('class')->nodeValue;
+            if ($cls == 'assign_concert' || $cls == 'unassign_concert') {
+                $assignit_count++;
+            }
+
+            if ($cls == 'adminactions') {
+                $adminactions_count++;
+            }
+        }
+
+        $this->assertEquals(0, $assignit_count);       // four for each gig
+        $this->assertEquals(0, $adminactions_count);   // once for each gig
     }
 }
