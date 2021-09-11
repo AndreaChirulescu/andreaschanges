@@ -75,20 +75,39 @@ class ConcertsTableTest extends WP_UnitTestCase
     }
 
     function testShowAllControlsToAdminOnAdminPage() {
+        global $current_screen;
+        global $current_user;
+
+        $current_user = $this->factory()->user->create_and_get(['role' => 'administrator']);
+        $this->assertTrue( current_user_can( 'administrator' ) );
+
+        $oldscreen = $current_screen;
+        $current_screen = WP_Screen::get( 'admin_init' );
+        $this->assertTrue(is_admin());
+
         $c = new GiglogAdmin_ConcertsTable();
         $html = $c->render();
-        //$this->assertEquals('balle', $html);
+
+        $current_screen = $oldscreen;
 
         $doc = DOMDocument::loadHTML($html);
         $forms = $doc->getElementsByTagName('form');
-        $count = 0;
+
+        $assignit_count = 0;
+        $adminactions_count = 0;
+
         foreach ($forms as $form) {
             $cls = $form->attributes->getNamedItem('class')->nodeValue;
-            if ($cls == 'assignit' || $cls == 'unassignit') {
-                $count++;
+            if ($cls == 'assign_concert' || $cls == 'unassign_concert') {
+                $assignit_count++;
+            }
+
+            if ($cls == 'adminactions') {
+                $adminactions_count++;
             }
         }
 
-        $this->assertEquals($count, 64);
+        $this->assertEquals(64, $assignit_count);       // four for each gig
+        $this->assertEquals(16, $adminactions_count);   // once for each gig
     }
 }

@@ -157,7 +157,7 @@ if (!class_exists("GiglogAdmin_ConcertsTable"))
                 private function adminactions( GiglogAdmin_Concert $concert ) : string
                 {
                     return
-                        '<form method="POST" action="">'
+                        '<form class="adminactions" method="POST" action="">'
                         . '<input type="hidden" name="cid" value="' . $concert->id() .  '" />'
                         . \EternalTerror\ViewHelpers\select_field(
                             'selectstatus',
@@ -193,7 +193,7 @@ if (!class_exists("GiglogAdmin_ConcertsTable"))
 
                         //first check if current slot is taken by current user
                         if ( $assigned_user == $this->username ) {
-                            $f = '<form class="unassignit" method="POST" action="">'
+                            $f = '<form class="unassign_concert" method="POST" action="">'
                                 . '  <input type="hidden" name="cid" value="' . $concert->id() . '" />'
                                 . '  <input type="hidden" name="pid" value="' . $role . '" />'
                                 . '  <input type="submit" name="unassignitem" value=""/>'
@@ -208,7 +208,7 @@ if (!class_exists("GiglogAdmin_ConcertsTable"))
                             $f = '<span class="taken_by_self">-</span>';
                         }
                         else { //not taken by anyone
-                            $f = '<form method="POST" action="">'
+                            $f = '<form class="assign_concert" method="POST" action="">'
                                 . '  <input type="hidden" name="cid" value="' . $concert->id() . '" />'
                                 . '  <input type="hidden" name="pid" value="' . $role. '" />'
                                 . '  <input  type="submit" name="assignitem" value=""/>'
