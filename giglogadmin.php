@@ -28,10 +28,30 @@ if ( !class_exists( 'GiglogAdmin_Plugin' ) ) {
     class GiglogAdmin_Plugin
     {
         static public function init(): void {
-            add_action( 'admin_menu', array( 'GiglogAdmin_Plugin', 'add_admin_pages' ));
-            add_action( 'admin_menu', array( 'GiglogAdmin_Plugin', 'add_help_pages' ));
+            if ( !defined('GIGLOGADMIN_UNIT_TEST') ) {
+                require_once __DIR__ . '/includes/admin/register_db_tables.php';
+            }
 
-            add_filter( 'wp_nav_menu_args', array( 'GiglogAdmin_Plugin', 'nav_menu_args' ));
+            require_once __DIR__ . '/includes/venue.php';
+            require_once __DIR__ . '/includes/concert.php';
+            require_once __DIR__ . '/includes/view-helpers/select_field.php';
+
+            if (is_admin()) {
+                require_once __DIR__ . '/includes/admin/views/giglog_admin_page.php';
+                require_once __DIR__ . '/includes/admin/views/giglog_import_gigs.php';
+                require_once __DIR__ . '/includes/admin/helpfiles/instrunctions.php';
+                require_once __DIR__ . '/includes/admin/helpfiles/instr_reviewers.php';
+                require_once __DIR__ . '/includes/admin/helpfiles/instr_photog.php';
+
+                add_action( 'admin_menu', array( 'GiglogAdmin_Plugin', 'add_admin_pages' ));
+                add_action( 'admin_menu', array( 'GiglogAdmin_Plugin', 'add_help_pages' ));
+
+                add_filter( 'wp_nav_menu_args', array( 'GiglogAdmin_Plugin', 'nav_menu_args' ));
+            }
+            else {
+                require_once __DIR__ . '/includes/admin/views/_concerts_table.php';
+                require_once __DIR__ . '/includes/giglog_visitor_display.php';
+            }
         }
 
         static function activate(): void {
@@ -124,16 +144,6 @@ if ( !class_exists( 'GiglogAdmin_Plugin' ) ) {
     register_activation_hook( __FILE__, array( 'GiglogAdmin_Plugin', 'activate' ));
     register_deactivation_hook( __FILE__, array( 'GiglogAdmin_Plugin', 'deactivate' ));
 
-    if (is_admin()) {
-        require_once __DIR__ . '/includes/admin/register_db_tables.php';
-        require_once __DIR__ . '/includes/admin/views/giglog_admin_page.php';
-        require_once __DIR__ . '/includes/admin/views/giglog_import_gigs.php';
-        require_once __DIR__ . '/includes/admin/helpfiles/instrunctions.php';
-        require_once __DIR__ . '/includes/admin/helpfiles/instr_reviewers.php';
-        require_once __DIR__ . '/includes/admin/helpfiles/instr_photog.php';
-        require_once __DIR__ . '/includes/view-helpers/select_field.php';
-
-        GiglogAdmin_Plugin::init();
-    }
+    GiglogAdmin_Plugin::init();
 }
 ?>
