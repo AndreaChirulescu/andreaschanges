@@ -56,6 +56,8 @@ if ( !function_exists( "giglog_register_db_tables") )
                 `wpgvenue_city` VARCHAR(250) DEFAULT NULL,
                 `wpgvenue_address` VARCHAR(2000) DEFAULT NULL,
                 `wpgvenue_webpage` VARCHAR(200) DEFAULT NULL,
+                `created` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                `updated` TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
                 PRIMARY KEY (`id`)
              ) ENGINE=InnoDB DEFAULT CHARSET=utf8;";
 
