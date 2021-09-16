@@ -65,8 +65,8 @@ class ConcertsTableTest extends WP_UnitTestCase
         global $wpdb;
 
         $tables = [
-            "wpg_concerts",
-            "wpg_venues",
+            "{$wpdb->prefix}giglogadmin_concerts",
+            "{$wpdb->prefix}giglogadmin_venues",
         ];
 
         foreach( $tables as $table ) {

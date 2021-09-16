@@ -54,7 +54,7 @@ if ( !class_exists('GiglogAdmin_Venue') ) {
         {
             global $wpdb;
 
-            $query = $wpdb->prepare('SELECT * from wpg_venues WHERE id = %d', $id);
+            $query = $wpdb->prepare("SELECT * from {$wpdb->prefix}giglogadmin_venues WHERE id = %d", $id);
             $results = $wpdb->get_results($query);
 
             return $results ? new GiglogAdmin_Venue($results[0]) : NULL;
@@ -74,7 +74,9 @@ if ( !class_exists('GiglogAdmin_Venue') ) {
         static function find_or_create(string $name, string $city = 'Oslo'): self
         {
             global $wpdb;
-            $venuesql = 'SELECT * FROM wpg_venues WHERE upper(wpgvenue_name)=upper("' . $name . '")'.' and wpgvenue_city="'.$city.'"';
+            $venuesql = "SELECT * FROM {$wpdb->prefix}giglogadmin_venues "
+                . $wpdb->prepare("WHERE upper(wpgvenue_name)=upper(%s) and wpgvenue_city=%s", $name, $city);
+
             $results  = $wpdb->get_results($venuesql);
 
             if ($results) {
@@ -88,7 +90,8 @@ if ( !class_exists('GiglogAdmin_Venue') ) {
         static function all_cities(): array
         {
             global $wpdb;
-            $results = $wpdb->get_results('select distinct wpgvenue_city from wpg_venues');
+            $results = $wpdb->get_results(
+                "select distinct wpgvenue_city from {$wpdb->prefix}giglogadmin_venues");
 
             return array_map(function ($r) { return $r->wpgvenue_city; }, $results);
         }
@@ -102,7 +105,8 @@ if ( !class_exists('GiglogAdmin_Venue') ) {
         {
             global $wpdb;
 
-            $results = $wpdb->get_results("select * from wpg_venues ORDER BY wpgvenue_name");
+            $results = $wpdb->get_results(
+                "select * from {$wpdb->prefix}giglogadmin_venues ORDER BY wpgvenue_name");
 
             return array_map(function ($r) { return new GiglogAdmin_Venue($r); }, $results);
         }
@@ -116,8 +120,8 @@ if ( !class_exists('GiglogAdmin_Venue') ) {
         static function venues_in_city(string $city): array
         {
             global $wpdb;
-            $q = $wpdb->prepare("select * from wpg_venues where wpgvenue_city=%s", $city);
-            $q .=" ORDER BY wpgvenue_name";
+            $q = $wpdb->prepare("select * from {$wpdb->prefix}giglogadmin_venues where wpgvenue_city=%s", $city)
+                . " ORDER BY wpgvenue_name";
             $results = $wpdb->get_results($q);
 
             return array_map(function ($r) { return new GiglogAdmin_Venue($r); }, $results);
@@ -127,7 +131,7 @@ if ( !class_exists('GiglogAdmin_Venue') ) {
         {
             global $wpdb;
 
-            $wpdb->insert('wpg_venues', array(
+            $wpdb->insert($wpdb->prefix . 'giglogadmin_venues', array(
                 'id' => '',
                 'wpgvenue_name' => $this->name,
                 'wpgvenue_city' => $this->city,

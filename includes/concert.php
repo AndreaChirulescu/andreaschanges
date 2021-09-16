@@ -37,22 +37,6 @@ if ( !class_exists('GiglogAdmin_Concert') ) {
         public const STATUS_ALL_APPROVED = 4;
         public const STATUS_REJECTED = 5;
 
-        // Table to translate from filter keys to db columns used by
-        // find_Concerts
-        private const KEY_TRANS_TABLE = [
-            'name' => 'wpgconcert_name',
-            'date' => 'wpgconcert_date',
-            'venue_id' => 'wpg_venues.id',
-            'venue' => 'wpg_venues.wpgvenue_name',
-            'city' => 'wpg_venues.wpgvenue_city',
-            'currentuser' => 'wpgconcert_roles',
-        ];
-
-        private const BASE_QUERY =
-            'SELECT wpg_concerts.*, wpg_venues.wpgvenue_name wpg_venues_wpgvenue_city '
-            . 'FROM wpg_concerts '
-            . 'LEFT JOIN wpg_venues ON wpg_concerts.venue = wpg_venues.id ';
-
 
         /*
          * Constructs a new concert object from an array of attributes.
@@ -99,19 +83,7 @@ if ( !class_exists('GiglogAdmin_Concert') ) {
          */
         static function get( int $id ) : ?self
         {
-            global $wpdb;
-
-            $query = self::BASE_QUERY
-                . 'WHERE ' . $wpdb->prepare('wpg_concerts.id = %d', $id);
-
-            $res= $wpdb->get_row($query);
-
-            if ( !$res) {
-                $wpdb->print_error( __METHOD__ );
-                return null;
-            }
-
-            return new GiglogAdmin_Concert($res);
+            return self::find_concerts(['id' => $id])[0];
         }
 
         public static function create(string $name, int $venue_id, string $date, string $ticketlink, string $eventlink): ?self
@@ -188,6 +160,21 @@ if ( !class_exists('GiglogAdmin_Concert') ) {
             return $need_update;
         }
 
+        // Table to translate from filter keys to db columns used by
+        // find_Concerts
+        private function translate_key($key) : string
+        {
+            return [
+                'id' => 'id',
+                'name' => 'wpgconcert_name',
+                'date' => 'wpgconcert_date',
+                'venue_id' => $wpdb->prefix . 'giglogadmin_venues.id',
+                'venue' => $wpdb->prefix . 'giglogadmin_venues.wpgvenue_name',
+                'city' => $wpdb->prefix . 'giglogadmin_venues.wpgvenue_city',
+                'currentuser' => 'wpgconcert_roles',
+            ][$key];
+        }
+
         /**
          * Return an array of concert objects optionally limited by a specified
          * filter.
@@ -203,7 +190,22 @@ if ( !class_exists('GiglogAdmin_Concert') ) {
         {
             global $wpdb;
 
-            $query = self::BASE_QUERY;
+            $ct = "{$wpdb->prefix}giglogadmin_concerts";
+            $vt = "{$wpdb->prefix}giglogadmin_venues";
+
+            $query = "SELECT {$ct}.*, {$vt}.wpgvenue_name, {$vt}.wpgvenue_city "
+                . "FROM {$ct} "
+                . "LEFT JOIN {$vt} ON {$ct}.venue = {$vt}.id ";
+
+            $keymap = [
+                'id' => $wpdb->prefix . 'giglogadmin_concerts.id',
+                'name' => 'wpgconcert_name',
+                'date' => 'wpgconcert_date',
+                'venue_id' => $wpdb->prefix . 'giglogadmin_venues.id',
+                'venue' => $wpdb->prefix . 'giglogadmin_venues.wpgvenue_name',
+                'city' => $wpdb->prefix . 'giglogadmin_venues.wpgvenue_city',
+                'currentuser' => 'wpgconcert_roles',
+            ];
 
             $where = [];
             foreach( $filter as $key => $value ) {
@@ -212,15 +214,16 @@ if ( !class_exists('GiglogAdmin_Concert') ) {
                     case 'date':
                     case 'venue':
                     case 'city':
-                        array_push($where, $wpdb->prepare(self::KEY_TRANS_TABLE[$key] . '=%s', $value));
+                        array_push($where, $wpdb->prepare($keymap[$key] . '=%s', $value));
                         break;
 
+                    case 'id':
                     case 'venue_id':
-                        array_push($where, $wpdb->prepare(self::KEY_TRANS_TABLE[$key] . '=%d', $value));
+                        array_push($where, $wpdb->prepare($keymap[$key] . '=%d', $value));
                         break;
 
                     case 'currentuser':
-                        array_push($where , $wpdb->prepare(self::KEY_TRANS_TABLE[$key] . ' like "%%%s%%"', $value));
+                        array_push($where , $wpdb->prepare($keymap[$key] . ' like "%%%s%%"', $value));
                         break;
                 }
             }
@@ -251,10 +254,10 @@ if ( !class_exists('GiglogAdmin_Concert') ) {
             ];
 
             if ( $this->id !== NULL ) {
-                $res = $wpdb->update( 'wpg_concerts', $columns, [ 'id' => $this->id ] );
+                $res = $wpdb->update( $wpdb->prefix . 'giglogadmin_concerts', $columns, [ 'id' => $this->id ] );
             }
             else {
-                $res = $wpdb->insert('wpg_concerts', $columns);
+                $res = $wpdb->insert( $wpdb->prefix . 'giglogadmin_concerts', $columns);
             }
 
             if ( $res === false ) {
