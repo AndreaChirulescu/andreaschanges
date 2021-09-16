@@ -212,6 +212,6 @@ final class ConcertTest extends WP_UnitTestCase
         $gig = array_shift($gigs);
         $this->assertEquals('a concert', $gig->cname());
         $this->assertEquals('a venue', $gig->venue()->name());
-        $this->assertEquals(date('Y-m-d'), $gig->cdate());
+        $this->assertEquals(date('Y-m-d'), explode(' ', $gig->cdate())[0]);
     }
 }
