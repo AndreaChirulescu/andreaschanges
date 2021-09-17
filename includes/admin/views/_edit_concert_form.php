@@ -45,7 +45,7 @@ if (!class_exists("GiglogAdmin_EditConcertForm"))
             else
                 $c = new GiglogAdmin_Concert((object)[]);
 
-            $content='<div><h3>Form to create/edit concerts and venues</h3><br></div><div class="editform"><div class="concertform">';
+            $content='<div class="concertform">';
             $content.='<form method="POST" action="" class="concert" >'
                 .'<div class="concertitems"><strong>CONCERT DETAILS</strong><br><br><fieldset>'
                 . wp_nonce_field( plugin_basename( __FILE__ ), 'giglog_edit_concert_nonce' )
@@ -71,12 +71,7 @@ if (!class_exists("GiglogAdmin_EditConcertForm"))
                 .'<label for="rev2">Text2:</label>'.$this->user_dropdown_for_role($c,'rev2').'<br>';
 
             $content.='<fieldset></div></form></div>';
-            $content.='<div class="venueform"><form method="POST" action="" class="venue" ><strong>VENUE DETAILS</strong><br><br>'
-                .'<fieldset><label for="venue">Venue Name:</label><input type="text" id="venuename" name="venuename"><br>'
-                .'<label for="eventurl">Venue City:</label><input type="text" id="venuecity" name="venuecity"><br>'
-                .'<p><input type="submit" name="newvenue" value="Create New Venue"></p>'
-                .'<fieldset></form></div>';
-            $content.='</div>';
+
             return $content;
         }
     }

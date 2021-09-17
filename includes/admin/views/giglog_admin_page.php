@@ -9,6 +9,7 @@ if ( !class_exists( 'GiglogAdmin_AdminPage' ) ) {
     require_once __DIR__ . '/../../venue.php';
     require_once __DIR__ . '/_concerts_table.php';
     require_once __DIR__ . '/_edit_concert_form.php';
+    require_once __DIR__ . '/_new_venue_form.php';
 
     class GiglogAdmin_AdminPage
     {
@@ -52,8 +53,14 @@ if ( !class_exists( 'GiglogAdmin_AdminPage' ) ) {
             </div>
             <?php
             if (current_user_can('administrator')) {
-                $form = new GiglogAdmin_EditConcertForm();
-                echo $form->render();
+                $edit_form = new GiglogAdmin_EditConcertForm();
+                $venue_form = new GiglogAdmin_NewVenueForm(); ?>
+                <div>
+                    <h3>Form to create/edit concerts and venues</h3>
+                </div>
+                <div class="editform">
+                    <?php echo $edit_form->render() . $venue_form->render(); ?>
+                </div><?php
             }
         }
 
