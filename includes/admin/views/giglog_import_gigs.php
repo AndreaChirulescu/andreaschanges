@@ -31,8 +31,8 @@ if ( !class_exists( 'GiglogAdmin_ImportGigsPage' ) ) {
                     GiglogAdmin_ImportGigsPage::process_upload($_FILES['giglog_import_file']);
                 }
                 else {
-                    header('HTTP/1.1 400 Bad Request');
-                    wp_die('Bad request', 400);
+                    header("{$_SERVER['SERVER_PROTOCOL']} 403 Forbidden");
+                    wp_die('CSRF validation failed.', 403);
                 }
             }
         }
