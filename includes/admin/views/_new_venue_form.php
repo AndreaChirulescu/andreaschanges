@@ -15,6 +15,7 @@ if ( !class_exists( "GiglogAdmin_NewVenueForm" ) )
                 . '<p><strong>VENUE DETAILS</strong></p>'
                 . '<form method="POST" action="" class="venue">'
                 . '  <fieldset>'
+                . wp_nonce_field( plugin_basename( __FILE__ ), 'giglog_new_venue_nonce' )
                 . '    <div class="field venue_name_field">'
                 . '      <label for="venue">Venue Name:</label>'
                 . '      <input type="text" id="venuename" name="venuename">'
