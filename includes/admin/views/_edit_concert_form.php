@@ -48,6 +48,7 @@ if (!class_exists("GiglogAdmin_EditConcertForm"))
             $content='<div><h3>Form to create/edit concerts and venues</h3><br></div><div class="editform"><div class="concertform">';
             $content.='<form method="POST" action="" class="concert" >'
                 .'<div class="concertitems"><strong>CONCERT DETAILS</strong><br><br><fieldset>'
+                . wp_nonce_field( plugin_basename( __FILE__ ), 'giglog_edit_concert_nonce' )
                 .'<input type="hidden" name="pid" value="' .$c->id(). '" />'
                 .'<label for="cname">Concert Name:</label><textarea id="cname" name="cname" value="'.$c->cname().'">'.$c->cname().'</textarea><br>'
                 .'<label for="venue">Venue:</label>' . $this->get_venue_selector($c->venue()) . '<br>'

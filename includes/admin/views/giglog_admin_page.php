@@ -121,8 +121,15 @@ if ( !class_exists( 'GiglogAdmin_AdminPage' ) ) {
                 }
             }
 
-            if(isset($_POST['editconcert']))
+            if (isset($_POST['editconcert']))
             {
+                if (!isset($_POST['giglog_edit_concert_nonce'])
+                    || wp_verify_nonce($_POST['giglog_edit_concert_nonce'], plugin_basename( __FILE__ )))
+                {
+                    header("{$_SERVER['SERVER_PROTOCOL']} 403 Forbidden");
+                    wp_die('CSRF validation failed.', 403);
+                }
+
                 $roles = array_reduce(
                     ['photo1', 'photo1', 'rev1', 'rev2'],
                     function($roles, $r) {
