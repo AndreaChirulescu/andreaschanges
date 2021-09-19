@@ -34,7 +34,7 @@ if (!class_exists("GiglogAdmin_ConcertsTable"))
             $content = '<table class="assignit">';
             //    $content .= '</tr><th>CITY</th><th>ID</th><th>BAND</th><th>VENUE</th><th>DATE</th></tr>';
 
-            $content .= '<tr class="assignithrow"><th>CITY</th><th>NAME</th><th>VENUE</th><th>DATE</th>';
+            $content .= '<tr class="assignithrow"><th>CITY</th><th>DATE</th><th>NAME</th><th>VENUE</th>';
 
             if (!is_admin()) {
                 $content .= '<th>EVENT</th><th>TICKETS</th>';
@@ -83,13 +83,12 @@ if (!class_exists("GiglogAdmin_ConcertsTable"))
                     $content .= '<td></td>';
                 }
 
-                $content .= '<td>'. $concert->cname() . '</td>';
-                $content .= '<td>' . $concert->venue()->name() . '</td>';
                 $fdate =  strtotime($concert->cdate());
                 $newformat = date('d.M.Y',$fdate);
-
                 //$content .= DATE_FORMAT($fdate,'%d.%b.%Y');
                 $content .= '<td>' . $newformat . '</td>';
+                $content .= '<td>'. $concert->cname() . '</td>';
+                $content .= '<td>' . $concert->venue()->name() . '</td>';
                 if(!is_admin()){
                     $content .= '<td><a target="_blank" href="'.$concert->eventlink() .'">Link</a></td>';
                     $content .= '<td><a target="_blank" href="'.$concert->tickets() .'">Tickets</a></td>';
