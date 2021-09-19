@@ -176,3 +176,8 @@ input[name="unassignitem"]
 	 text-align: center;
 
  }
+
+ tr.assignitr > td
+ {
+     padding-right: 10px;
+ }
