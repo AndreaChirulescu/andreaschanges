@@ -31,7 +31,7 @@ if (!class_exists("GiglogAdmin_ConcertsTable"))
 
         private function render_concerts_table() : string
         {
-            $content = '<table class="assignit">';
+            $content = '<div style="overflow-x:auto;"><table class="assignit">';
             //    $content .= '</tr><th>CITY</th><th>ID</th><th>BAND</th><th>VENUE</th><th>DATE</th></tr>';
 
             $content .= '<tr class="assignithrow"><th>CITY</th><th>DATE</th><th>NAME</th><th>VENUE</th>';
@@ -113,7 +113,7 @@ if (!class_exists("GiglogAdmin_ConcertsTable"))
                 $content .= '</tr>';
                 $lastType = $concert->venue()->city();
             }
-            $content .= '</table>';
+            $content .= '</table></div>';
 
             // return the table
             return $content;
