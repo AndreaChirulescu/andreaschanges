@@ -208,6 +208,7 @@ if ( !class_exists('GiglogAdmin_Concert') ) {
             ];
 
             $where = [];
+            $lmt=[];
             foreach( $filter as $key => $value ) {
                 switch ($key) {
                     case 'name':
@@ -219,12 +220,20 @@ if ( !class_exists('GiglogAdmin_Concert') ) {
 
                     case 'id':
                     case 'venue_id':
-                        array_push($where, $wpdb->prepare($keymap[$key] . '=%d', $value));
-                        break;
+                    array_push($where, $wpdb->prepare($keymap[$key] . '=%d', $value));
+                    break;
 
                     case 'currentuser':
-                        array_push($where , $wpdb->prepare($keymap[$key] . ' like "%%%s%%"', $value));
-                        break;
+                    array_push($where , $wpdb->prepare($keymap[$key] . ' like "%%%s%%"', $value));
+                    break;
+
+                    case 'offset':
+                    array_push($lmt ,  $value);
+                    break;
+
+                    case 'recperpage':
+                    array_push($lmt ,  $value);
+                    break;
                 }
             }
 
@@ -233,6 +242,10 @@ if ( !class_exists('GiglogAdmin_Concert') ) {
             }
 
             $query.= ' ORDER BY wpgconcert_date';
+
+            if ( ! empty( $lmt ) ) {
+                $query .= ' LIMIT ' . implode(',  ', $lmt);
+            }
 
             $results  = $wpdb->get_results($query);
 

@@ -81,13 +81,6 @@ span.takenbyself
     line-height: 2.5em;
 }
 
-table.assignit
-
-{
-      white-space: nowrap;
-      overflow: hidden;
-      border-collapse:collapse;
-}
 
 input[name="unassignitem"]
 
