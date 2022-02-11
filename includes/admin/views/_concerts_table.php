@@ -48,18 +48,9 @@ if (!class_exists("GiglogAdmin_ConcertsTable"))
             $content .= '</tr>';
 
             //pagination. Change value as needed
-            $total_records_per_page = 10;
+            $total_records_per_page = 15;
 
-            if (isset($_GET['page_no']) && $_GET['page_no']!="") {
-                $page_no = $_GET['page_no'];
-            } else {
-                $page_no = 1;
-            }
-            //calculate OFFSET Value and SET other Variables
-            $offset = ($page_no-1) * $total_records_per_page;
-            $previous_page = $page_no - 1;
-            $next_page = $page_no + 1;
-            $adjacents = "2";
+
 
             $filter = [];
 
@@ -74,16 +65,33 @@ if (!class_exists("GiglogAdmin_ConcertsTable"))
                 $filter['venue_id'] = $venue;
             }
 
+            $smonth = filter_input( INPUT_POST, 'selectmonth', FILTER_SANITIZE_SPECIAL_CHARS );
+            if ($smonth) {
+                $filter['month'] = $smonth;
+            }
+
             if(isset($_POST['ownconcerts']) && $_POST['ownconcerts'] == '1') {
                 $filter['currentuser'] = wp_get_current_user()->user_login;
             }
 
             $concerts = GiglogAdmin_Concert::find_concerts($filter);
 
+
             //get number of pages for pagination
             $total_records = count($concerts);
             $total_no_of_pages = ceil($total_records / $total_records_per_page);
             $second_last = $total_no_of_pages - 1; // total pages minus 1
+
+            if (isset($_GET['page_no']) && $_GET['page_no']!="" && $_GET['page_no']<=$total_no_of_pages) {
+                $page_no = $_GET['page_no'];
+            } else {
+                $page_no = 1;
+            }
+            //calculate OFFSET Value and SET other Variables
+            $offset = ($page_no-1) * $total_records_per_page;
+            $previous_page = $page_no - 1;
+            $next_page = $page_no + 1;
+            $adjacents = "2";
 
             $filter['offset'] =  $offset;
             $filter['recperpage'] =  $total_records_per_page;
@@ -138,22 +146,31 @@ if (!class_exists("GiglogAdmin_ConcertsTable"))
                 $content .= '</tr>';
                 $lastType = $concert->venue()->city();
             }
-            $content .= '</table></div>';
-            //  $content .='<div style="padding: 10px 20px 0px; border-top: dotted 1px #CCC;"><strong>Page '.$page_no.' of '.$total_no_of_pages.'</strong></div>';
+            $content .= '</table>';
 
-            $content .=' <ul class="cpagination">';
-            if($page_no > 1){ $content.= "<span><a href='?page_no=1'>First Page - </a></span>"; }
-            $content .="<span "; if($page_no <= 1){ $content .="class='disabled'"; }
-            $content.=">  ";
-            if($page_no > 1){$content.= " <a href='?page_no=".$previous_page."' >Previous - </a></span>";}
-            $content .= "<span";
-            if($page_no >= $total_no_of_pages){ $content .="class='disabled'";}
-            $content.="> ";
-            if($page_no < $total_no_of_pages) { $content .= ' <a href="?page_no='.$next_page.'"> Next - </a>  ';}
-            $content .= "</span>";
+            $content.='<div id="pagtextbox">';
+            $content.='<span class="alignleft">';
+            if($page_no > 1){ $content.= "<span><a href='?page_no=1'>First Page </a> - </span>"; }
+            if($page_no <= 1){ $content .="<span> </span>"; }
+            else $content.= "<span> <a href='?page_no=".$previous_page."' >Previous </a> </span>";
+            $content.='</span>';
+            $content.='<span class="aligncenter"><div style="padding: 10px 20px 0px; border-top: dotted 1px #CCC;"><strong>Page '.$page_no.' of '.$total_no_of_pages.'</strong></div></span>';
+            $content.='<span class="alignright">';
+            if($page_no >= $total_no_of_pages){ $content .="<span> </span>";}
+            if($page_no < $total_no_of_pages) { $content .= '<span> <a href="?page_no='.$next_page.'"> Next </a> - </span>  ';}
             if($page_no < $total_no_of_pages){
                 $content .= "<span><a href='?page_no=".$total_no_of_pages."'>Last Page </a></span>";}
-                $content .="</ul>";
+
+                $content.='</span>';
+                $content.='</div>';
+
+
+
+                //
+
+
+                //from main form that includes filters
+                $content .= '</div></form></p>';
 
                 // return the table
                 return $content;
@@ -182,13 +199,27 @@ if (!class_exists("GiglogAdmin_ConcertsTable"))
                             filter_input(INPUT_POST, 'selectvenue', FILTER_SANITIZE_SPECIAL_CHARS),
                             "Select venue...");
                         }
+
+                        $select.=' Filter by month: ';
+                        $select.= '<select name="selectmonth" size="1"><option value="0" selected="selected">- - All - -</option>';
+                        for ($i = 0; $i < 12; $i++) {
+                            $time = strtotime(sprintf('%d months', $i));
+                            $label = date('F', $time);
+                            $value = date('n', $time);
+                            $select.= "<option value='$value'>$label</option>";
+                        }
+
+                        $select.='</select>';
+
                         if(is_admin()) {
                             //option to select own concerts only
                             $select .= '<input name="ownconcerts" class="ownconc" type="checkbox" value="1"'
                             . checked(isset($_POST['ownconcerts']) ? $_POST['ownconcerts'] : false)
                             . '><label for="ownconcerts">Show own concerts only</label>';
+
                         }
-                        $select .= '<input class="applybutton" type="submit" value="Apply Filters"></form></p>';
+                        //NOTE that I remvoed </form></p> and mvoed them up to render_concerts_table function
+                        $select .= '<input class="applybutton" type="submit" value="Apply Filters">';
 
                         return $select;
                     }

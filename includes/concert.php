@@ -201,6 +201,7 @@ if ( !class_exists('GiglogAdmin_Concert') ) {
                 'id' => $wpdb->prefix . 'giglogadmin_concerts.id',
                 'name' => 'wpgconcert_name',
                 'date' => 'wpgconcert_date',
+                'month'=> 'MONTH(wpgconcert_date)',
                 'venue_id' => $wpdb->prefix . 'giglogadmin_venues.id',
                 'venue' => $wpdb->prefix . 'giglogadmin_venues.wpgvenue_name',
                 'city' => $wpdb->prefix . 'giglogadmin_venues.wpgvenue_city',
@@ -213,6 +214,9 @@ if ( !class_exists('GiglogAdmin_Concert') ) {
                 switch ($key) {
                     case 'name':
                     case 'date':
+                    case 'month':
+                        array_push($where, $wpdb->prepare($keymap[$key] . '=%s', $value));
+                        break;
                     case 'venue':
                     case 'city':
                         array_push($where, $wpdb->prepare($keymap[$key] . '=%s', $value));
