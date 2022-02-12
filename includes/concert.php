@@ -175,27 +175,21 @@ if ( !class_exists('GiglogAdmin_Concert') ) {
             ][$key];
         }
 
-        /**
-         * Return an array of concert objects optionally limited by a specified
-         * filter.
-         *
-         * Valid filters are:
-         *   - 'venue_id' => int : only include concerts at the given venue
-         *   - 'city' => string  : only include concerts in the given city
-         *
-         * @param array<string, mixed> $filter
-         * @return array<GiglogAdmin_Concert>
-         */
-        public static function find_concerts(array $filter = []) : array
+        private static function _build_query(array $filter = [], $count = false) : string
         {
             global $wpdb;
 
             $ct = "{$wpdb->prefix}giglogadmin_concerts";
             $vt = "{$wpdb->prefix}giglogadmin_venues";
 
-            $query = "SELECT {$ct}.*, {$vt}.wpgvenue_name, {$vt}.wpgvenue_city "
-                . "FROM {$ct} "
-                . "LEFT JOIN {$vt} ON {$ct}.venue = {$vt}.id ";
+            if ( $count ) {
+                $query = "SELECT count({$ct}.id) ";
+            }
+            else {
+                $query = "SELECT {$ct}.*, {$vt}.wpgvenue_name, {$vt}.wpgvenue_city ";
+            }
+
+            $query .= "FROM {$ct} LEFT JOIN {$vt} ON {$ct}.venue = {$vt}.id ";
 
             $keymap = [
                 'id' => $wpdb->prefix . 'giglogadmin_concerts.id',
@@ -215,8 +209,6 @@ if ( !class_exists('GiglogAdmin_Concert') ) {
                     case 'name':
                     case 'date':
                     case 'month':
-                        array_push($where, $wpdb->prepare($keymap[$key] . '=%s', $value));
-                        break;
                     case 'venue':
                     case 'city':
                         array_push($where, $wpdb->prepare($keymap[$key] . '=%s', $value));
@@ -224,20 +216,20 @@ if ( !class_exists('GiglogAdmin_Concert') ) {
 
                     case 'id':
                     case 'venue_id':
-                    array_push($where, $wpdb->prepare($keymap[$key] . '=%d', $value));
-                    break;
+                        array_push($where, $wpdb->prepare($keymap[$key] . '=%d', $value));
+                        break;
 
                     case 'currentuser':
-                    array_push($where , $wpdb->prepare($keymap[$key] . ' like "%%%s%%"', $value));
-                    break;
+                        array_push($where, $wpdb->prepare($keymap[$key] . ' like "%%%s%%"', $value));
+                        break;
 
                     case 'offset':
-                    array_push($lmt ,  $value);
-                    break;
+                        array_push($lmt, $value);
+                        break;
 
                     case 'recperpage':
-                    array_push($lmt ,  $value);
-                    break;
+                        array_push($lmt, $value);
+                        break;
                 }
             }
 
@@ -245,15 +237,50 @@ if ( !class_exists('GiglogAdmin_Concert') ) {
                 $query .= 'WHERE ' . implode(' and ', $where);
             }
 
-            $query.= ' ORDER BY wpgconcert_date';
+            $query .= ' ORDER BY wpgconcert_date';
 
             if ( ! empty( $lmt ) ) {
                 $query .= ' LIMIT ' . implode(',  ', $lmt);
             }
 
-            $results  = $wpdb->get_results($query);
+            return $query;
+        }
+
+        /**
+         * Return an array of concert objects optionally limited by a specified
+         * filter.
+         *
+         * Valid filters are:
+         *   - 'venue_id' => int : only include concerts at the given venue
+         *   - 'city' => string  : only include concerts in the given city
+         *
+         * @param array<string, mixed> $filter
+         * @return array<GiglogAdmin_Concert>
+         */
+        public static function find_concerts(array $filter = []) : array
+        {
+            global $wpdb;
+
+            $query = Self::_build_query($filter, false);
+            $results = $wpdb->get_results($query);
 
             return array_map(function($c) { return new GiglogAdmin_Concert($c); }, $results);
+        }
+
+        /**
+         * Return the number of objects matching the given filter.
+         *
+         * @param array<string, mixed> $filter
+         * @return int
+         */
+        public static function count(array $filter = []) : int
+        {
+            global $wpdb;
+
+            $query = Self::_build_query($filter, true);
+            $count = $wpdb->get_var($query);
+
+            return $count ? $count : 0;
         }
 
         public function save() : void
