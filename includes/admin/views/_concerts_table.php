@@ -153,27 +153,28 @@ if (!class_exists("GiglogAdmin_ConcertsTable"))
             $content.='<span class="alignleft">';
 
             if($page_no > 1) {
-                $content.= "<span><a href='?page_no=1'>First Page </a> - </span>";
+                $content.= '<span><a href="'. add_query_arg( 'page_no', 1, get_permalink() ) . '">First Page</a> - </span>';
             }
 
             if($page_no <= 1) {
                 $content .="<span> </span>";
             }
             else {
-                $content.= "<span> <a href='?page_no=".$previous_page."' >Previous </a> </span>";
+                $content.= '<span> <a href="' . add_query_arg( 'page_no', $previous_page, get_permalink() ) . '">Previous</a></span>';
             }
 
             $content.='</span>';
             $content.='<span class="aligncenter"><div style="padding: 10px 20px 0px; border-top: dotted 1px #CCC;"><strong>Page '.$page_no.' of '.$total_no_of_pages.'</strong></div></span>';
             $content.='<span class="alignright">';
 
-            if($page_no >= $total_no_of_pages) {
+            if ($page_no >= $total_no_of_pages) {
                 $content .= "<span></span>";
             }
 
-            if($page_no < $total_no_of_pages) {
-                $content .= '<span><a href="?page_no='.$next_page.'">Next</a> - </span>';
-                $content .= "<span><a href='?page_no=".$total_no_of_pages."'>Last Page</a></span>";
+            if ($page_no < $total_no_of_pages) {
+                global $wp;
+                $content .= '<span><a href="' . add_query_arg( 'page_no', $next_page, get_permalink() ) . '">Next</a> - </span>';
+                $content .= '<span><a href="' . add_query_arg( 'page_no', $total_no_of_pages, get_permalink() ) .'">Last Page</a></span>';
             }
 
             $content.='</span>';
