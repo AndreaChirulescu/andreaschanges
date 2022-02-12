@@ -29,29 +29,31 @@ if (!class_exists("GiglogAdmin_ConcertsTable"))
                 . $this->render_concerts_table();
         }
 
-        private function render_concerts_table() : string
+        private function render_concert_table_header() : string
         {
-            $content = '<div style="overflow-x:auto;"><table class="assignit">';
-            //    $content .= '</tr><th>CITY</th><th>ID</th><th>BAND</th><th>VENUE</th><th>DATE</th></tr>';
-
-            $content .= '<tr class="assignithrow"><th>CITY</th><th>DATE</th><th>NAME</th><th>VENUE</th>';
+            $content =
+                '<div style="overflow-x:auto;"><table class="assignit">'
+                . '<tr class="assignithrow">'
+                . '  <th>CITY</th><th>DATE</th><th>NAME</th><th>VENUE</th>';
 
             if (!is_admin()) {
                 $content .= '<th>EVENT</th><th>TICKETS</th>';
             }
             else {
-                $content .= '<th> </th><th>PHOTO1</th><th>PHOTO2</th><th>TEXT1</th><th>TEXT2</th><th>STATUS</th>';
+                $content .= '<th></th><th>PHOTO1</th><th>PHOTO2</th><th>TEXT1</th><th>TEXT2</th><th>STATUS</th>';
                 if (current_user_can('administrator')) {
-                    $content .=  '<th>AdminOptions</th>';
+                    $content .= '<th>AdminOptions</th>';
                 }
             }
+
             $content .= '</tr>';
 
-            //pagination. Change value as needed
+            return $content;
+        }
+
+        private function get_concerts() : ?array
+        {
             $total_records_per_page = 15;
-
-
-
             $filter = [];
 
             // Use the submitted "city" if any. Otherwise, use the default/static value.
@@ -74,34 +76,82 @@ if (!class_exists("GiglogAdmin_ConcertsTable"))
                 $filter['currentuser'] = wp_get_current_user()->user_login;
             }
 
-            $concerts = GiglogAdmin_Concert::find_concerts($filter);
-
-
-            //get number of pages for pagination
-            $total_records = count($concerts);
-            $total_no_of_pages = ceil($total_records / $total_records_per_page);
-            $second_last = $total_no_of_pages - 1; // total pages minus 1
-
-            if (isset($_GET['page_no']) && $_GET['page_no']!="" && $_GET['page_no']<=$total_no_of_pages) {
-                $page_no = $_GET['page_no'];
+            if (isset($_GET['page_no']) && $_GET['page_no'] != "" && is_numeric($_GET['page_no'])) {
+                $this->page_no = intval($_GET['page_no']);
             } else {
-                $page_no = 1;
+                $this->page_no = 1;
             }
+
+            $total_concerts = GiglogAdmin_Concert::count( $filter );
+            $this->total_no_of_pages = ceil( $total_concerts / $total_records_per_page );
+
             //calculate OFFSET Value and SET other Variables
-            $offset = ($page_no-1) * $total_records_per_page;
-            $previous_page = $page_no - 1;
-            $next_page = $page_no + 1;
-            $adjacents = "2";
+            $offset = ($this->page_no - 1) * $total_records_per_page;
+            $this->previous_page = $this->page_no - 1;
+            $this->next_page = $this->page_no + 1;
 
             $filter['offset'] =  $offset;
             $filter['recperpage'] =  $total_records_per_page;
 
-            $concertsp = GiglogAdmin_Concert::find_concerts($filter);
+            return GiglogAdmin_Concert::find_concerts($filter);
+        }
 
+        private function render_pagination() : string
+        {
+            $content =
+                '<div id="pagtextbox" style="display:flex">'
+                . '<span class="alignleft" style="text-align:left;flex:auto;">';
+
+            if($this->page_no > 1) {
+                $content .=
+                    '<span>'
+                    . '<a href="'. add_query_arg( 'page_no', 1, get_permalink() ) . '">'
+                    . 'First Page</a> -'
+                    . '</span>'
+                    . '<span>'
+                    . '<a href="' . add_query_arg( 'page_no', $this->previous_page, get_permalink() ) . '">'
+                    . ' Previous</a></span>';
+            }
+
+            $content .= '</span>'
+                . '<span class="aligncenter" style="text-align:center;flex:auto">'
+                // . '<div style="padding: 10px 20px 0px; border-top: dotted 1px #CCC;">'
+                . '<strong>Page ' . $this->page_no . ' of ' . $this->total_no_of_pages . '</strong>'
+                //. '</div>'
+                . '</span>';
+
+            $content .= '<span class="alignright" style="text-align:right;flex:auto;float:none">';
+
+            if ($this->page_no < $this->total_no_of_pages) {
+                $content .=
+                    '<span>'
+                    . '<a href="' . add_query_arg( 'page_no', $this->next_page, get_permalink() ) . '">'
+                    . 'Next</a> - '
+                    . '</span>'
+                    . '<span>'
+                    . '<a href="' . add_query_arg( 'page_no', $this->total_no_of_pages, get_permalink() ) .'">'
+                    . 'Last Page</a>'
+                    . '</span>';
+            }
+
+            $content .=
+                '</span>'
+                . '</div>';
+
+            return $content;
+        }
+
+        private function render_concerts_table() : string
+        {
+            //pagination. Change value as needed
+
+            $concerts = $this->get_concerts();
 
             $lastType = '';
 
-            foreach ( $concertsp AS $concert ) {
+            $content = $this->render_concert_table_header();
+
+            foreach ( $concerts AS $concert ) {
                 $content .= '<tr class="assignitr">';
 
                 if ($lastType != '' && $lastType !=  $concert->venue()->city()) {
@@ -149,36 +199,7 @@ if (!class_exists("GiglogAdmin_ConcertsTable"))
 
             $content .= '</table>';
 
-            $content.='<div id="pagtextbox">';
-            $content.='<span class="alignleft">';
-
-            if($page_no > 1) {
-                $content.= '<span><a href="'. add_query_arg( 'page_no', 1, get_permalink() ) . '">First Page</a> - </span>';
-            }
-
-            if($page_no <= 1) {
-                $content .="<span> </span>";
-            }
-            else {
-                $content.= '<span> <a href="' . add_query_arg( 'page_no', $previous_page, get_permalink() ) . '">Previous</a></span>';
-            }
-
-            $content.='</span>';
-            $content.='<span class="aligncenter"><div style="padding: 10px 20px 0px; border-top: dotted 1px #CCC;"><strong>Page '.$page_no.' of '.$total_no_of_pages.'</strong></div></span>';
-            $content.='<span class="alignright">';
-
-            if ($page_no >= $total_no_of_pages) {
-                $content .= "<span></span>";
-            }
-
-            if ($page_no < $total_no_of_pages) {
-                global $wp;
-                $content .= '<span><a href="' . add_query_arg( 'page_no', $next_page, get_permalink() ) . '">Next</a> - </span>';
-                $content .= '<span><a href="' . add_query_arg( 'page_no', $total_no_of_pages, get_permalink() ) .'">Last Page</a></span>';
-            }
-
-            $content.='</span>';
-            $content.='</div>';
+            $content .= $this->render_pagination();
 
             //from main form that includes filters
             $content .= '</div></form></p>';
