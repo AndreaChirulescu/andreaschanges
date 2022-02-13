@@ -17,10 +17,18 @@ if (!class_exists("GiglogAdmin_ConcertsTable"))
             'Rejected'
         ];
 
+        const FILTER_KEYS = [
+            'city',
+            'venue',
+            'month',
+            'only_mine'
+        ];
+
         private string $username;
 
         public function __construct() {
             $this->username = wp_get_current_user()->user_login;
+            $this->get_args();
         }
 
         public function render(): string
@@ -51,29 +59,28 @@ if (!class_exists("GiglogAdmin_ConcertsTable"))
             return $content;
         }
 
-        private function get_concerts() : ?array
+        private function get_args() : void
         {
-            $total_records_per_page = 15;
-            $filter = [];
+            $this->filter = [];
 
             // Use the submitted "city" if any. Otherwise, use the default/static value.
-            $cty = filter_input( INPUT_POST, 'selectcity', FILTER_SANITIZE_SPECIAL_CHARS );
+            $cty = filter_input( INPUT_GET, 'city', FILTER_SANITIZE_SPECIAL_CHARS );
             if ($cty) {
-                $filter['city'] = $cty;
+                $this->filter['city'] = $cty;
             }
 
-            $venue = filter_input( INPUT_POST, 'selectvenue', FILTER_SANITIZE_SPECIAL_CHARS );
+            $venue = filter_input( INPUT_GET, 'venue', FILTER_SANITIZE_SPECIAL_CHARS );
             if ($venue) {
-                $filter['venue_id'] = $venue;
+                $this->filter['venue_id'] = $venue;
             }
 
-            $smonth = filter_input( INPUT_POST, 'selectmonth', FILTER_SANITIZE_SPECIAL_CHARS );
+            $smonth = filter_input( INPUT_GET, 'month', FILTER_SANITIZE_SPECIAL_CHARS );
             if ($smonth) {
-                $filter['month'] = $smonth;
+                $this->filter['month'] = $smonth;
             }
 
-            if(isset($_POST['ownconcerts']) && $_POST['ownconcerts'] == '1') {
-                $filter['currentuser'] = wp_get_current_user()->user_login;
+            if(isset($_GET['only_mine']) && $_GET['only_mone'] == '1') {
+                $this->filter['currentuser'] = $this->username;
             }
 
             if (isset($_GET['page_no']) && $_GET['page_no'] != "" && is_numeric($_GET['page_no'])) {
@@ -81,8 +88,13 @@ if (!class_exists("GiglogAdmin_ConcertsTable"))
             } else {
                 $this->page_no = 1;
             }
+        }
 
-            $total_concerts = GiglogAdmin_Concert::count( $filter );
+        private function get_concerts() : ?array
+        {
+            $total_records_per_page = 15;
+
+            $total_concerts = GiglogAdmin_Concert::count( $this->filter );
             $this->total_no_of_pages = ceil( $total_concerts / $total_records_per_page );
 
             //calculate OFFSET Value and SET other Variables
@@ -90,10 +102,15 @@ if (!class_exists("GiglogAdmin_ConcertsTable"))
             $this->previous_page = $this->page_no - 1;
             $this->next_page = $this->page_no + 1;
 
-            $filter['offset'] =  $offset;
-            $filter['recperpage'] =  $total_records_per_page;
+            $this->filter['offset'] =  $offset;
+            $this->filter['recperpage'] =  $total_records_per_page;
 
-            return GiglogAdmin_Concert::find_concerts($filter);
+            return GiglogAdmin_Concert::find_concerts($this->filter);
+        }
+
+        private function get_filter(string $f) : ?string
+        {
+            return isset( $this->filter[$f] ) ? $this->filter[$f] : null;
         }
 
         private function render_pagination() : string
@@ -115,9 +132,7 @@ if (!class_exists("GiglogAdmin_ConcertsTable"))
 
             $content .= '</span>'
                 . '<span class="aligncenter" style="text-align:center;flex:auto">'
-                // . '<div style="padding: 10px 20px 0px; border-top: dotted 1px #CCC;">'
                 . '<strong>Page ' . $this->page_no . ' of ' . $this->total_no_of_pages . '</strong>'
-                //. '</div>'
                 . '</span>';
 
             $content .= '<span class="alignright" style="text-align:right;flex:auto;float:none">';
@@ -210,11 +225,23 @@ if (!class_exists("GiglogAdmin_ConcertsTable"))
 
         private function render_filters() : string
         {
-            $cty = filter_input(INPUT_POST, 'selectcity', FILTER_SANITIZE_SPECIAL_CHARS);
+            global $wp_locale;
 
-            $select = '<p><form method="POST" action="" class="filterclass">FILTER DATA:  '
-                . \EternalTerror\ViewHelpers\select_field(
-                    "selectcity",
+            $select = '<p><form method="GET" action="" class="filterclass">FILTER DATA:  ';
+
+            foreach( $_GET as $name => $val ) {
+                if ( in_array( $name, self::FILTER_KEYS ) ) {
+                    continue;
+                }
+
+                $select .= '<input type="hidden" name="' . esc_attr( $name )
+                    . '" value="' . esc_attr( $val ) . '">';
+            }
+
+            $cty = $this->get_filter('city');
+
+            $select .= \EternalTerror\ViewHelpers\select_field(
+                    "city",
                     array_map(fn($city) => [$city, $city], GiglogAdmin_Venue::all_cities()),
                     $cty,
                     "Select city...");
@@ -223,30 +250,30 @@ if (!class_exists("GiglogAdmin_ConcertsTable"))
             if ( !empty($cty) ) {
                 //second drop down for venue
                 $select .= \EternalTerror\ViewHelpers\select_field(
-                    "selectvenue",
+                    "venue",
                     array_map(
                         fn($venue) => [$venue->id(), $venue->name()],
                         GiglogAdmin_Venue::venues_in_city($cty)
                     ),
-                    filter_input(INPUT_POST, 'selectvenue', FILTER_SANITIZE_SPECIAL_CHARS),
+                    $this->get_filter('venue_id'),
                     "Select venue...");
             }
 
-            $select.=' Filter by month: ';
-            $select.= '<select name="selectmonth" size="1"><option value="0" selected="selected">- - All - -</option>';
-            for ($i = 0; $i < 12; $i++) {
-                $time = strtotime(sprintf('%d months', $i));
-                $label = date('F', $time);
-                $value = date('n', $time);
-                $select.= "<option value='$value'>$label</option>";
-            }
+            $select .= \EternalTerror\ViewHelpers\select_field(
+                "month",
+                array_map(
+                    fn($m) => [ $m, $wp_locale->get_month( $m ) ],
+                    range( 1, 12 )
+                ),
+                $this->get_filter('month'),
+                "Select month...");
 
             $select.='</select>';
 
             if(is_admin()) {
                 //option to select own concerts only
-                $select .= '<input name="ownconcerts" class="ownconc" type="checkbox" value="1"'
-                    . checked(isset($_POST['ownconcerts']) ? $_POST['ownconcerts'] : false)
+                $select .= '<input name="only_mine" class="ownconc" type="checkbox" value="1"'
+                    . checked( $this->get_filter( 'current_user' ) )
                     . '><label for="ownconcerts">Show own concerts only</label>';
 
             }
