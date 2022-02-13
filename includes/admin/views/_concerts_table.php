@@ -122,11 +122,11 @@ if (!class_exists("GiglogAdmin_ConcertsTable"))
             if($this->page_no > 1) {
                 $content .=
                     '<span>'
-                    . '<a href="'. add_query_arg( 'page_no', 1, get_permalink() ) . '">'
+                    . '<a href="'. add_query_arg( 'page_no', 1 ) . '">'
                     . 'First Page</a> -'
                     . '</span>'
                     . '<span>'
-                    . '<a href="' . add_query_arg( 'page_no', $this->previous_page, get_permalink() ) . '">'
+                    . '<a href="' . add_query_arg( 'page_no', $this->previous_page ) . '">'
                     . ' Previous</a></span>';
             }
 
@@ -140,11 +140,11 @@ if (!class_exists("GiglogAdmin_ConcertsTable"))
             if ($this->page_no < $this->total_no_of_pages) {
                 $content .=
                     '<span>'
-                    . '<a href="' . add_query_arg( 'page_no', $this->next_page, get_permalink() ) . '">'
+                    . '<a href="' . add_query_arg( 'page_no', $this->next_page ) . '">'
                     . 'Next</a> - '
                     . '</span>'
                     . '<span>'
-                    . '<a href="' . add_query_arg( 'page_no', $this->total_no_of_pages, get_permalink() ) .'">'
+                    . '<a href="' . add_query_arg( 'page_no', $this->total_no_of_pages ) .'">'
                     . 'Last Page</a>'
                     . '</span>';
             }
