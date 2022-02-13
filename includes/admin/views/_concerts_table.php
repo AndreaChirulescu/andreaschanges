@@ -83,7 +83,7 @@ if (!class_exists("GiglogAdmin_ConcertsTable"))
                 $this->filter['currentuser'] = $this->username;
             }
 
-            if (isset($_GET['page_no']) && $_GET['page_no'] != "" && is_numeric($_GET['page_no'])) {
+            if (isset($_GET['page_no']) && $_GET['page_no'] != "" && is_numeric($_GET['page_no']) && isset($_GET['page_no']) == $this->page_no  ) {
                 $this->page_no = intval($_GET['page_no']);
             } else {
                 $this->page_no = 1;
@@ -101,6 +101,11 @@ if (!class_exists("GiglogAdmin_ConcertsTable"))
             $offset = ($this->page_no - 1) * $total_records_per_page;
             $this->previous_page = $this->page_no - 1;
             $this->next_page = $this->page_no + 1;
+
+
+            if ($this->page_no > $this->total_no_of_pages ) {
+                $this->page_no = 1;
+            }
 
             $this->filter['offset'] =  $offset;
             $this->filter['recperpage'] =  $total_records_per_page;
