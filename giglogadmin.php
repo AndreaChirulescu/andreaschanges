@@ -34,6 +34,7 @@ if ( !class_exists( 'GiglogAdmin_Plugin' ) ) {
             require_once __DIR__ . '/includes/venue.php';
             require_once __DIR__ . '/includes/concert.php';
             require_once __DIR__ . '/includes/view-helpers/select_field.php';
+            //require_once __DIR__ . '/vendor/kigkonsult/icalcreator/autoload.php';
 
             if (is_admin()) {
                 require_once __DIR__ . '/includes/admin/views/giglog_admin_page.php';
