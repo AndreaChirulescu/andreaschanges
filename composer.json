@@ -22,6 +22,6 @@
         "test": "npm run wp-env run phpunit 'phpunit -c /var/www/html/wp-content/plugins/giglogadmin/phpunit.xml'"
     },
     "require": {
-        "kigkonsult/icalcreator": "^2.41"
+        "kigkonsult/icalcreator": "^2.39"
     }
 }
