@@ -158,58 +158,48 @@ if (!class_exists("GiglogAdmin_ConcertsTable"))
 
         private function render_concerts_table() : string
         {
-            //pagination. Change value as needed
-
             $concerts = $this->get_concerts();
 
-            $lastType = '';
+            $last_city = '';
 
             $content = $this->render_concert_table_header();
 
-            foreach ( $concerts AS $concert ) {
-                $content .= '<tr class="assignitr">';
+            foreach ( $concerts as $concert ) {
+                $content .= '<tr class="assignitr"><td>';
 
-                if ($lastType != '' && $lastType !=  $concert->venue()->city()) {
-                    $content .= '<td>' . $concert->venue()->city() . '</td>';
+                if ($last_city != $concert->venue()->city()) {
+                    $content .= $concert->venue()->city();
                 }
 
-                if  ($lastType == '' ) {
-                    $content .= '<td>' . $concert->venue()->city() . '</td>';
-                }
+                $content .= '</td>';
 
-                if  ($lastType != '' && $lastType ==  $concert->venue()->city()) {
-                    $content .= '<td></td>';
-                }
+                $content .=
+                    "<td>" . date( 'd.M.Y', strtotime( $concert->cdate() ) ) . "</td>"
+                    . "<td>{$concert->cname()}</td>"
+                    . "<td>{$concert->venue()->name()}</td>";
 
-                $fdate =  strtotime($concert->cdate());
-                $newformat = date('d.M.Y',$fdate);
-                //$content .= DATE_FORMAT($fdate,'%d.%b.%Y');
-                $content .= '<td>' . $newformat . '</td>';
-                $content .= '<td>'. $concert->cname() . '</td>';
-                $content .= '<td>' . $concert->venue()->name() . '</td>';
-                if(!is_admin()){
-                    $content .= '<td><a target="_blank" href="'.$concert->eventlink() .'">Link</a></td>';
-                    $content .= '<td><a target="_blank" href="'.$concert->tickets() .'">Tickets</a></td>';
-
-                }
-                else {
+                if( is_admin() ) {
                     $content .= '<td class="publishstatus">' . $this->mark_new_concert($concert) . '</td>';
 
-                    $content .= '<td class="assigneduser">' . $this->assign_role_for_user_form('photo1', $concert) . '</td>';
-                    $content .= '<td class="assigneduser">' . $this->assign_role_for_user_form('photo2', $concert) . '</td>';
-                    $content .= '<td class="assigneduser">' . $this->assign_role_for_user_form('rev1', $concert) . '</td>';
-                    $content .= '<td class="assigneduser">' . $this->assign_role_for_user_form('rev2', $concert) . '</td>';
+                    foreach ( [ 'photo1', 'photo2', 'rev1', 'rev2' ] as $role ) {
+                        $content .= '<td class="assigneduser">'
+                            . $this->assign_role_for_user_form( $role, $concert )
+                            . '</td>';
+                    }
 
                     $content .= '<td>' . self::STATUS_LABELS[$concert->status()] . '</td>';
 
                     if (current_user_can('administrator')) {
-                        $content .= '<td  class="adminbuttons">'
-                            . $this->adminactions($concert)
-                            . '</td>';
+                        $content .= "<td class=\"adminbuttons\">{$this->adminactions( $concert )}</td>";
                     }
                 }
+                else {
+                    $content .= "<td><a target=\"_blank\" href=\"{$concert->eventlink()}\">Link</a></td>";
+                    $content .= "<td><a target=\"_blank\" href=\"{$concert->tickets()}\">Tickets</a></td>";
+                }
+
                 $content .= '</tr>';
-                $lastType = $concert->venue()->city();
+                $last_city = $concert->venue()->city();
             }
 
             $content .= '</table>';
