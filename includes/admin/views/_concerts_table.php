@@ -34,18 +34,21 @@ if (!class_exists("GiglogAdmin_ConcertsTable"))
         public function render(): string
         {
             return $this->render_filters()
-                . $this->render_concerts_table();
+            . $this->render_concerts_table();
         }
 
         private function render_concert_table_header() : string
         {
-            $content =
-                '<div style="overflow-x:auto;"><table class="assignit">'
-                . '<tr class="assignithrow">'
-                . '  <th>CITY</th><th>DATE</th><th>NAME</th><th>VENUE</th>';
+
+
+            $content =                '<div style="overflow-x:auto;"><table class="assignit">';
+            $content.= '<span style="font-size:0.8em;font-style: italic;"> Note: the iCal link will download a file with extension .ical which can be used to add the event to your calendar. For convenience, we set all events with start time at 19:00 but please check the actual event for the correct time.</span>';
+
+            $content.=  '<tr class="assignithrow">';
+            $content.= '<th>CITY</th><th>DATE</th><th>NAME</th><th>VENUE</th>';
 
             if (!is_admin()) {
-                $content .= '<th>EVENT</th><th>TICKETS</th>';
+                $content .= '<th>EVENT</th><th>TICKETS</th><th>Calendar</th>';
             }
             else {
                 $content .= '<th></th><th>PHOTO1</th><th>PHOTO2</th><th>TEXT1</th><th>TEXT2</th><th>STATUS</th>';
@@ -121,42 +124,42 @@ if (!class_exists("GiglogAdmin_ConcertsTable"))
         private function render_pagination() : string
         {
             $content =
-                '<div id="pagtextbox" style="display:flex">'
-                . '<span class="alignleft" style="text-align:left;flex:auto;">';
+            '<div id="pagtextbox" style="display:flex">'
+            . '<span class="alignleft" style="text-align:left;flex:auto;">';
 
             if($this->page_no > 1) {
                 $content .=
-                    '<span>'
-                    . '<a href="'. add_query_arg( 'page_no', 1 ) . '">'
-                    . 'First Page</a> -'
-                    . '</span>'
-                    . '<span>'
-                    . '<a href="' . add_query_arg( 'page_no', $this->previous_page ) . '">'
-                    . ' Previous</a></span>';
+                '<span>'
+                . '<a href="'. add_query_arg( 'page_no', 1 ) . '">'
+                . 'First Page</a> -'
+                . '</span>'
+                . '<span>'
+                . '<a href="' . add_query_arg( 'page_no', $this->previous_page ) . '">'
+                . ' Previous</a></span>';
             }
 
             $content .= '</span>'
-                . '<span class="aligncenter" style="text-align:center;flex:auto">'
-                . '<strong>Page ' . $this->page_no . ' of ' . $this->total_no_of_pages . '</strong>'
-                . '</span>';
+            . '<span class="aligncenter" style="text-align:center;flex:auto">'
+            . '<strong>Page ' . $this->page_no . ' of ' . $this->total_no_of_pages . '</strong>'
+            . '</span>';
 
             $content .= '<span class="alignright" style="text-align:right;flex:auto;float:none">';
 
             if ($this->page_no < $this->total_no_of_pages) {
                 $content .=
-                    '<span>'
-                    . '<a href="' . add_query_arg( 'page_no', $this->next_page ) . '">'
-                    . 'Next</a> - '
-                    . '</span>'
-                    . '<span>'
-                    . '<a href="' . add_query_arg( 'page_no', $this->total_no_of_pages ) .'">'
-                    . 'Last Page</a>'
-                    . '</span>';
+                '<span>'
+                . '<a href="' . add_query_arg( 'page_no', $this->next_page ) . '">'
+                . 'Next</a> - '
+                . '</span>'
+                . '<span>'
+                . '<a href="' . add_query_arg( 'page_no', $this->total_no_of_pages ) .'">'
+                . 'Last Page</a>'
+                . '</span>';
             }
 
             $content .=
-                '</span>'
-                . '</div>';
+            '</span>'
+            . '</div>';
 
             return $content;
         }
@@ -209,10 +212,11 @@ if (!class_exists("GiglogAdmin_ConcertsTable"))
 
                     if (current_user_can('administrator')) {
                         $content .= '<td  class="adminbuttons">'
-                            . $this->adminactions($concert)
-                            . '</td>';
+                        . $this->adminactions($concert)
+                        . '</td>';
                     }
                 }
+                $content .= '<td> <a href="'.get_admin_url().'admin-ajax.php?action=giglog_export_ical&evid='.$concert->id().'">iCal</td>';
                 $content .= '</tr>';
                 $lastType = $concert->venue()->city();
             }
@@ -240,116 +244,116 @@ if (!class_exists("GiglogAdmin_ConcertsTable"))
                 }
 
                 $select .= '<input type="hidden" name="' . esc_attr( $name )
-                    . '" value="' . esc_attr( $val ) . '">';
+                . '" value="' . esc_attr( $val ) . '">';
             }
 
             $cty = $this->get_filter('city');
 
             $select .= \EternalTerror\ViewHelpers\select_field(
-                    "city",
-                    array_map(fn($city) => [$city, $city], GiglogAdmin_Venue::all_cities()),
-                    $cty,
-                    "Select city...");
+                "city",
+                array_map(fn($city) => [$city, $city], GiglogAdmin_Venue::all_cities()),
+                $cty,
+                "Select city...");
 
 
-            if ( !empty($cty) ) {
-                //second drop down for venue
-                $select .= \EternalTerror\ViewHelpers\select_field(
-                    "venue",
-                    array_map(
-                        fn($venue) => [$venue->id(), $venue->name()],
-                        GiglogAdmin_Venue::venues_in_city($cty)
-                    ),
-                    $this->get_filter('venue_id'),
-                    "Select venue...");
-            }
+                if ( !empty($cty) ) {
+                    //second drop down for venue
+                    $select .= \EternalTerror\ViewHelpers\select_field(
+                        "venue",
+                        array_map(
+                            fn($venue) => [$venue->id(), $venue->name()],
+                            GiglogAdmin_Venue::venues_in_city($cty)
+                        ),
+                        $this->get_filter('venue_id'),
+                        "Select venue...");
+                    }
 
-            $select .= \EternalTerror\ViewHelpers\select_field(
-                "month",
-                array_map(
-                    fn($m) => [ $m, $wp_locale->get_month( $m ) ],
-                    range( 1, 12 )
-                ),
-                $this->get_filter('month'),
-                "Select month...");
+                    $select .= \EternalTerror\ViewHelpers\select_field(
+                        "month",
+                        array_map(
+                            fn($m) => [ $m, $wp_locale->get_month( $m ) ],
+                            range( 1, 12 )
+                        ),
+                        $this->get_filter('month'),
+                        "Select month...");
 
-            $select.='</select>';
+                        $select.='</select>';
 
-            if(is_admin()) {
-                //option to select own concerts only
-                $select .= '<input name="only_mine" class="ownconc" type="checkbox" value="1"'
-                    . checked( $this->get_filter( 'current_user' ) )
-                    . '><label for="ownconcerts">Show own concerts only</label>';
+                        if(is_admin()) {
+                            //option to select own concerts only
+                            $select .= '<input name="only_mine" class="ownconc" type="checkbox" value="1"'
+                            . checked( $this->get_filter( 'current_user' ) )
+                            . '><label for="ownconcerts">Show own concerts only</label>';
 
-            }
-            //NOTE that I remvoed </form></p> and mvoed them up to render_concerts_table function
-            $select .= '<input class="applybutton" type="submit" value="Apply Filters">';
+                        }
+                        //NOTE that I remvoed </form></p> and mvoed them up to render_concerts_table function
+                        $select .= '<input class="applybutton" type="submit" value="Apply Filters">';
 
-            return $select;
-        }
+                        return $select;
+                    }
 
-        private function adminactions( GiglogAdmin_Concert $concert ) : string
-        {
-            return
-                '<form class="adminactions" method="POST" action="">'
-                . '<input type="hidden" name="cid" value="' . $concert->id() .  '" />'
-                . \EternalTerror\ViewHelpers\select_field(
-                    'selectstatus',
-                    array_map(fn($i) => [ $i, self::STATUS_LABELS[$i] ], range(1, count(self::STATUS_LABELS) - 1)),
-                    $concert->status())
-                    . '<input type="submit" value="SetStatus">'
-                    . '<input type="submit" name ="edit" value="EDIT">'
-                    . '</form>';
-        }
+                    private function adminactions( GiglogAdmin_Concert $concert ) : string
+                    {
+                        return
+                        '<form class="adminactions" method="POST" action="">'
+                        . '<input type="hidden" name="cid" value="' . $concert->id() .  '" />'
+                        . \EternalTerror\ViewHelpers\select_field(
+                            'selectstatus',
+                            array_map(fn($i) => [ $i, self::STATUS_LABELS[$i] ], range(1, count(self::STATUS_LABELS) - 1)),
+                            $concert->status())
+                            . '<input type="submit" value="SetStatus">'
+                            . '<input type="submit" name ="edit" value="EDIT">'
+                            . '</form>';
+                        }
 
-        /**
-         * Display a mark on the concert if it is new.
-         * I.e. imported/created within the last ten days.
-         *
-         * @return null|string
-         */
-        private function mark_new_concert(GiglogAdmin_Concert $concert) : string
-        {
-            $now = new DateTime();
-            $new_entry = $now->diff($concert->created())->days <= 10;
-            if ($new_entry) {
-                return '<span style="color:green">NEW</span>';
-            }
-            else {
-                return '';
-            }
-        }
+                        /**
+                        * Display a mark on the concert if it is new.
+                        * I.e. imported/created within the last ten days.
+                        *
+                        * @return null|string
+                        */
+                        private function mark_new_concert(GiglogAdmin_Concert $concert) : string
+                        {
+                            $now = new DateTime();
+                            $new_entry = $now->diff($concert->created())->days <= 10;
+                            if ($new_entry) {
+                                return '<span style="color:green">NEW</span>';
+                            }
+                            else {
+                                return '';
+                            }
+                        }
 
-        private function assign_role_for_user_form(string $role, GiglogAdmin_Concert $concert) : ?string
-        {
-            $roles = $concert->roles();
-            $assigned_user = array_key_exists($role, $roles) ? $roles[$role] : NULL;
+                        private function assign_role_for_user_form(string $role, GiglogAdmin_Concert $concert) : ?string
+                        {
+                            $roles = $concert->roles();
+                            $assigned_user = array_key_exists($role, $roles) ? $roles[$role] : NULL;
 
-            //first check if current slot is taken by current user
-            if ( $assigned_user == $this->username ) {
-                $f = '<form class="unassign_concert" method="POST" action="">'
-                    . '  <input type="hidden" name="cid" value="' . $concert->id() . '" />'
-                    . '  <input type="hidden" name="pid" value="' . $role . '" />'
-                    . '  <input type="submit" name="unassignitem" value=""/>'
-                    . '</form>';
-            }
-            elseif ( $assigned_user ) { //check if slot is taken by another user
-                $f = '<span class="takenby">Taken</span>'
-                    . '<div class="takenby">Taken by ' . $assigned_user . '</div>';
-            }
-            elseif ( array_search($this->username, $roles) ) {
-                // other slots for this concert are taken by user
-                $f = '<span class="taken_by_self">-</span>';
-            }
-            else { //not taken by anyone
-                $f = '<form class="assign_concert" method="POST" action="">'
-                    . '  <input type="hidden" name="cid" value="' . $concert->id() . '" />'
-                    . '  <input type="hidden" name="pid" value="' . $role. '" />'
-                    . '  <input  type="submit" name="assignitem" value=""/>'
-                    . '</form>';
-            }
+                            //first check if current slot is taken by current user
+                            if ( $assigned_user == $this->username ) {
+                                $f = '<form class="unassign_concert" method="POST" action="">'
+                                . '  <input type="hidden" name="cid" value="' . $concert->id() . '" />'
+                                . '  <input type="hidden" name="pid" value="' . $role . '" />'
+                                . '  <input type="submit" name="unassignitem" value=""/>'
+                                . '</form>';
+                            }
+                            elseif ( $assigned_user ) { //check if slot is taken by another user
+                                $f = '<span class="takenby">Taken</span>'
+                                . '<div class="takenby">Taken by ' . $assigned_user . '</div>';
+                            }
+                            elseif ( array_search($this->username, $roles) ) {
+                                // other slots for this concert are taken by user
+                                $f = '<span class="taken_by_self">-</span>';
+                            }
+                            else { //not taken by anyone
+                                $f = '<form class="assign_concert" method="POST" action="">'
+                                . '  <input type="hidden" name="cid" value="' . $concert->id() . '" />'
+                                . '  <input type="hidden" name="pid" value="' . $role. '" />'
+                                . '  <input  type="submit" name="assignitem" value=""/>'
+                                . '</form>';
+                            }
 
-            return $f;
-        }
-    }
-}
+                            return $f;
+                        }
+                    }
+                }

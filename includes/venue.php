@@ -75,7 +75,7 @@ if ( !class_exists('GiglogAdmin_Venue') ) {
         {
             global $wpdb;
             $venuesql = "SELECT * FROM {$wpdb->prefix}giglogadmin_venues "
-                . $wpdb->prepare("WHERE upper(wpgvenue_name)=upper(%s) and wpgvenue_city=%s", $name, $city);
+                . $wpdb->prepare("WHERE upper(wpgvenue_name)=upper(%s) and upper(wpgvenue_city)=upper(%s)", $name, $city);
 
             $results  = $wpdb->get_results($venuesql);
 
