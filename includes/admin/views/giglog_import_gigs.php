@@ -53,7 +53,7 @@ if ( !class_exists( 'GiglogAdmin_ImportGigsPage' ) ) {
          *
          * @return void
          *
-         * @param array<mixed>
+         * @param array<int, mixed> $file
          */
         static function process_upload(array $file): void {
             global $wpdb;

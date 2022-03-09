@@ -4,6 +4,8 @@
 //
 // SPDX-License-Identifier: AGPL-3.0-or-later
 
+require_once __DIR__ . '/../../view-helpers/select_field.php';
+
 if (!class_exists("GiglogAdmin_EditConcertForm"))
 {
     class GiglogAdmin_EditConcertForm

@@ -73,6 +73,9 @@ if ( ! class_exists( "GiglogAdmin_IcalExport" ) )
         }
     }
 
+    /** @psalm-suppress HookNotFound */
     add_action( 'wp_ajax_nopriv_giglog_export_ical', [ 'GiglogAdmin_IcalExport', 'export_ical' ] );
+
+    /** @psalm-suppress HookNotFound */
     add_action( 'wp_ajax_giglog_export_ical', [ 'GiglogAdmin_IcalExport', 'export_ical' ] );
 }
