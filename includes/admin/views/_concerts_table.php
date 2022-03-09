@@ -41,13 +41,14 @@ if (!class_exists("GiglogAdmin_ConcertsTable"))
 
         private function render_concert_table_header() : string
         {
-            $content =
-                '<div style="overflow-x:auto;"><table class="assignit">'
-                . '<tr class="assignithrow">'
-                . '  <th>CITY</th><th>DATE</th><th>NAME</th><th>VENUE</th>';
+            $content = '<div style="overflow-x:auto;"><table class="assignit">';
+            $content.= '<span style="font-size:0.8em;font-style: italic;"> Note: the iCal link will download a file with extension .ical which can be used to add the event to your calendar. For convenience, we set all events with start time at 19:00 but please check the actual event for the correct time.</span>';
+
+            $content.=  '<tr class="assignithrow">';
+            $content.= '<th>CITY</th><th>DATE</th><th>NAME</th><th>VENUE</th>';
 
             if (!is_admin()) {
-                $content .= '<th>EVENT</th><th>TICKETS</th>';
+                $content .= '<th>EVENT</th><th>TICKETS</th><th>Calendar</th>';
             }
             else {
                 $content .= '<th></th><th>PHOTO1</th><th>PHOTO2</th><th>TEXT1</th><th>TEXT2</th><th>STATUS</th>';
@@ -85,7 +86,7 @@ if (!class_exists("GiglogAdmin_ConcertsTable"))
                 $this->filter['currentuser'] = $this->username;
             }
 
-            if (isset($_GET['page_no']) && $_GET['page_no'] != "" && is_numeric($_GET['page_no'])) {
+            if (isset($_GET['page_no']) && $_GET['page_no'] != "" && is_numeric($_GET['page_no']) && isset($_GET['page_no']) == $this->page_no  ) {
                 $this->page_no = intval($_GET['page_no']);
             } else {
                 $this->page_no = 1;
@@ -103,6 +104,11 @@ if (!class_exists("GiglogAdmin_ConcertsTable"))
             $offset = ($this->page_no - 1) * $total_records_per_page;
             $this->previous_page = $this->page_no - 1;
             $this->next_page = $this->page_no + 1;
+
+
+            if ($this->page_no > $this->total_no_of_pages ) {
+                $this->page_no = 1;
+            }
 
             $this->filter['offset'] =  $offset;
             $this->filter['recperpage'] =  $total_records_per_page;
@@ -200,6 +206,7 @@ if (!class_exists("GiglogAdmin_ConcertsTable"))
                     $content .= "<td><a target=\"_blank\" href=\"{$concert->tickets()}\">Tickets</a></td>";
                 }
 
+                $content .= '<td> <a href="'.get_admin_url().'admin-ajax.php?action=giglog_export_ical&evid='.$concert->id().'">iCal</td>';
                 $content .= '</tr>';
                 $last_city = $concert->venue()->city();
             }
@@ -233,11 +240,10 @@ if (!class_exists("GiglogAdmin_ConcertsTable"))
             $cty = $this->get_filter('city');
 
             $select .= \EternalTerror\ViewHelpers\select_field(
-                    "city",
-                    array_map(fn($city) => [$city, $city], GiglogAdmin_Venue::all_cities()),
-                    $cty,
-                    "Select city...");
-
+                "city",
+                array_map(fn($city) => [$city, $city], GiglogAdmin_Venue::all_cities()),
+                $cty,
+                "Select city...");
 
             if ( !empty($cty) ) {
                 //second drop down for venue

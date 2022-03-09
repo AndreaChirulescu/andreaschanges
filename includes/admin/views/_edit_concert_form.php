@@ -53,7 +53,7 @@ if (!class_exists("GiglogAdmin_EditConcertForm"))
                 .'<label for="cname">Concert Name:</label><textarea id="cname" name="cname" value="'.$c->cname().'">'.$c->cname().'</textarea><br>'
                 .'<label for="venue">Venue:</label>' . $this->get_venue_selector($c->venue()) . '<br>'
                 //date has to be formatted else it is not red in the date field of html form
-                .'<label for="cdate">Date:</label><input type="date" id="cdate" name="cdate" value="'.strftime('%d/%m/%Y',strtotime($c->cdate())).'"><br>'
+                .'<label for="cdate">Date:</label><input type="date" id="cdate" name="cdate" value="'.date('Y-m-d',strtotime($c->cdate())).'"><br>'
                 .'<label for="ticket">Tickets:</label><input type="text" id="ticket" name="ticket" value="'.$c->tickets().'"><br>'
                     .'<label for="eventurl">Event link:</label><input type="text" id="eventurl" name="eventurl" value="'.$c->eventlink().'"><br>'
                 .'</fieldset>';

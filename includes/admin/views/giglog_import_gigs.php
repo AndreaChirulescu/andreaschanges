@@ -56,32 +56,83 @@ if ( !class_exists( 'GiglogAdmin_ImportGigsPage' ) ) {
          * @param array<mixed>
          */
         static function process_upload(array $file): void {
+            global $wpdb;
             $newconcert= [];
             $fo = new SplFileObject($file['tmp_name']);
-
+            $importerrors = '';
+            $rid=0;
             foreach ($fo as $line) {
+                $rid++;
                 $line = trim( $line );
                 if ( empty($line) ) {
                     // Skip empty lines
                     continue;
                 }
-
                 $resultArray = explode("\t", $line);
-                $cname       = trim($resultArray[0]);
-                $venue       = trim($resultArray[1]);
-
-                if (is_numeric($venue)) {
-                    $venue = GiglogAdmin_Venue::get($venue);
+                //unsure if this is needed, considering we are also checking if each individual important field is missing. But if they are not replaced by tabs, then everything gets shifted so probably best to check if a //value is empty and NOT replaced by tab
+                if (count($resultArray)<6)
+                {
+                    $importerrors.= 'Row '.$rid.' is missing a field!'."<br>";
+                    continue;
                 }
-                else {
-                    $venue = GiglogAdmin_Venue::find_or_create($venue,'Oslo');
+                else{
+                    //Below only checks if the date field is made of 4-2-2 digits, irregardless of their values. Actual date check is lower
+                    if(  ! preg_match("/\d{4}\-\d{2}-\d{2}/",$resultArray[3]))
+                    {
+                        $importerrors.= 'Row '.$rid.' has invalid date!'.$resultArray[3]."<br>";
+
+                        continue;
+                    }
+                    else {
+                        if (empty(trim($resultArray[0]))) {
+                            $importerrors.= 'Row '.$rid.' is missing concert name!'."<br>";
+                            continue;
+                        }
+                        elseif (empty(trim($resultArray[1]))) {
+                            $importerrors.= 'Row '.$rid.' is missing venue name!'."<br>";
+                            continue;
+                        }
+                        elseif (empty(trim($resultArray[2]))) {
+                            $importerrors.= 'Row '.$rid.' is missing city name!' ."<br>";
+                            continue;
+                        }
+                        else {
+                            $condate     = date('Y-m-d', strtotime($resultArray[3]));
+                            if ($condate<date("Y-m-d")) {
+                                $importerrors.= 'Row '.$rid.' has date in the past!' .$resultArray[3]."<br>";
+                                continue;
+                            }
+                            else {
+                                $cname       = trim($resultArray[0]);
+                                $venue       = trim($resultArray[1]);
+
+                                if (is_numeric($venue)) {
+                                    $venue = GiglogAdmin_Venue::get($venue);
+                                }
+                                else {
+                                    $venue = GiglogAdmin_Venue::find_or_create($venue,trim($resultArray[2]));
+                                }
+
+                                $ticketlink  = trim($resultArray[4]);
+                                $eventlink   = trim($resultArray[5]);
+
+                                try {
+                                    GiglogAdmin_Concert::create($cname, $venue->id(), $condate, $ticketlink, $eventlink);
+                                }
+                                catch(Exception $e) {
+                                    $importerrors.= 'Row '.$rid.' is duplicate (or failed due unknown error)!'."<br>";
+                                }
+                            }
+                        }
+                    }
                 }
+            }
 
-                $condate     = date('Y-m-d', strtotime($resultArray[2]));
-                $ticketlink  = trim($resultArray[3]);
-                $eventlink   = trim($resultArray[4]);
-
-                GiglogAdmin_Concert::create($cname, $venue->id(), $condate, $ticketlink, $eventlink);
+            if (!empty($importerrors)) {
+                echo  ($importerrors);
+            }
+            else {
+                echo ('All rows imported ok');
             }
         }
     }
