@@ -25,6 +25,8 @@ if (!class_exists("GiglogAdmin_ConcertsTable"))
         ];
 
         private string $username;
+        private array $filter;
+        private int $page_no;
 
         public function __construct() {
             $this->username = wp_get_current_user()->user_login;

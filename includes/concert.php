@@ -78,8 +78,8 @@ if ( !class_exists('GiglogAdmin_Concert') ) {
         /**
          * Return the concert with the given id.
          *
-         * @param int $id.
-         * @return null|self.
+         * @param int $id
+         * @return null|self
          */
         static function get( int $id ) : ?self
         {

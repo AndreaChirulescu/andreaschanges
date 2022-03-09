@@ -19,7 +19,6 @@ SPDX-License-Identifier: CC0-1.0
         <directory name="includes"/>
         <ignoreFiles>
             <directory name="vendor"/>
-            <directory name="includes/public/shortcodes" />
         </ignoreFiles>
     </projectFiles>
 

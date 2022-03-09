@@ -20,7 +20,7 @@ if (!class_exists("GiglogAdmin_EditConcertForm"))
         private function user_dropdown_for_role( GiglogAdmin_Concert $concert, string $role): string
         {
             $users = array_map(
-                fn($usr) => $usr->user_login,
+                fn($usr): string => $usr->user_login,
                 get_users( array( 'fields' => array( 'user_login' ) ) ) );
 
             $roles = $concert->roles();

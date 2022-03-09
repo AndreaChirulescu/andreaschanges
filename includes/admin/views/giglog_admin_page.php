@@ -158,7 +158,7 @@ if ( !class_exists( 'GiglogAdmin_AdminPage' ) ) {
                 ];
 
                 $concert = GiglogAdmin_Concert::get(intval($_POST['pid']));
-                if ($concert->update((object) $attributes)) {
+                if ($concert && $concert->update((object) $attributes)) {
                     // let user know the concert was updated.
                     // Look into admin_notices
                 }
