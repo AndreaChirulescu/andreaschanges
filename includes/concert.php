@@ -134,7 +134,7 @@ if ( !class_exists('GiglogAdmin_Concert') ) {
             }
 
             if (isset($attrs->wpgconcert_event) && $attrs->wpgconcert_event != $this->eventlink) {
-                $this->eventling = $attrs->wpgconcert_eventlink;
+                $this->eventlink = $attrs->wpgconcert_eventlink;
                 $need_update = true;
             }
 
