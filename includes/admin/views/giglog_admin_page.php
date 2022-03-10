@@ -67,53 +67,17 @@ if ( !class_exists( 'GiglogAdmin_AdminPage' ) ) {
         /**
          * @return void
          */
-        static function update()
+        static function update() : void
         {
             if ('POST' !== $_SERVER['REQUEST_METHOD'])
                 return;
 
-            if(isset($_POST['assignitem']))
-            {
-                $concert = GiglogAdmin_Concert::get(intval($_POST['cid']));
-                $role = sanitize_text_field($_POST['pid']);
-
-                if ($concert) {
-                    GiglogAdmin_AdminPage::assignconcert($role, $concert);
-                }
-
-                $url2=$_SERVER['REQUEST_URI'];
-                header("Refresh: 1; URL=$url2");  //reload page
+            if (isset($_POST['assignitem']) || isset($_POST['unassignitem']) || isset($_POST['selectstatus'])) {
+                GiglogAdmin_ConcertsTable::update();
+                return;
             }
 
-            if(isset($_POST['unassignitem']))
-            {
-                $concert = GiglogAdmin_Concert::get(intval($_POST['cid']));
-                if ( ! $concert ) {
-                    wp_die( "Invalid concert specified." );
-                }
-
-                $role = sanitize_text_field($_POST['pid']);
-
-                GiglogAdmin_AdminPage::unassignconcert($role, $concert);
-
-                $url3=$_SERVER['REQUEST_URI'];
-                header("Refresh: 1; URL=$url3");  //reload page
-            }
-
-            // handle the status drop down
-            if (isset($_POST['selectstatus']) && !empty($_POST['selectstatus']) && !empty($_POST['cid']))
-            {
-                if ($_POST['selectstatus'] > 0 && $_POST['selectstatus'] < count(self::STATUS_LABELS)) {
-                    $concert = GiglogAdmin_Concert::get(intval($_POST['cid']));
-                    if ( $concert ) {
-                        $concert->set_status(intval($_POST['selectstatus']));
-                        $concert->save();
-                        GiglogAdmin_AdminPage::emailuser($concert,intval($_POST['selectstatus']));
-                    }
-                }
-            }
-
-            if(isset($_POST['newconcert'])) {
+            if (isset($_POST['newconcert'])) {
                 if (empty($_POST['cname'])  || empty($_POST['selectvenueadmin']) || empty($_POST['cdate']) || empty($_POST['ticket']) || empty($_POST['eventurl'])) {
                     echo '<script language="javascript">alert("You are missing a value, concert was not created"); </script>';
                 }
@@ -183,70 +147,5 @@ if ( !class_exists( 'GiglogAdmin_AdminPage' ) ) {
                 }
             }
         }
-
-        static function assignconcert(string $p1, GiglogAdmin_Concert $concert): void
-        {
-            $username = wp_get_current_user()->user_login;
-            $concert->assign_role($p1, $username);
-            $concert->save();
-
-            $cuser = get_user_by( 'login', 'etadmin');
-
-            if ( $cuser ) {
-                $dest = $cuser->user_email;
-                $subject = 'WP-GIGLOG '.$username.' has taken '.$p1. 'for concert '.$concert->cname();
-                $body = 'WP-GIGLOG '.$username.' has taken '.$p1. 'for concert '.$concert->cname().', concert with ID ' .$concert->id();
-                $headers = array('Content-Type: text/html; charset=UTF-8');
-
-                wp_mail( $dest, $subject, $body );
-            }
-        }
-
-        static function unassignconcert(string $p1, GiglogAdmin_Concert $concert): void
-        {
-            $username = wp_get_current_user()->user_login;
-            $concert->remove_user_from_roles($username);
-            $concert->save();
-
-            $cuser = get_user_by( 'login', 'etadmin');
-
-            if ( $cuser ) {
-                $dest = $cuser->user_email;
-                $subject = 'WP-GIGLOG '.$username.' has UNASSIGNED  '.$p1. 'for concert '.$concert->cname();
-                $body = 'WP-GIGLOG '.$username.' has UNASSIGNED  '.$p1. 'for concert '.$concert->cname().', concert with ID ' .$concert->id();
-                $headers = array('Content-Type: text/html; charset=UTF-8');
-
-                wp_mail( $dest, $subject, $body );
-            }
-        }
-
-        static function emailuser(GiglogAdmin_Concert $concert, $cstatus): void
-        {
-            $username = wp_get_current_user()->user_login;
-            $useremail = 'live@eternal-terror.com';
-            $dest = '';
-            $roles = $concert -> roles();
-            $x = '';
-
-            foreach ($roles as $role) {
-                if($role){
-                    $cuser = get_user_by( 'login', $role);
-
-                    if ( $cuser ) {
-                        $dest .= $cuser->user_email . ',';
-                    }
-                }
-            }
-
-            $subject = 'Message from GIGLOG: Concert '.$concert->cname().' has a new status  '.$cstatus. '.';
-            $body = 'You receive this message because you have assigned one of the roles for Concert '.$concert->cname().'.';
-            $body .= '\r\n This is to inform you that there is a new status for the acreditation  '.$cstatus. '.';
-            $body .= '\r\n Should you no longer want to receive updates about this concert, please log in to Giglog and remove yourself from the concert. Thanks!';
-            $headers = array('Content-Type: text/plain; charset=UTF-8'); //it is text by default so no need for headers actually
-
-            wp_mail( $dest, $subject, $body );
-        }
-
     }
 }
-?>
