@@ -60,7 +60,7 @@ if ( !class_exists('GiglogAdmin_Venue') ) {
             return $results ? new GiglogAdmin_Venue($results[0]) : NULL;
         }
 
-        static function create($name, $city = 'Oslo'): self
+        static function create(string $name, string $city = 'Oslo'): self
         {
             $venue = new GiglogAdmin_Venue((object) [
                 'wpgvenue_name' => $name,

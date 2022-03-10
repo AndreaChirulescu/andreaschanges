@@ -95,6 +95,10 @@ if ( !class_exists( 'GiglogAdmin_AdminPage' ) ) {
             if(isset($_POST['unassignitem']))
             {
                 $concert = GiglogAdmin_Concert::get(intval($_POST['cid']));
+                if ( ! $concert ) {
+                    wp_die( "Invalid concert specified." );
+                }
+
                 $role = sanitize_text_field($_POST['pid']);
 
                 GiglogAdmin_AdminPage::unassignconcert($role, $concert);
@@ -108,9 +112,11 @@ if ( !class_exists( 'GiglogAdmin_AdminPage' ) ) {
             {
                 if ($_POST['selectstatus'] > 0 && $_POST['selectstatus'] < count(self::STATUS_LABELS)) {
                     $concert = GiglogAdmin_Concert::get(intval($_POST['cid']));
-                    $concert->set_status(intval($_POST['selectstatus']));
-                    $concert->save();
-                    GiglogAdmin_AdminPage::emailuser($concert,intval($_POST['selectstatus']));
+                    if ( $concert ) {
+                        $concert->set_status(intval($_POST['selectstatus']));
+                        $concert->save();
+                        GiglogAdmin_AdminPage::emailuser($concert,intval($_POST['selectstatus']));
+                    }
                 }
             }
 
@@ -185,32 +191,40 @@ if ( !class_exists( 'GiglogAdmin_AdminPage' ) ) {
             }
         }
 
-        static function assignconcert($p1, GiglogAdmin_Concert $concert): void
+        static function assignconcert(string $p1, GiglogAdmin_Concert $concert): void
         {
             $username = wp_get_current_user()->user_login;
             $concert->assign_role($p1, $username);
             $concert->save();
-            $cuser = get_user_by( 'login', 'etadmin');
-            $dest = $cuser->user_email;
-            $subject = 'WP-GIGLOG '.$username.' has taken '.$p1. 'for concert '.$concert->cname();
-            $body = 'WP-GIGLOG '.$username.' has taken '.$p1. 'for concert '.$concert->cname().', concert with ID ' .$concert->id();
-            $headers = array('Content-Type: text/html; charset=UTF-8');
 
-            wp_mail( $dest, $subject, $body );
+            $cuser = get_user_by( 'login', 'etadmin');
+
+            if ( $cuser ) {
+                $dest = $cuser->user_email;
+                $subject = 'WP-GIGLOG '.$username.' has taken '.$p1. 'for concert '.$concert->cname();
+                $body = 'WP-GIGLOG '.$username.' has taken '.$p1. 'for concert '.$concert->cname().', concert with ID ' .$concert->id();
+                $headers = array('Content-Type: text/html; charset=UTF-8');
+
+                wp_mail( $dest, $subject, $body );
+            }
         }
 
-        static function unassignconcert($p1, GiglogAdmin_Concert $concert): void
+        static function unassignconcert(string $p1, GiglogAdmin_Concert $concert): void
         {
             $username = wp_get_current_user()->user_login;
             $concert->remove_user_from_roles($username);
             $concert->save();
-            $cuser = get_user_by( 'login', 'etadmin');
-            $dest = $cuser->user_email;
-            $subject = 'WP-GIGLOG '.$username.' has UNASSIGNED  '.$p1. 'for concert '.$concert->cname();
-            $body = 'WP-GIGLOG '.$username.' has UNASSIGNED  '.$p1. 'for concert '.$concert->cname().', concert with ID ' .$concert->id();
-            $headers = array('Content-Type: text/html; charset=UTF-8');
 
-            wp_mail( $dest, $subject, $body );
+            $cuser = get_user_by( 'login', 'etadmin');
+
+            if ( $cuser ) {
+                $dest = $cuser->user_email;
+                $subject = 'WP-GIGLOG '.$username.' has UNASSIGNED  '.$p1. 'for concert '.$concert->cname();
+                $body = 'WP-GIGLOG '.$username.' has UNASSIGNED  '.$p1. 'for concert '.$concert->cname().', concert with ID ' .$concert->id();
+                $headers = array('Content-Type: text/html; charset=UTF-8');
+
+                wp_mail( $dest, $subject, $body );
+            }
         }
 
         static function emailuser(GiglogAdmin_Concert $concert, $cstatus): void
@@ -221,10 +235,13 @@ if ( !class_exists( 'GiglogAdmin_AdminPage' ) ) {
             $roles = $concert -> roles();
             $x = '';
 
-            foreach ($roles AS  $role) {
+            foreach ($roles as $role) {
                 if($role){
                     $cuser = get_user_by( 'login', $role);
-                    $dest.= $cuser->user_email.',';
+
+                    if ( $cuser ) {
+                        $dest .= $cuser->user_email . ',';
+                    }
                 }
             }
 
