@@ -79,8 +79,7 @@ if ( !class_exists( 'GiglogAdmin_ImportGigsPage' ) ) {
                     //Below only checks if the date field is made of 4-2-2 digits, irregardless of their values. Actual date check is lower
                     if(  ! preg_match("/\d{4}\-\d{2}-\d{2}/",$resultArray[3]))
                     {
-                        $importerrors.= 'Row '.$rid.' has invalid date!'.$resultArray[3]."<br>";
-
+                        $importerrors.= 'Row '.$rid.' has invalid date!'.esc_html($resultArray[3])."<br>";
                         continue;
                     }
                     else {
@@ -99,7 +98,7 @@ if ( !class_exists( 'GiglogAdmin_ImportGigsPage' ) ) {
                         else {
                             $condate     = date('Y-m-d', strtotime($resultArray[3]));
                             if ($condate<date("Y-m-d")) {
-                                $importerrors.= 'Row '.$rid.' has date in the past!' .$resultArray[3]."<br>";
+                                $importerrors.= 'Row '.$rid.' has date in the past!' . esc_html($resultArray[3]) . "<br>";
                                 continue;
                             }
                             else {
