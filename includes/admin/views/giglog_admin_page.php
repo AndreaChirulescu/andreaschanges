@@ -72,13 +72,6 @@ if ( !class_exists( 'GiglogAdmin_AdminPage' ) ) {
             if ('POST' !== $_SERVER['REQUEST_METHOD'])
                 return;
 
-            // Use the submitted "city" if any. Otherwise, use the default/static value.
-            $cty = filter_input( INPUT_POST, 'selectcity', FILTER_SANITIZE_SPECIAL_CHARS );
-            $cty = $cty ? $cty: 'ALL';
-
-            $venue = filter_input( INPUT_POST, 'selectvenue', FILTER_SANITIZE_SPECIAL_CHARS );
-            $venue = $venue ? $venue : '0';
-
             if(isset($_POST['assignitem']))
             {
                 $concert = GiglogAdmin_Concert::get(intval($_POST['cid']));
