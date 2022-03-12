@@ -28,7 +28,12 @@ if (!class_exists("GiglogAdmin_ConcertsTable"))
 
         private string $username;
         private array $filter;
+
         private int $page_no = 1;
+        private int $total_no_of_pages = 1;
+        private int $previous_page = 0;
+        private int $next_page = 0;
+
         private string $nonce;
 
         public static function update() : void
