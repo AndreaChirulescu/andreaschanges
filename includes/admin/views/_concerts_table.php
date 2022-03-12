@@ -298,8 +298,8 @@ if (!class_exists("GiglogAdmin_ConcertsTable"))
 
                 $content .=
                     "<td>" . date( 'd.M.Y', strtotime( $concert->cdate() ) ) . "</td>"
-                    . "<td>{$concert->cname()}</td>"
-                    . "<td>{$concert->venue()->name()}</td>";
+                    . "<td>" . esc_html($concert->cname()) . "</td>"
+                    . "<td>" . esc_html($concert->venue()->name()) . "</td>";
 
                 if( is_admin() ) {
                     $content .= '<td class="publishstatus">' . $this->mark_new_concert($concert) . '</td>';
