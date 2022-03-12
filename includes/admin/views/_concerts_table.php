@@ -322,8 +322,8 @@ if (!class_exists("GiglogAdmin_ConcertsTable"))
                     }
                 }
                 else {
-                    $content .= "<td><a target=\"_blank\" href=\"{$concert->eventlink()}\">Link</a></td>";
-                    $content .= "<td><a target=\"_blank\" href=\"{$concert->tickets()}\">Tickets</a></td>";
+                    $content .= "<td><a target=\"_blank\" href=\"" . esc_url($concert->eventlink()) . "\">Link</a></td>";
+                    $content .= "<td><a target=\"_blank\" href=\"" . esc_url($concert->tickets()) . "\">Tickets</a></td>";
                 }
 
                 $content .= '<td> <a href="'.get_admin_url().'admin-ajax.php?action=giglog_export_ical&evid='.$concert->id().'">iCal</td>';
