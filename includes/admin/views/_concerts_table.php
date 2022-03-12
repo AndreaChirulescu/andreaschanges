@@ -29,9 +29,18 @@ if (!class_exists("GiglogAdmin_ConcertsTable"))
         private string $username;
         private array $filter;
         private int $page_no;
+        private string $nonce;
 
         public static function update() : void
         {
+            //
+            // Check that we get a nonce, and that it is valid to prevent CSRF attacks.
+            //
+            if (!isset($_POST['nonce']) || !wp_verify_nonce($_POST['nonce'], 'concerts-table')) {
+                wp_die('You are not allowed to do that.', 403);
+                exit();
+            }
+
             if (isset($_POST['assignitem'])) {
                 $concert = GiglogAdmin_Concert::get(intval($_POST['cid']));
 
@@ -130,8 +139,12 @@ if (!class_exists("GiglogAdmin_ConcertsTable"))
             wp_mail( $dest, $subject, $body );
         }
 
-        public function __construct() {
+        public function __construct()
+        {
             $this->username = wp_get_current_user()->user_login;
+
+            // Set the nonce we use to check for CSRF attacks.
+            $this->nonce = wp_create_nonce('concerts-table');
             $this->get_args();
         }
 
@@ -387,6 +400,7 @@ if (!class_exists("GiglogAdmin_ConcertsTable"))
         {
             return
                 '<form class="adminactions" method="POST" action="">'
+                . '<input type="hidden" name="nonce" value="' . $this->nonce . '">'
                 . '<input type="hidden" name="cid" value="' . $concert->id() .  '" />'
                 . \EternalTerror\ViewHelpers\select_field(
                     'selectstatus',
@@ -423,6 +437,7 @@ if (!class_exists("GiglogAdmin_ConcertsTable"))
             //first check if current slot is taken by current user
             if ( $assigned_user == $this->username ) {
                 $f = '<form class="unassign_concert" method="POST" action="">'
+                    . '  <input type="hidden" name="nonce" value="' . $this->nonce . '">'
                     . '  <input type="hidden" name="cid" value="' . $concert->id() . '" />'
                     . '  <input type="hidden" name="pid" value="' . $role . '" />'
                     . '  <input type="submit" name="unassignitem" value=""/>'
@@ -438,6 +453,7 @@ if (!class_exists("GiglogAdmin_ConcertsTable"))
             }
             else { //not taken by anyone
                 $f = '<form class="assign_concert" method="POST" action="">'
+                    . '  <input type="hidden" name="nonce" value="' . $this->nonce . '">'
                     . '  <input type="hidden" name="cid" value="' . $concert->id() . '" />'
                     . '  <input type="hidden" name="pid" value="' . $role. '" />'
                     . '  <input  type="submit" name="assignitem" value=""/>'
