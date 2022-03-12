@@ -28,7 +28,7 @@ if (!class_exists("GiglogAdmin_ConcertsTable"))
 
         private string $username;
         private array $filter;
-        private int $page_no;
+        private int $page_no = 1;
         private string $nonce;
 
         public static function update() : void
