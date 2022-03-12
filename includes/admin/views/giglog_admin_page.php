@@ -77,56 +77,10 @@ if ( !class_exists( 'GiglogAdmin_AdminPage' ) ) {
                 return;
             }
 
-            if (isset($_POST['newconcert'])) {
-                if (empty($_POST['cname'])  || empty($_POST['selectvenueadmin']) || empty($_POST['cdate']) || empty($_POST['ticket']) || empty($_POST['eventurl'])) {
-                    echo '<script language="javascript">alert("You are missing a value, concert was not created"); </script>';
-                }
-                else {
-                    if (GiglogAdmin_Concert::create($_POST['cname'], $_POST['selectvenueadmin'], $_POST['cdate'], $_POST['ticket'], $_POST['eventurl'])) {
-                        echo '<script language="javascript">alert("Yey, concert created"); </script>';
-                    }
-                    else {
-                        echo '<script language="javascript">alert("Nay, concert was duplicated"); </script>';
-                    }
-                }
+            if (isset($_POST['newconcert']) || isset($_POST['editconcert'])) {
+                GiglogAdmin_EditConcertForm::update();
+                return;
             }
-
-            if (isset($_POST['editconcert']))
-            {
-                if (!isset($_POST['giglog_edit_concert_nonce'])
-                    || wp_verify_nonce($_POST['giglog_edit_concert_nonce'], plugin_basename( __FILE__ )))
-                {
-                    header("{$_SERVER['SERVER_PROTOCOL']} 403 Forbidden");
-                    wp_die('CSRF validation failed.', 403);
-                }
-
-                $roles = array_reduce(
-                    ['photo1', 'photo1', 'rev1', 'rev2'],
-                    function($roles, $r) {
-                        if (isset($_POST[$r])) {
-                            $roles[$r] = sanitize_user($_POST[$r]);
-                        }
-                        return $roles;
-                    },
-                    []
-                );
-
-                $attributes = [
-                    'wpgconcert_name' => sanitize_text_field($_POST['cname']),
-                    'venue' => intval($_POST['selectvenueadmin']),
-                    'wpgconcert_date' => sanitize_text_field($_POST['cdate']),
-                    'wpgconcert_ticket' => esc_url_raw($_POST['ticket']),
-                    'wpgconcert_event' => esc_url_raw($_POST['eventurl']),
-                    'wpgconcert_roles' => $roles,
-                ];
-
-                $concert = GiglogAdmin_Concert::get(intval($_POST['pid']));
-                if ($concert && $concert->update((object) $attributes)) {
-                    // let user know the concert was updated.
-                    // Look into admin_notices
-                }
-            }
-
 
             if(isset($_POST['newvenue']))
             {
