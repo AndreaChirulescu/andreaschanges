@@ -82,23 +82,9 @@ if ( !class_exists( 'GiglogAdmin_AdminPage' ) ) {
                 return;
             }
 
-            if(isset($_POST['newvenue']))
-            {
-                if (!isset($_POST['giglog_new_venue_nonce'])
-                    || wp_verify_nonce($_POST['giglog_new_venue_nonce'], plugin_basename( __FILE__ )))
-                {
-                    header("{$_SERVER['SERVER_PROTOCOL']} 403 Forbidden");
-                    wp_die('CSRF validation failed.', 403);
-                }
-
-                if (empty($_POST['venuename']) || empty($_POST['venuecity'])) {
-                    echo '<script language="javascript">alert("You are missing a value, venue was not created"); </script>';
-                }
-                else
-                {
-                    GiglogAdmin_Venue::create($_POST['venuename'],$_POST['venuecity']);
-                    echo '<script language="javascript">alert("Yey, venue created"); </script>';
-                }
+            if (isset($_POST['newvenue'])) {
+                GiglogAdmin_NewVenueForm::update();
+                return;
             }
         }
     }

@@ -15,7 +15,7 @@ if ( !class_exists( "GiglogAdmin_NewVenueForm" ) )
                 . '<p><strong>VENUE DETAILS</strong></p>'
                 . '<form method="POST" action="" class="venue">'
                 . '  <fieldset>'
-                . wp_nonce_field( plugin_basename( __FILE__ ), 'giglog_new_venue_nonce' )
+                . wp_nonce_field( 'edit-venue', 'nonce' )
                 . '    <div class="field venue_name_field">'
                 . '      <label for="venue">Venue Name:</label>'
                 . '      <input type="text" id="venuename" name="venuename">'
@@ -30,6 +30,22 @@ if ( !class_exists( "GiglogAdmin_NewVenueForm" ) )
                 . '  <fieldset>'
                 . '</form>'
                 . '</div>';
+        }
+
+        static function update() : void
+        {
+            if (!isset($_POST['nonce']) || !wp_verify_nonce($_POST['nonce'], 'edit-venue')) {
+                header("{$_SERVER['SERVER_PROTOCOL']} 403 Forbidden");
+                wp_die('CSRF validation failed.', 403);
+            }
+
+            if (empty($_POST['venuename']) || empty($_POST['venuecity'])) {
+                echo '<script language="javascript">alert("You are missing a value, venue was not created"); </script>';
+            }
+            else {
+                GiglogAdmin_Venue::create($_POST['venuename'],$_POST['venuecity']);
+                echo '<script language="javascript">alert("Yey, venue created"); </script>';
+            }
         }
     }
 }
