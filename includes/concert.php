@@ -189,7 +189,7 @@ if ( !class_exists('GiglogAdmin_Concert') ) {
                 $query = "SELECT {$ct}.*, {$vt}.wpgvenue_name, {$vt}.wpgvenue_city ";
             }
 
-            $query .= "FROM {$ct} LEFT JOIN {$vt} ON {$ct}.venue = {$vt}.id ";
+            $query .= "FROM {$ct} LEFT JOIN {$vt} ON {$ct}.venue = {$vt}.id WHERE wpgconcert_date >= CURRENT_TIMESTAMP";
 
             $keymap = [
                 'id' => $wpdb->prefix . 'giglogadmin_concerts.id',
@@ -234,7 +234,7 @@ if ( !class_exists('GiglogAdmin_Concert') ) {
             }
 
             if ( ! empty( $where ) ) {
-                $query .= 'WHERE ' . implode(' and ', $where);
+                $query .= 'AND ' . implode(' and ', $where);
             }
 
             $query .= ' ORDER BY wpgconcert_date';

@@ -303,7 +303,7 @@ if (!class_exists("GiglogAdmin_ConcertsTable"))
 
                 $content .=
                     "<td>" . date( 'd.M.Y', strtotime( $concert->cdate() ) ) . "</td>"
-                    . "<td>" . esc_html($concert->cname()) . "</td>"
+                    . "<td>" . strtoupper(esc_html($concert->cname())) . "</td>"
                     . "<td>" . esc_html($concert->venue()->name()) . "</td>";
 
                 if( is_admin() ) {
