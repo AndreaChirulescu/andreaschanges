@@ -17,6 +17,7 @@ if ( ! class_exists( "GiglogAdmin_IcalExport" ) )
 
             $concert = GiglogAdmin_Concert::get($evid);
             $cfullname = $concert->cname().' live at '. $concert->venue()->name() .', '.$concert->venue()->city();
+            $cshortname=substr($cfullname,0,20);
             $fdate =  strtotime($concert->cdate());
             $newformat = date('Ymd',$fdate);
             // create a new calendar
@@ -68,6 +69,7 @@ if ( ! class_exists( "GiglogAdmin_IcalExport" ) )
                           ->createCalendar();
 
             header( 'Content-Type: text/calendar' );
+            header( 'content-disposition: attachment;filename='.$cshortname.'.ics');
             echo $vcalendarString;
             die();
         }
