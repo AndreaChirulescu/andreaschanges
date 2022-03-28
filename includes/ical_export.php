@@ -11,6 +11,12 @@ if ( ! class_exists( "GiglogAdmin_IcalExport" ) )
 {
     class Giglogadmin_IcalExport
     {
+        static function textclean(string $txt) : string
+        {
+            $cleantext = preg_replace("/[^A-Za-z0-9 ]/", "",$txt);
+            $cleantext = str_replace(' ','_',$cleantext);
+            return($cleantext);
+        }
         public static function export_ical()
         {
             $evid = $_GET['evid'];
@@ -20,6 +26,8 @@ if ( ! class_exists( "GiglogAdmin_IcalExport" ) )
             $cshortname=substr($cfullname,0,20);
             $fdate =  strtotime($concert->cdate());
             $newformat = date('Ymd',$fdate);
+            $filename='Concert '.$concert->venue()->name().' '.$newformat.' '.substr($concert->cname(),0,30);
+            $filename=Giglogadmin_IcalExport::textclean($filename);
             // create a new calendar
             $vcalendar = Vcalendar::factory( [ Vcalendar::UNIQUE_ID => "kigkonsult.se", ] )
                 // with calendaring info
