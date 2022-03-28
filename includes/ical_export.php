@@ -77,7 +77,7 @@ if ( ! class_exists( "GiglogAdmin_IcalExport" ) )
                           ->createCalendar();
 
             header( 'Content-Type: text/calendar' );
-            header( 'content-disposition: attachment;filename='.$cshortname.'.ics');
+            header( 'content-disposition: attachment;filename='.$filename.'.ics');
             echo $vcalendarString;
             die();
         }
